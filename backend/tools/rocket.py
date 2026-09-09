@@ -22,9 +22,9 @@ def rocket_equation(
         raise ValueError(f"Specific impulse (Isp) must be positive (got {isp_s} s).")
     if initial_mass_kg <= 0 or final_mass_kg <= 0:
         raise ValueError("Initial and final mass must both be positive.")
-    if final_mass_kg >= initial_mass_kg:
+    if final_mass_kg > initial_mass_kg:
         raise ValueError(
-            f"Final dry mass ({final_mass_kg} kg) must be strictly less than initial wet mass ({initial_mass_kg} kg)."
+            f"Final dry mass ({final_mass_kg} kg) cannot exceed initial wet mass ({initial_mass_kg} kg)."
         )
 
     # Mass ratio R = m0 / mf
@@ -35,9 +35,13 @@ def rocket_equation(
     # Effective exhaust velocity c = g0 * Isp
     effective_exhaust_velocity_m_s = STANDARD_G0 * isp_s
 
-    # Delta-v = c * ln(m0 / mf)
-    delta_v_m_s = effective_exhaust_velocity_m_s * math.log(mass_ratio)
-    delta_v_km_s = delta_v_m_s / 1000.0
+    # Delta-v = c * ln(m0 / mf) (0 m/s if no propellant burned)
+    if initial_mass_kg == final_mass_kg:
+        delta_v_m_s = 0.0
+        delta_v_km_s = 0.0
+    else:
+        delta_v_m_s = effective_exhaust_velocity_m_s * math.log(mass_ratio)
+        delta_v_km_s = delta_v_m_s / 1000.0
 
     return {
         "tool": "rocket",

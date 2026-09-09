@@ -1,0 +1,338 @@
+{
+  "total_queries": 33,
+  "routing_accuracy_pct": 100.0,
+  "param_accuracy_pct": 100.0,
+  "exec_success_pct": 100.0,
+  "results": [
+    {
+      "id": 1,
+      "query": "What is a Hohmann transfer and when is it used?",
+      "exp_tool": "None (Conceptual)",
+      "act_tool": "None (Conceptual)",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 2,
+      "query": "What is specific impulse and why is it measured in seconds?",
+      "exp_tool": "None (Conceptual)",
+      "act_tool": "None (Conceptual)",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 3,
+      "query": "Explain escape velocity from a gravitational potential perspective.",
+      "exp_tool": "None (Conceptual)",
+      "act_tool": "None (Conceptual)",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 4,
+      "query": "What is orbital period and how does Kepler's third law define it?",
+      "exp_tool": "None (Conceptual)",
+      "act_tool": "None (Conceptual)",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 5,
+      "query": "Explain the Tsiolkovsky rocket equation and its physical derivation.",
+      "exp_tool": "None (Conceptual)",
+      "act_tool": "None (Conceptual)",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 6,
+      "query": "Calculate the orbital velocity and period for a satellite in circular Earth orbit at 500 km altitude.",
+      "exp_tool": "orbit.circular_orbit",
+      "act_tool": "orbit.circular_orbit",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 7,
+      "query": "What is the orbital speed and period at 400 km altitude in low Earth orbit?",
+      "exp_tool": "orbit.circular_orbit",
+      "act_tool": "orbit.circular_orbit",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 8,
+      "query": "Calculate circular orbit velocity at 1000 km altitude.",
+      "exp_tool": "orbit.circular_orbit",
+      "act_tool": "orbit.circular_orbit",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 9,
+      "query": "Calculate circular orbit at 100 km altitude around the Moon.",
+      "exp_tool": "orbit.circular_orbit",
+      "act_tool": "orbit.circular_orbit",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 10,
+      "query": "Calculate circular orbital velocity at 200 km altitude around Mars.",
+      "exp_tool": "orbit.circular_orbit",
+      "act_tool": "orbit.circular_orbit",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 11,
+      "query": "Calculate circular orbit velocity at 0 km altitude on Earth.",
+      "exp_tool": "orbit.circular_orbit",
+      "act_tool": "orbit.circular_orbit",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 12,
+      "query": "Calculate the escape velocity from Earth at 500 km altitude.",
+      "exp_tool": "orbit.escape_velocity",
+      "act_tool": "orbit.escape_velocity",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 13,
+      "query": "Calculate escape velocity for Earth at 400 km altitude.",
+      "exp_tool": "orbit.escape_velocity",
+      "act_tool": "orbit.escape_velocity",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 14,
+      "query": "What is the escape velocity from the Moon at 100 km altitude?",
+      "exp_tool": "orbit.escape_velocity",
+      "act_tool": "orbit.escape_velocity",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 15,
+      "query": "Calculate the escape velocity from Mars at 200 km altitude.",
+      "exp_tool": "orbit.escape_velocity",
+      "act_tool": "orbit.escape_velocity",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 16,
+      "query": "Calculate the escape velocity from the Sun at 10000 km altitude.",
+      "exp_tool": "orbit.escape_velocity",
+      "act_tool": "orbit.escape_velocity",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 17,
+      "query": "Compute the delta-v needed for a Hohmann transfer from 200 km to 500 km circular Earth orbit.",
+      "exp_tool": "orbit.hohmann_transfer",
+      "act_tool": "orbit.hohmann_transfer",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 18,
+      "query": "Calculate Hohmann transfer delta-v between 500 km and 1000 km around Earth.",
+      "exp_tool": "orbit.hohmann_transfer",
+      "act_tool": "orbit.hohmann_transfer",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 19,
+      "query": "Calculate Hohmann transfer delta-v from 300 km to 35786 km for GEO insertion.",
+      "exp_tool": "orbit.hohmann_transfer",
+      "act_tool": "orbit.hohmann_transfer",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 20,
+      "query": "Calculate Hohmann transfer from 500 km to 200 km orbit around Earth.",
+      "exp_tool": "orbit.hohmann_transfer",
+      "act_tool": "orbit.hohmann_transfer",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 21,
+      "query": "Calculate Hohmann transfer between 100 km and 500 km around Mars.",
+      "exp_tool": "orbit.hohmann_transfer",
+      "act_tool": "orbit.hohmann_transfer",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 22,
+      "query": "A rocket has an Isp of 350 s, initial mass of 10000 kg, and dry mass of 3000 kg. What is its delta-v?",
+      "exp_tool": "rocket.rocket_equation",
+      "act_tool": "rocket.rocket_equation",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 23,
+      "query": "Calculate rocket delta-v with Isp = 300 s, initial mass = 5000 kg, and final mass = 2000 kg.",
+      "exp_tool": "rocket.rocket_equation",
+      "act_tool": "rocket.rocket_equation",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 24,
+      "query": "Calculate rocket delta-v for Isp = 450 s, initial mass of 20000 kg, final mass of 4000 kg.",
+      "exp_tool": "rocket.rocket_equation",
+      "act_tool": "rocket.rocket_equation",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "PASS"
+    },
+    {
+      "id": 25,
+      "query": "Calculate the required mass ratio to achieve a target delta-v of 4000 m/s with an Isp of 350 s.",
+      "exp_tool": "rocket.required_mass_ratio",
+      "act_tool": "rocket.required_mass_ratio",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 26,
+      "query": "Calculate required mass ratio for delta-v = 3000 m/s with Isp = 300 s.",
+      "exp_tool": "rocket.required_mass_ratio",
+      "act_tool": "rocket.required_mass_ratio",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 27,
+      "query": "How fast does a satellite move?",
+      "exp_tool": "agent_reasoning.request_clarification_orbital_velocity",
+      "act_tool": "agent_reasoning.request_clarification_orbital_velocity",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 28,
+      "query": "How much delta-v do I need?",
+      "exp_tool": "agent_reasoning.request_clarification_delta_v",
+      "act_tool": "agent_reasoning.request_clarification_delta_v",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 29,
+      "query": "How much fuel does a rocket need?",
+      "exp_tool": "agent_reasoning.request_clarification_propellant_mass",
+      "act_tool": "agent_reasoning.request_clarification_propellant_mass",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 30,
+      "query": "Calculate circular orbit at -500 km altitude.",
+      "exp_tool": "orbit.circular_orbit",
+      "act_tool": "orbit.circular_orbit",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 31,
+      "query": "A rocket has an Isp of 350 s, initial mass of 5000 kg, and dry mass of 6000 kg. What is its delta-v?",
+      "exp_tool": "rocket.rocket_equation",
+      "act_tool": "rocket.rocket_equation",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 32,
+      "query": "Calculate escape velocity for Jupiter at 500 km altitude.",
+      "exp_tool": "orbit.escape_velocity",
+      "act_tool": "orbit.escape_velocity",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    },
+    {
+      "id": 33,
+      "query": "Convert 500 km to m.",
+      "exp_tool": "units.convert",
+      "act_tool": "units.convert",
+      "route_status": "PASS",
+      "param_status": "PASS",
+      "exec_status": "PASS",
+      "verif_status": "N/A"
+    }
+  ]
+}

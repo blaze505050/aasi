@@ -73,8 +73,15 @@ def test_rocket_equation_basic():
 
 
 def test_rocket_equation_invalid_mass():
-    with pytest.raises(ValueError, match="must be strictly less than"):
+    with pytest.raises(ValueError, match="cannot exceed initial wet mass"):
         rocket_equation(isp_s=300.0, initial_mass_kg=5000.0, final_mass_kg=6000.0)
+
+
+def test_rocket_equation_zero_propellant():
+    res = rocket_equation(isp_s=300.0, initial_mass_kg=5000.0, final_mass_kg=5000.0)
+    assert res["results"]["delta_v_m_s"] == 0.0
+    assert res["results"]["propellant_mass_kg"] == 0.0
+    assert res["results"]["mass_ratio"] == 1.0
 
 
 def test_required_mass_ratio():

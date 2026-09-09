@@ -173,7 +173,7 @@ def test_chat_endpoint_ollama_model_not_found():
 
 
 def test_chat_endpoint_ollama_timeout():
-    """Verify POST /api/chat returns HTTP 502 when Ollama query times out."""
+    """Verify POST /api/chat returns HTTP 502 when Ollama query times out on conceptual request."""
     with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
         mock_post.side_effect = httpx.TimeoutException("Timeout")
         response = client.post("/api/chat", json={"message": "What is the Oberth effect?"})
@@ -182,3 +182,59 @@ def test_chat_endpoint_ollama_timeout():
     data = response.json()
     assert "detail" in data
     assert "timed out" in data["detail"]
+
+
+def test_docs_endpoint():
+    """Verify GET /docs serves the OpenAPI / Swagger documentation."""
+    response = client.get("/docs")
+    assert response.status_code == 200
+    assert "swagger" in response.text.lower() or "openapi" in response.text.lower()
+
+
+def test_chat_endpoint_clarification_response():
+    """Verify POST /api/chat returns structured clarification when required parameters are missing."""
+    response = client.post("/api/chat", json={"message": "How fast does a satellite move?"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "clarification_needed"
+    assert "Clarification" in data["response"]
+    assert len(data["tool_calls"]) == 1
+    assert data["tool_calls"][0]["status"] == "clarification_needed"
+
+
+def test_chat_endpoint_unicode_and_symbols():
+    """Verify POST /api/chat safely handles Unicode characters and engineering symbols."""
+    mock_chat_response = httpx.Response(
+        status_code=200,
+        json={
+            "model": settings.ollama_model,
+            "message": {"role": "assistant", "content": "Analysis of Δv and Keplerian orbit: θ = 45°"},
+            "done": True,
+        },
+        request=httpx.Request("POST", f"{settings.ollama_base_url}/api/chat"),
+    )
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_chat_response
+        response = client.post("/api/chat", json={"message": "Analyze orbital velocity Δv with θ = 45° and altitude = 500 km"})
+    assert response.status_code == 200
+    data = response.json()
+    assert "response" in data
+
+
+def test_chat_endpoint_long_input():
+    """Verify POST /api/chat handles large input payloads up to 8000 characters."""
+    long_msg = "Explain orbital mechanics. " + ("Keplerian motion. " * 300)
+    mock_chat_response = httpx.Response(
+        status_code=200,
+        json={
+            "model": settings.ollama_model,
+            "message": {"role": "assistant", "content": "Summary of Keplerian mechanics."},
+            "done": True,
+        },
+        request=httpx.Request("POST", f"{settings.ollama_base_url}/api/chat"),
+    )
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_chat_response
+        response = client.post("/api/chat", json={"message": long_msg})
+    assert response.status_code == 200
+

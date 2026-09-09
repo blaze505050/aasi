@@ -87,13 +87,21 @@ The tool subsystem is modular and extensible via `backend/tools/registry.py`:
    - Outputs: $\Delta v$, mass ratio, propellant mass, mass fraction, exhaust velocity, and assumptions.
 
 3. **Symbolic Mathematics & Verification (`backend/tools/math_utils.py`)**:
-   - Backed by `sympy`.
+   - Backed by `sympy` and Python `ast` security validator.
    - Operations: `symbolic_evaluation`, `solve_equation`, `verify_calculation`.
+   - Protects against code injection via AST parsing (`validate_safe_math_expression`).
    - Provides independent re-computation of numerical results from first principles to ensure consistency.
 
-4. **Central Registry (`backend/tools/registry.py`)**:
+4. **Dimensional Analysis & Units (`backend/tools/units.py`)**:
+   - Backed by `pint.UnitRegistry`.
+   - Operations: `convert`.
+   - Provides verified conversion across distance, velocity, mass, time, and acceleration dimensions.
+
+5. **Central Registry (`backend/tools/registry.py`)**:
    - Dynamic discovery and signature inspection.
    - Allows future engineering domains (aerodynamics, thermal, CFD, flight dynamics) to register without altering agent code.
+
+For complete verification test matrices, see [Phase 2 Validation Report](qa/PHASE_2_VALIDATION.md).
 
 ---
 

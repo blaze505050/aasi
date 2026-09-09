@@ -42,10 +42,13 @@ AASI has evolved from a conversational prototype (Phases 0 & 1) into a tool-usin
 - **Symbolic Mathematics & Verification (`math`)**:
   - SymPy-backed symbolic algebra and analytical equation solving.
   - Independent numerical verification layer re-computing results from first principles.
+  - AST-level expression validator protecting against arbitrary code injection.
+- **Dimensional Analysis & Units (`units`)**:
+  - Pint-backed verified dimensional conversion (distance, velocity, mass, time, acceleration).
 - **Execution Tracing**: Transparent, user-safe execution traces displayed in the UI without exposing internal chain-of-thought.
 - **Dynamic Tool Registry**: Extensible catalog accessible via `GET /api/tools`.
 - **Hardware-Aware Local Execution**: Configured by default for lightweight local models (e.g. `qwen2.5:0.5b`) running via Ollama.
-- **Deterministic Engineering Benchmarks**: 33 automated tests and physics benchmarks with documented tolerances.
+- **Deterministic Engineering Benchmarks & QA**: 112 automated tests, physics validation matrix, and browser QA evidence. See [Phase 2 Validation Report](docs/qa/PHASE_2_VALIDATION.md).
 
 ---
 

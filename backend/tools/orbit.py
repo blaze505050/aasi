@@ -66,6 +66,9 @@ def calculate_circular_orbit(altitude_km: float, central_body: str = "Earth") ->
     period_min = period_s / 60.0
     period_hr = period_s / 3600.0
 
+    # Gravitational / centripetal acceleration: a = mu / r^2 in m/s^2
+    a_m_s2 = (mu * 1e9) / ((r_km * 1000.0) ** 2)
+
     return {
         "tool": "orbit",
         "calculation": "circular_orbit",
@@ -80,12 +83,14 @@ def calculate_circular_orbit(altitude_km: float, central_body: str = "Earth") ->
             "orbital_period_s": round(period_s, 2),
             "orbital_period_minutes": round(period_min, 2),
             "orbital_period_hours": round(period_hr, 3),
+            "gravitational_acceleration_m_s2": round(a_m_s2, 4),
             "standard_gravitational_parameter_km3_s2": round(mu, 2),
         },
         "units": {
             "orbital_radius": "km",
             "orbital_velocity": "km/s and m/s",
             "orbital_period": "seconds, minutes, and hours",
+            "gravitational_acceleration": "m/s^2",
             "standard_gravitational_parameter": "km^3/s^2",
         },
         "assumptions": [

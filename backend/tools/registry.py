@@ -21,6 +21,7 @@ from backend.tools.math_utils import (
     solve_symbolic_equation,
     verify_calculation,
 )
+from backend.tools.units import convert_unit
 
 
 class ToolRegistry:
@@ -164,6 +165,18 @@ class ToolRegistry:
                 "symbolic_evaluation": "Safely evaluate and simplify symbolic mathematical expressions.",
                 "solve_equation": "Analytically solve an equation for a specified target variable.",
                 "verify_calculation": "Independently verify a numerical result against a reference formula.",
+            },
+        )
+
+        # 4. Dimensional Analysis & Units
+        self.register_tool(
+            name="units",
+            description="Dimensional analysis and verified unit conversions using Pint.",
+            operations={
+                "convert": convert_unit,
+            },
+            operation_descriptions={
+                "convert": "Convert a numerical quantity from one unit to another across consistent physical dimensions.",
             },
         )
 

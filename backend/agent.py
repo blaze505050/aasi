@@ -137,79 +137,161 @@ class AASIAgent:
         Analyze user message to determine if an engineering calculation tool should be invoked.
         Returns (tool_name, operation, parameters) or None if conceptual.
         """
-        msg_lower = message.lower()
+        msg_lower = message.lower().strip()
 
         # Pure conceptual checks - if user explicitly asks for explanation/definition without specific numbers
-        if re.search(r"^(what is|explain|define|describe|how does)\b", msg_lower):
-            # Check if there are specific numerical parameters
+        if re.search(r"\b(what is|explain|define|describe|how does|how do|why do|why is|overview of)\b", msg_lower):
             has_numbers = bool(re.search(r"\b\d+(\.\d+)?\s*(km|m/s|kg|s|deg)\b", msg_lower))
-            if not has_numbers and not re.search(r"\bcalculate|compute|find\b", msg_lower):
+            if not has_numbers and not re.search(r"\b(calculate|compute|solve|find the numerical)\b", msg_lower):
                 return None
 
+        # Ambiguous calculation questions missing parameters -> clarify rather than hallucinate
+        if re.search(r"\bhow fast does a satellite move\b", msg_lower) or (
+            re.search(r"\b(orbital velocity|orbital speed)\b", msg_lower)
+            and not re.search(r"\d+", msg_lower)
+            and re.search(r"\b(how|what|calculate|compute|find)\b", msg_lower)
+        ):
+            return "clarification", "orbital_velocity", {
+                "message": (
+                    "Parameter Clarification Needed: To calculate orbital velocity, AASI requires:\n\n"
+                    "1. Orbital altitude (e.g. 500 km above Earth's surface)\n"
+                    "2. Central celestial body (e.g. Earth, Moon, Mars, Sun - defaults to Earth)\n\n"
+                    "Please specify the desired altitude (and body if not Earth)."
+                )
+            }
+
+        if re.search(r"\bhow much delta[-_\s]*v do i need\b", msg_lower) or (
+            re.search(r"\bdelta[-_\s]*v\b", msg_lower)
+            and re.search(r"\b(how much|calculate|needed)\b", msg_lower)
+            and not re.search(r"\d+", msg_lower)
+        ):
+            return "clarification", "delta_v", {
+                "message": (
+                    "Parameter Clarification Needed: To calculate required Delta-v, AASI requires:\n\n"
+                    "- For an orbital maneuver: Initial and final orbital altitudes (in km)\n"
+                    "- For a rocket stage: Vehicle mass ratio (m0/mf) and specific impulse (Isp in seconds)\n\n"
+                    "Please provide the orbital altitudes or propulsion specifications."
+                )
+            }
+
+        if re.search(r"\bhow much (?:fuel|propellant) does a rocket need\b", msg_lower) or (
+            re.search(r"\b(fuel|propellant)\b", msg_lower)
+            and re.search(r"\brocket\b", msg_lower)
+            and re.search(r"\b(how much|calculate|needed)\b", msg_lower)
+            and not re.search(r"\d+", msg_lower)
+        ):
+            return "clarification", "propellant_mass", {
+                "message": (
+                    "Parameter Clarification Needed: To calculate required propellant mass, AASI requires:\n\n"
+                    "1. Vehicle dry / payload mass (kg)\n"
+                    "2. Engine specific impulse (Isp in seconds)\n"
+                    "3. Target Delta-v (m/s)\n\n"
+                    "Please provide these parameters to compute the propellant requirements."
+                )
+            }
+
+        # Central body extraction
+        def _extract_body(text: str) -> str:
+            # Check known celestial bodies first
+            known_bodies = ["earth", "moon", "mars", "sun", "jupiter", "saturn", "venus", "mercury", "uranus", "neptune", "pluto"]
+            for body_candidate in known_bodies:
+                if re.search(r"\b" + body_candidate + r"\b", text):
+                    return body_candidate.capitalize()
+
+            # Check context words 'around <body_name>', 'for <body_name>', 'from <body_name>'
+            body_match = re.search(r"\b(?:around|for|from|of)\s+([a-zA-Z]+)\b", text)
+            if body_match:
+                candidate = body_match.group(1).strip().capitalize()
+                excluded = {"A", "The", "An", "Altitude", "Circular", "Satellite", "Orbit", "Low", "Leo", "Geo", "This", "That"}
+                if candidate not in excluded:
+                    return candidate
+
+            return "Earth"
+
         # 1. Hohmann Transfer
-        if "hohmann" in msg_lower and ("transfer" in msg_lower or "delta-v" in msg_lower or "deltav" in msg_lower or "dv" in msg_lower or "calculate" in msg_lower or "km" in msg_lower):
-            # Extract altitudes
+        if "hohmann" in msg_lower and (
+            "transfer" in msg_lower or "delta-v" in msg_lower or "deltav" in msg_lower or "dv" in msg_lower or "calculate" in msg_lower or "km" in msg_lower
+        ):
+            # Check pattern 'from X to Y' or 'between X and Y'
+            range_match = re.search(r"(?:from|between)\s+([-+]?\d+(?:\.\d+)?)\s*(?:km)?\s+(?:to|and)\s+([-+]?\d+(?:\.\d+)?)", msg_lower)
+            if range_match:
+                alt1 = float(range_match.group(1))
+                alt2 = float(range_match.group(2))
+                return "orbit", "hohmann_transfer", {
+                    "initial_altitude_km": alt1,
+                    "final_altitude_km": alt2,
+                    "central_body": _extract_body(msg_lower),
+                }
             numbers = re.findall(r"[-+]?\d+(?:\.\d+)?", message)
             if len(numbers) >= 2:
                 try:
-                    alt1 = float(numbers[0])
-                    alt2 = float(numbers[1])
-                    body = "Earth"
-                    if "mars" in msg_lower:
-                        body = "Mars"
-                    elif "moon" in msg_lower:
-                        body = "Moon"
-                    elif "sun" in msg_lower:
-                        body = "Sun"
                     return "orbit", "hohmann_transfer", {
-                        "initial_altitude_km": alt1,
-                        "final_altitude_km": alt2,
-                        "central_body": body,
+                        "initial_altitude_km": float(numbers[0]),
+                        "final_altitude_km": float(numbers[1]),
+                        "central_body": _extract_body(msg_lower),
                     }
                 except (ValueError, IndexError):
                     pass
 
         # 2. Escape Velocity
         if "escape" in msg_lower and ("velocity" in msg_lower or "speed" in msg_lower):
+            alt_match = re.search(r"(?:at|from|for|altitude\s*(?:of|=|is|:|\s))\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
+            if alt_match:
+                return "orbit", "escape_velocity", {
+                    "altitude_km": float(alt_match.group(1)),
+                    "central_body": _extract_body(msg_lower),
+                }
             numbers = re.findall(r"[-+]?\d+(?:\.\d+)?", message)
             if numbers:
                 try:
-                    alt = float(numbers[0])
-                    body = "Earth"
-                    if "mars" in msg_lower:
-                        body = "Mars"
-                    elif "moon" in msg_lower:
-                        body = "Moon"
                     return "orbit", "escape_velocity", {
-                        "altitude_km": alt,
-                        "central_body": body,
+                        "altitude_km": float(numbers[0]),
+                        "central_body": _extract_body(msg_lower),
                     }
                 except (ValueError, IndexError):
                     pass
 
         # 3. Circular Orbital Velocity / Period
-        if ("circular" in msg_lower or "orbital velocity" in msg_lower or "orbital period" in msg_lower) and ("altitude" in msg_lower or "orbit" in msg_lower or "km" in msg_lower):
+        if (
+            "circular" in msg_lower
+            or "orbital velocity" in msg_lower
+            or "orbital speed" in msg_lower
+            or "orbit velocity" in msg_lower
+            or "orbit speed" in msg_lower
+            or ("orbital" in msg_lower and "period" in msg_lower)
+        ) and ("altitude" in msg_lower or "orbit" in msg_lower or "km" in msg_lower):
+            alt_match = re.search(r"(?:altitude\s*(?:of|=|is|:|\s)|at\s+)\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
+            if alt_match:
+                return "orbit", "circular_orbit", {
+                    "altitude_km": float(alt_match.group(1)),
+                    "central_body": _extract_body(msg_lower),
+                }
             numbers = re.findall(r"[-+]?\d+(?:\.\d+)?", message)
             if numbers:
                 try:
-                    alt = float(numbers[0])
-                    body = "Earth"
-                    if "mars" in msg_lower:
-                        body = "Mars"
-                    elif "moon" in msg_lower:
-                        body = "Moon"
                     return "orbit", "circular_orbit", {
-                        "altitude_km": alt,
-                        "central_body": body,
+                        "altitude_km": float(numbers[0]),
+                        "central_body": _extract_body(msg_lower),
                     }
                 except (ValueError, IndexError):
                     pass
 
         # 4. Rocket Equation (Tsiolkovsky)
-        if ("rocket" in msg_lower or "isp" in msg_lower or "tsiolkovsky" in msg_lower) and ("delta" in msg_lower or "dv" in msg_lower or "calculate" in msg_lower or "velocity" in msg_lower):
-            isp_match = re.search(r"isp\s*=\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
-            m0_match = re.search(r"(?:initial\s*(?:mass)?|m0|wet\s*mass)\s*=\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
-            mf_match = re.search(r"(?:final\s*(?:mass)?|mf|dry\s*mass)\s*=\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
+        if (
+            "rocket" in msg_lower
+            or "isp" in msg_lower
+            or "tsiolkovsky" in msg_lower
+            or "propellant" in msg_lower
+        ) and (
+            "delta" in msg_lower
+            or "dv" in msg_lower
+            or "calculate" in msg_lower
+            or "velocity" in msg_lower
+            or "mass" in msg_lower
+        ):
+            isp_match = re.search(r"(?:isp|specific impulse)\s*(?:=|of|is|:|\s)\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
+            m0_match = re.search(r"(?:initial\s*(?:mass)?|m0|wet\s*mass|launch\s*mass)\s*(?:=|of|is|:|\s)\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
+            mf_match = re.search(r"(?:final\s*(?:mass)?|mf|dry\s*mass|empty\s*mass|burnout\s*mass)\s*(?:=|of|is|:|\s)\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
 
             if isp_match and m0_match and mf_match:
                 try:
@@ -222,7 +304,7 @@ class AASIAgent:
                     pass
 
             # Alternative: required mass ratio for target delta-v
-            dv_match = re.search(r"(?:delta[-_\s]*v|target\s*delta[-_\s]*v|dv)\s*=\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
+            dv_match = re.search(r"(?:delta[-_\s]*v|target\s*delta[-_\s]*v|dv)\s*(?:=|of|is|:|\s)\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
             if dv_match and isp_match and not (m0_match and mf_match):
                 try:
                     return "rocket", "required_mass_ratio", {
@@ -232,7 +314,22 @@ class AASIAgent:
                 except ValueError:
                     pass
 
-        # 5. Symbolic Equation Solving
+        # 5. Unit Conversion
+        unit_match = re.search(r"convert\s+([-+]?\d+(?:\.\d+)?)\s*([a-zA-Z_/^0-9]+)\s+to\s+([a-zA-Z_/^0-9]+)", message, re.IGNORECASE)
+        if unit_match:
+            try:
+                val = float(unit_match.group(1))
+                u_from = unit_match.group(2).strip()
+                u_to = unit_match.group(3).strip()
+                return "units", "convert", {
+                    "value": val,
+                    "from_unit": u_from,
+                    "to_unit": u_to,
+                }
+            except (ValueError, IndexError):
+                pass
+
+        # 6. Symbolic Equation Solving
         if re.search(r"\bsolve\b", msg_lower) and ("for" in msg_lower or "=" in message):
             eq_match = re.search(r"solve\s+([^\n,]+?)(?:\s+for\s+([a-zA-Z_]\w*))?$", message, re.IGNORECASE)
             if eq_match:
@@ -253,6 +350,9 @@ class AASIAgent:
         3. Explain result via LLM.
         4. Return structured response with trace.
         """
+        if not user_message or not user_message.strip():
+            raise ValueError("User message cannot be empty or whitespace.")
+
         intent = self.detect_calculation_intent(user_message)
 
         if intent is None:
@@ -268,6 +368,29 @@ class AASIAgent:
             }
 
         tool_name, operation, params = intent
+
+        # Handle parameter clarification requests
+        if tool_name == "clarification":
+            return {
+                "response": params["message"],
+                "tool_calls": [
+                    {
+                        "tool": "agent_reasoning",
+                        "operation": f"request_clarification_{operation}",
+                        "status": "clarification_needed",
+                        "trace": [
+                            f"Identified engineering calculation domain: {operation}",
+                            "Detected missing required parameters",
+                            "Prompted user for explicit parameters and SI units to avoid unverified speculation",
+                        ],
+                    }
+                ],
+                "calculations": [],
+                "verification": None,
+                "model": self.model,
+                "status": "clarification_needed",
+            }
+
         trace_steps: List[str] = [
             f"Identified aerospace calculation: {tool_name}.{operation}",
             f"Extracted input parameters: {params}",
@@ -332,11 +455,25 @@ class AASIAgent:
             )
 
             trace_steps.append("Generating technical synthesis with open-weight model")
-            llm_res = await self.generate_response(synthesis_prompt)
-            trace_steps.append("Completed response synthesis")
+            try:
+                llm_res = await self.generate_response(synthesis_prompt)
+                resp_content = llm_res["response"]
+                model_used = llm_res["model"]
+                trace_steps.append("Completed response synthesis with model")
+            except (OllamaUnavailableError, OllamaRuntimeError) as llm_err:
+                logger.warning("Model synthesis unavailable/timed out (%s); generating deterministic synthesis", llm_err)
+                trace_steps.append(f"Model synthesis note: {str(llm_err)}")
+                model_used = f"{self.model} (deterministic-fallback)"
+                resp_content = (
+                    f"**Verified Engineering Calculation Results:**\n\n"
+                    f"The requested calculation for `{tool_name}.{operation}` was executed using verified physical libraries.\n\n"
+                    f"**Inputs:**\n{inputs_summary}\n\n"
+                    f"**Results:**\n{calc_summary}\n\n"
+                    f"**Assumptions:**\n{assumptions_summary}"
+                )
 
             return {
-                "response": llm_res["response"],
+                "response": resp_content,
                 "tool_calls": [
                     {
                         "tool": tool_name,
@@ -347,7 +484,7 @@ class AASIAgent:
                 ],
                 "calculations": [calc_result],
                 "verification": verification_data,
-                "model": llm_res["model"],
+                "model": model_used,
                 "status": "success",
             }
 
