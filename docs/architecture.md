@@ -212,6 +212,93 @@ For detailed knowledge subsystem documentation, see:
 
 ---
 
+## Phase 4 Architecture: Scientific Result Resolution & Simulation Fabric
+
+Phase 4 elevates AASI from a literature retrieval and tool-calling system to an integrated, provenance-enforcing scientific resolution engine backed by a sandboxed simulation execution fabric.
+
+### Core Principle: Deterministic Pre-Resolution & Strict Epistemic Honesty
+
+```
+                                [ Scientific User Query ]
+                                            │
+                                            ▼
+                           [ Parameter Normalizer & Auditor ]
+                         (Level 0: α in deg, M, Re, T, p audit)
+                                            │
+                                            ▼
+                           [ 8-Level Resolution Engine ]
+       ┌────────────────────────────────────┼──────────────────────────────────┐
+       │                                    │                                  │
+       ▼                                    ▼                                  ▼
+[ Level 1 & 2: Experiment ]       [ Level 3: Validated CFD ]       [ Level 4: Surrogate AI ]
+NASA Wind Tunnel Polars           Benchmark RANS Simulations       PINN / PINO Registry
+(NACA-TR-824, Abbott 1959)        (OpenFOAM, SA/SST models)        (Strict Validity Domain)
+Status: OFFICIAL_EXPERIMENT       Status: VALIDATED_CFD            Status: SURROGATE_PREDICTION
+       │                                    │                                  │
+       └────────────────────────────────────┼──────────────────────────────────┘
+                                            │ (If no pre-computed data)
+                                            ▼
+                              [ Level 5: Analytical Solvers ]
+                                Thin Airfoil / Vortex Lattice
+                                Status: ANALYTICAL_RESULT
+                                            │
+                                            │ (If local execution requested)
+                                            ▼
+                             [ Level 6: Simulation Fabric ]
+                                Sandboxed OpenFOAM / SU2 / XFOIL
+                                Status: LOCAL_CFD
+                                            │
+                                            │ (If inputs ambiguous / unresolvable)
+                                            ▼
+                             [ Level 7: Parameter Clarification ]
+                                Status: NO_RESULT (Requests exact inputs)
+```
+
+### 1. Scientific Resolution Subsystem (`backend/science/`)
+
+- **Condition Normalization (`normalizer.py`)**: Normalizes Mach number, Reynolds number, angle of attack (degrees/radians), chord length, pressure, temperature, and aerodynamic coefficients ($C_L, C_D, C_M$).
+- **Dataset Matcher (`matcher.py`)**: Evaluates Euclidean condition distance ($d \le 0.05$) across normalized aerodynamic parameter spaces.
+- **Epistemic Classification**: Assigns definitive tags to all numerical results:
+  - `OFFICIAL_EXPERIMENT`: Validated wind tunnel literature (NASA, NACA, AGARD).
+  - `VALIDATED_CFD`: Established peer-reviewed CFD benchmark cases.
+  - `SURROGATE_PREDICTION`: In-domain neural surrogate inference.
+  - `ANALYTICAL_RESULT`: First-principles engineering formulations.
+  - `LOCAL_CFD`: Sandboxed local solver execution.
+  - `NO_RESULT`: Unresolved query triggering explicit parameter clarification.
+- **Discrepancy Reconciliation (`conflict.py`)**: Automatically detects divergence between experimental and CFD data (e.g. $\Delta C_D > 10\%$) and provides physical reconciliation (boundary layer tripping, wind tunnel wall interference, turbulence model eddy viscosity damping).
+
+### 2. Simulation Execution Fabric (`backend/simulation/`)
+
+```
+[ Simulation Request ]
+          │
+          ▼
+[ Simulation Runner ]
+          │
+          ├──► [ Security Sandbox ]
+          │       • Binary allowlist: simpleFoam, blockMesh, SU2_CFD, xfoil
+          │       • Execution directory isolation: cases/<case_id>/
+          │       • Execution timeouts (default: 300s, max: 1800s)
+          │       • Maximum output cap: 50MB
+          │       • Environment sanitization (no arbitrary shell injection)
+          │
+          ├──► [ Solver Adapters ]
+          │       • OpenFOAM (0/, constant/, system/ dictionaries)
+          │       • SU2 (.cfg config writer & surface flow parser)
+          │       • XFOIL (NACA profile polar generation & viscous sweeps)
+          │       • XFLR5 (project deck generator)
+          │
+          └──► [ Artifact & Provenance Manager ]
+                  • SHA-256 digest of input mesh and configuration files
+                  • Execution logs and convergence history
+                  • Reproducible manifest: EXP-<case_id>.manifest.json
+```
+
+- **Honest Solver Detection (`detector.py`)**: Autonomously inspects native Windows binaries and WSL2 Linux distributions. Honestly reports `NOT_AVAILABLE` when solvers are not installed, without fabricating capabilities.
+- **Dry-Run Case Deck Generation**: Generates syntactically correct case decks and manifests for OpenFOAM, SU2, and XFOIL even when physical solvers are uninstalled.
+
+---
+
 ## Future Architecture (Upcoming Phases)
 
 ```
@@ -224,23 +311,23 @@ For detailed knowledge subsystem documentation, see:
 ┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
 │  Scientific Tools   │      │   Knowledge & RAG   │      │ Physics AI & Sim    │
 │ ─────────────────── │      │ ─────────────────── │      │ ─────────────────── │
-│ • Orbital Mechanics │      │ • NASA NTRS & NACA  │      │ • PINN / PINO / FNO │
-│ • RocketPy Engine   │      │ • Hybrid Retriever  │      │ • OpenFOAM Sweeps   │
-│ • Symbolic Math     │      │ • Wind Tunnel Polars│      │ • MeshGraphNet      │
-│ • Pint Units        │      │ • Provenance Audit  │      │ • Neural Surrogates │
+│ • Orbital Mechanics │      │ • NASA NTRS & NACA  │      │ • OpenFOAM / SU2    │
+│ • RocketPy Engine   │      │ • Hybrid Retriever  │      │ • XFOIL Integration │
+│ • Symbolic Math     │      │ • Wind Tunnel Polars│      │ • Case Generator    │
+│ • Pint Units        │      │ • Epistemic Audit   │      │ • Manifest Hashing  │
 └─────────────────────┘      └─────────────────────┘      └─────────────────────┘
            │                            │                            │
            └────────────────────────────┼────────────────────────────┘
                                         ▼
                           ┌───────────────────────────┐
                           │ Autonomous Research Loops │
-                          │ • Hypothesis formulation  │
                           │ • Multi-fidelity sweeps   │
-                          │ • Technical publication   │
+                          │ • Mesh convergence tests  │
+                          │ • Scientific publication  │
                           └───────────────────────────┘
 ```
 
-- **Phase 4**: Physics AI Models & Neural Surrogates (PINNs, PINO, FNO, MeshGraphNet, verification engine).
-- **Phase 5**: Autonomous Simulation & Meshing (OpenFOAM automation, SU2 integration, grid convergence studies).
-- **Phase 6**: Autonomous Scientific Research Loops (hypothesis generation, active learning experiment design).
+- **Phase 5**: Multi-Fidelity Grid Convergence & Autonomous Research Sweeps (adaptive mesh refinement, Richardson extrapolation, automated parametric sweeps).
+- **Phase 6**: Autonomous Scientific Research Loops (hypothesis generation, experimental design, publication synthesis).
+
 

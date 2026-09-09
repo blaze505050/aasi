@@ -23,58 +23,83 @@
 > Large Language Models are used for natural language understanding, intent recognition, parameter extraction, and explanatory synthesis. Verified open-source engineering libraries (`Astropy`, `RocketPy`, `SymPy`, `Scipy`) execute all actual mathematical computations. AASI never allows the language model to invent or fabricate calculations.
 
 ---
-## Current Status: Phase 3 — Scientific Knowledge + Dataset Foundation
+## Current Status: Phase 4 — Scientific Result Resolution + Simulation Fabric
 
-AASI has established a **provenance-first scientific knowledge and dataset foundation** (Phase 3) building upon its Phase 2 engineering tool intelligence:
+AASI has established a deterministic **8-level scientific result resolution hierarchy** and a secure **simulation execution fabric** (Phase 4), building upon its Phase 2 engineering tools and Phase 3 knowledge & dataset foundation:
 
-### Core Architecture Principle: LLM $\neq$ Knowledge Omniscience
-AASI is **not** an LLM trained on all aerospace knowledge. It is an orchestrating scientific assistant that grounds its reasoning in:
-1. **Verified Literature & Technical Reports** (NASA NTRS, historical NACA reports, arXiv) with cryptographic provenance.
-2. **Physical Datasets & Reference Results** (Wind tunnel measurements, peer-reviewed CFD benchmarks).
-3. **Engineering Libraries & Solvers** (Astropy, RocketPy, SymPy) that execute actual calculations.
-4. **Physics AI Neural Surrogates** (Abstract interfaces preparing for Phase 4 PINN/FNO models).
+### Core Architecture Principle: LLM $\neq$ CFD Solver $\neq$ Numerical Truth
+AASI is **not** an LLM that fabricates numerical engineering quantities when no dataset exists. It is an orchestrating scientific assistant that enforces strict epistemic classification and deterministic resolution:
 
-### Phase 3 Capabilities
-- **Provenance-First Schema & Integrity**:
-  - Cryptographic SHA-256 checksums, publishing organizations, report numbers, authors, publication years, source URLs, and license categories.
-  - Unattributed scientific facts are never admitted to the knowledge base.
-- **Scientific Object Taxonomy**:
-  - Distinct types for `DOCUMENT`, `DATASET`, `EXPERIMENT`, `SIMULATION`, `SURROGATE`, `ANALYTICAL_RESULT`, and `RETRIEVED_REFERENCE` to prevent false equivalences (e.g. wind tunnel measurements $\neq$ simulation $\neq$ analytical equation).
-- **Source Registry & Adapters**:
-  - `NASA_NTRS`, `NACA`, `ARXIV`, `ESA`, `ISRO`, `OPEN_DATASETS`.
-  - Transparent documentation of unautomated sources (e.g. ESA / ISRO portal restrictions).
-- **Structure-Aware Chunking & Equation Preservation**:
-  - Preserves section hierarchies, page numbers, and tables.
-  - Extracts mathematical formulas in LaTeX and plain text with identified physical variables and units.
-- **FAISS Vector Index & Hybrid Retrieval**:
-  - Inner-product cosine similarity in 384-dimensional dense space.
-  - Lexical scoring prioritizing exact aerospace identifiers ("NACA 0012", "Mach 0.3", "Re=500000", "RANS", "AoA").
-  - Metadata filtering by organization, discipline, and year range.
-- **Physical Dataset Registry & CFD Data Schema**:
-  - `CFDDataModel`: Mach, Reynolds, AoA, turbulence models, $C_L, C_D, C_M, C_p$, mesh, and solver metadata.
-  - `query_conditions`: Search experimental databases by flight conditions.
-- **Numerical Question Resolution Hierarchy**:
-  - Questions like *"What is the drag coefficient of NACA 0012 at Mach 0.3, Re=500000, AoA=8°?"* query verified databases and return exact reference data points ($C_D = 0.0142 \pm 0.0005$) with provenance, never fabricating numbers.
-- **Adversarial & Prompt-Injection Quarantine**:
-  - Untrusted document inputs are sanitized and quarantined in `<UNTRUSTED_REFERENCE_DATA>` XML blocks to prevent prompt-injection attacks.
-- **Scientific Research UI**:
-  - Interactive Research Catalog drawer with document search, cryptographic provenance inspection, and flow condition queries.
+```
+Natural Language Engineering Query
+               │
+               ▼
+Level 0: Query Normalization & Completeness Audit (Mach, Re, AoA, flow regime, geometry)
+               │
+               ▼
+Level 1: Scientific Dataset Registry Query
+               │
+               ▼
+Level 2: Official Experimental Database (NASA TN-D-628 wind-tunnel polars)
+               │
+               ▼
+Level 3: Validated CFD Benchmark Database (OpenFOAM RANS, y+ < 1, residual convergence)
+               │
+               ▼
+Level 4: Validated Physics AI Surrogate Models (AeroGraphNet within declared envelope)
+               │
+               ▼
+Level 5: Analytical / Numerical Engineering Solvers (Astropy, RocketPy, SymPy)
+               │
+               ▼
+Level 6: Simulation Execution Fabric (OpenFOAM simpleFoam case generator, dry-run mode)
+               │
+               ▼
+Level 7: Parameter Clarification Request (Never fabricates numbers; prompts for missing conditions)
+```
+
+### Phase 4 Capabilities
+- **Deterministic 8-Level Resolution Hierarchy**:
+  - All quantitative questions pass through `ScientificResolutionEngine` before LLM synthesis.
+  - Normalized flow conditions: Mach, Reynolds, AoA, flow regime, Pint-based unit conversions, and geometry canonicalization.
+- **Epistemic Classification System**:
+  - Explicit tags on every result: `OFFICIAL_EXPERIMENT`, `VALIDATED_CFD`, `SURROGATE_PREDICTION`, `ANALYTICAL_RESULT`, `LOCAL_CFD`, `DEMO_DATA`, `NO_RESULT`.
+- **Multi-Source Conflict Resolution & Physical Reconciliation**:
+  - Detects differences between experimental and computational data points.
+  - Automatically reconciles discrepancies through physical aerodynamic phenomena (boundary layer tripping, wind tunnel wall blockage, eddy-viscosity damping).
+- **Physics AI Surrogate Registry & Domain Envelope Enforcement**:
+  - `SurrogateRegistry` evaluates physics models strictly within declared valid parameter envelopes.
+  - Rejects out-of-domain queries with `SURROGATE_OUT_OF_DOMAIN`.
+- **Simulation Execution Fabric & Security Sandbox**:
+  - Probes host and WSL2 for OpenFOAM, SU2, XFOIL, XFLR5 without pretending uninstalled solvers are available.
+  - Secure sandbox: executable allowlisting (`simpleFoam`, `blockMesh`, `SU2_CFD`, `xfoil`), working-directory isolation under `data/simulations/{case_id}/`, timeouts, and path traversal protection.
+  - `DRY_RUN` mode generates authenticated case decks (`0/`, `constant/`, `system/`), validates boundary conditions, and outputs cryptographically signed manifests `EXP-{case_id}.manifest.json`.
+- **Reproducible Artifact Manifests**:
+  - SHA-256 hashes of all input files, mesh dictionaries, commands, and outputs.
 
 ---
 
 ## Architecture Overview
 
 ```
-User ──► Next.js Frontend ──► FastAPI ──► AASI Agent ──► Result-Resolution Hierarchy
-                                                            ├── 1. Condition Search (Dataset Registry)
-                                                            │     └── Exact Match? ──► Return Reference + Provenance
-                                                            ├── 2. Engineering Tools (orbit, rocket, math)
-                                                            │     └── Applicable? ──► Compute + SymPy Verify
-                                                            └── 3. Hybrid Literature RAG (NASA/NACA/FAISS)
-                                                                  └── Retrieved Passages ──► Grounded Answer + Citations
+User ──► Next.js Frontend ──► FastAPI ──► AASI Agent ──► 8-Level Scientific Resolution Engine
+                                                            ├── Level 0: Query Normalization
+                                                            ├── Level 1: Dataset Registry
+                                                            ├── Level 2: Official Experiments (NASA TN-D-628)
+                                                            ├── Level 3: Validated CFD (OpenFOAM RANS)
+                                                            ├── Level 4: Surrogate Registry (AeroGraphNet)
+                                                            ├── Level 5: Analytical Solvers (Astropy, RocketPy)
+                                                            ├── Level 6: Simulation Fabric (Sandboxed OpenFOAM)
+                                                            └── Level 7: Parameter Clarification
 ```
 
-For complete architectural details, see [docs/architecture.md](docs/architecture.md) and [docs/knowledge/architecture.md](docs/knowledge/architecture.md).
+For complete architectural details, see:
+- [docs/architecture.md](docs/architecture.md) — System Architecture & Data Flow
+- [docs/scientific-resolution.md](docs/scientific-resolution.md) — Resolution Hierarchy & Epistemic Tags
+- [docs/simulation-architecture.md](docs/simulation-architecture.md) — Simulation Execution Fabric & Sandbox
+- [docs/solver-adapters.md](docs/solver-adapters.md) — OpenFOAM, SU2, XFOIL, XFLR5 Adapters
+- [docs/validation.md](docs/validation.md) — Test Suite & Physical Validation Benchmarks
+- [docs/phase4-validation.md](docs/phase4-validation.md) — Phase 4 Acceptance Criteria Checklist
 
 ---
 

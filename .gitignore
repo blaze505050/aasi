@@ -76,3 +76,7 @@ Thumbs.db
 
 # Temporary scripts & scratchpad
 scratch/
+*.docx
+
+# Simulation run artifacts
+data/simulations/

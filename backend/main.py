@@ -74,6 +74,8 @@ class ChatResponse(BaseModel):
     provenance: List[Dict[str, Any]] = Field(default_factory=list, description="Cryptographic and bibliographical provenance")
     limitations: List[str] = Field(default_factory=list, description="Validity envelope and known limitations")
     dataset_match: Optional[Dict[str, Any]] = Field(None, description="Matched physical dataset if applicable")
+    scientific_result: Optional[Dict[str, Any]] = Field(None, description="Detailed scientific result object if resolved")
+    resolution_trace: List[str] = Field(default_factory=list, description="Milestones executed in scientific resolution")
 
 
 class ToolsResponse(BaseModel):
@@ -98,6 +100,32 @@ class DatasetQueryRequest(BaseModel):
     reynolds: Optional[float] = Field(None, gt=0.0, description="Reynolds number")
     aoa_deg: Optional[float] = Field(None, description="Angle of attack in degrees")
     domain: str = Field("aerodynamics", description="Physical domain")
+
+
+class ScienceResolveRequest(BaseModel):
+    """Schema for POST /api/science/resolve."""
+    query: str = Field(..., min_length=1, max_length=1000, description="Natural language scientific inquiry")
+
+
+class ScienceNormalizeRequest(BaseModel):
+    """Schema for POST /api/science/normalize."""
+    query: str = Field(..., min_length=1, max_length=1000, description="Query string to normalize into physical conditions")
+
+
+class SimulationRunRequest(BaseModel):
+    """Schema for POST /api/simulations."""
+    case_id: str = Field(..., description="Unique simulation case identifier")
+    solver: str = Field("OpenFOAM", description="Target solver: OpenFOAM, SU2, XFOIL, XFLR5")
+    geometry: str = Field("NACA 0012", description="Geometry identifier")
+    mach: float = Field(0.3, ge=0.0, le=25.0, description="Freestream Mach number")
+    reynolds: float = Field(500000.0, gt=0.0, description="Chord-based Reynolds number")
+    aoa_deg: float = Field(8.0, ge=-90.0, le=90.0, description="Angle of attack in degrees")
+    turbulence_model: str = Field("k-omega SST", description="Turbulence closure model")
+    mesh_cells: int = Field(16384, ge=100, description="Nominal cell count")
+    run_mode: str = Field("DRY_RUN", description="DRY_RUN, VALIDATION_RUN, FULL_RUN")
+    max_iterations: int = Field(1000, ge=1, le=100000, description="Maximum iterations")
+    convergence_tolerance: float = Field(1e-6, description="Convergence tolerance")
+
 
 
 # --- API Routes ---
@@ -223,6 +251,117 @@ async def query_datasets(request: DatasetQueryRequest):
     }
 
 
+# --- Phase 4 Scientific Resolution & Simulation Endpoints ---
+
+@app.post("/api/science/resolve", summary="8-Level Scientific Resolution Hierarchy")
+async def resolve_science_query(request: ScienceResolveRequest):
+    """
+    Orchestrates deterministic scientific result resolution:
+    Normalized conditions -> Dataset registry -> Experimental DB -> CFD DB -> Surrogate -> Analytical -> Simulation -> Clarification.
+    """
+    from backend.science.service import get_science_service
+    science_svc = get_science_service()
+    return science_svc.engine.resolve(request.query)
+
+
+@app.post("/api/science/normalize", summary="Normalize Engineering Query into Structured Conditions")
+async def normalize_science_query(request: ScienceNormalizeRequest):
+    """
+    Extracts canonical geometry, Mach, Reynolds, AoA, flow regime, and identifies missing parameters.
+    """
+    from backend.science.service import get_science_service
+    science_svc = get_science_service()
+    cond = science_svc.normalizer.normalize(request.query)
+    return cond.model_dump()
+
+
+@app.get("/api/datasets/experimental", summary="List Experimental Database Test Series")
+async def list_experimental_datasets(geometry: Optional[str] = None):
+    """Returns authentic experimental test measurements with facility and uncertainty bounds."""
+    from backend.science.service import get_science_service
+    science_svc = get_science_service()
+    datasets = science_svc.experimental_db.list_datasets(geometry=geometry)
+    return {"experimental_datasets": [d.model_dump() for d in datasets]}
+
+
+@app.get("/api/datasets/cfd", summary="List Validated CFD Database Records")
+async def list_cfd_datasets(geometry: Optional[str] = None):
+    """Returns validated and benchmark CFD cases with mesh, turbulence, and residual metadata."""
+    from backend.science.service import get_science_service
+    science_svc = get_science_service()
+    records = science_svc.cfd_db.list_records(geometry=geometry)
+    return {"cfd_records": [r.model_dump() for r in records]}
+
+
+@app.get("/api/surrogates", summary="List Physics Surrogate Models & Envelopes")
+async def list_surrogates():
+    """Returns registered physics AI surrogates with declared validity envelopes."""
+    from backend.science.service import get_science_service
+    science_svc = get_science_service()
+    surrogates = science_svc.surrogate_registry.list_surrogates()
+    return {"surrogates": [s.model_dump() for s in surrogates]}
+
+
+@app.get("/api/solvers", summary="Discover Host & WSL2 Scientific Solvers")
+async def list_solvers():
+    """Probes system environment for OpenFOAM, SU2, XFOIL, XFLR5 and returns status."""
+    from backend.simulation.registry import solver_registry
+    solvers = solver_registry.list_solvers()
+    return {"solvers": [s.model_dump() for s in solvers]}
+
+
+@app.post("/api/simulations", summary="Execute Simulation Run (Dry-Run / Validation / Full)")
+async def run_simulation(request: SimulationRunRequest):
+    """
+    Generates case files and executes simulation run under security sandbox.
+    Supports DRY_RUN, VALIDATION_RUN, and FULL_RUN modes.
+    """
+    from backend.simulation.models import SimulationCase, SimulationRunMode
+    from backend.simulation.runner import simulation_runner
+
+    case = SimulationCase(
+        case_id=request.case_id,
+        solver=request.solver,
+        geometry=request.geometry,
+        mach=request.mach,
+        reynolds=request.reynolds,
+        aoa_deg=request.aoa_deg,
+        turbulence_model=request.turbulence_model,
+        mesh_cells=request.mesh_cells,
+        run_mode=SimulationRunMode(request.run_mode),
+        max_iterations=request.max_iterations,
+        convergence_tolerance=request.convergence_tolerance,
+    )
+
+    manifest = simulation_runner.run_case(case)
+    return manifest.model_dump()
+
+
+@app.get("/api/simulations/{case_id}", summary="Get Simulation Manifest and Artifacts")
+async def get_simulation_manifest(case_id: str):
+    """Retrieves reproducible experiment manifest for simulation case."""
+    from pathlib import Path
+    import json
+    case_path = Path("data/simulations") / case_id / f"EXP-{case_id}.manifest.json"
+    if not case_path.exists():
+        raise HTTPException(status_code=404, detail=f"Simulation case manifest '{case_id}' not found.")
+    return json.loads(case_path.read_text(encoding="utf-8"))
+
+
+@app.get("/api/science/results/{result_id}", summary="Get Scientific Result and Provenance")
+async def get_scientific_result(result_id: str):
+    """Inspects detailed scientific result and cryptographic provenance."""
+    from backend.science.service import get_science_service
+    science_svc = get_science_service()
+    for ds in science_svc.experimental_db.list_datasets():
+        if result_id in ds.dataset_id:
+            return ds.model_dump()
+    for rec in science_svc.cfd_db.list_records():
+        if result_id in rec.case_id:
+            return rec.model_dump()
+    raise HTTPException(status_code=404, detail=f"Scientific result '{result_id}' not found.")
+
+
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
 async def chat_completion(request: ChatRequest):
     """
@@ -246,6 +385,8 @@ async def chat_completion(request: ChatRequest):
             provenance=result.get("provenance", []),
             limitations=result.get("limitations", []),
             dataset_match=result.get("dataset_match"),
+            scientific_result=result.get("scientific_result"),
+            resolution_trace=result.get("resolution_trace", []),
         )
     except OllamaUnavailableError as exc:
         logger.error("Ollama unavailable: %s", exc)
@@ -282,7 +423,14 @@ async def root():
         "docs_url": "/docs",
         "health_url": "/api/health",
         "tools_url": "/api/tools",
+        "science_resolve_url": "/api/science/resolve",
+        "science_normalize_url": "/api/science/normalize",
+        "solvers_url": "/api/solvers",
         "knowledge_sources_url": "/api/knowledge/sources",
         "knowledge_documents_url": "/api/knowledge/documents",
         "knowledge_datasets_url": "/api/knowledge/datasets",
+        "experimental_datasets_url": "/api/datasets/experimental",
+        "cfd_datasets_url": "/api/datasets/cfd",
+        "surrogates_url": "/api/surrogates",
     }
+

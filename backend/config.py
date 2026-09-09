@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     app_version: str = "0.2.0"
     
     # Ollama runtime settings
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "qwen2.5:0.5b"
     ollama_timeout: float = 60.0
 

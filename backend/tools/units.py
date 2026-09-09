@@ -8,6 +8,7 @@ import pint
 
 # Initialize global Pint UnitRegistry
 ureg = pint.UnitRegistry()
+unit_registry = ureg
 
 # Supported conversion dimensions and common units
 SUPPORTED_UNITS: Dict[str, List[str]] = {

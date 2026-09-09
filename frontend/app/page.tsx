@@ -44,6 +44,67 @@ interface EvidenceSnippet {
   snippet: string;
 }
 
+interface ScientificDiscrepancy {
+  source_a: string;
+  source_b: string;
+  value_a: number;
+  value_b: number;
+  relative_difference: number;
+  physical_explanation?: string;
+}
+
+interface ScientificResultData {
+  result_id?: string;
+  epistemic_status: string;
+  condition_match_status?: string;
+  quantity: string;
+  value?: number | null;
+  units?: string | null;
+  uncertainty?: number | null;
+  conditions?: Record<string, any>;
+  source_dataset_id?: string;
+  citation?: string;
+  methodology?: string;
+  confidence?: number;
+  discrepancies?: ScientificDiscrepancy[];
+  limitations?: string[];
+  trace?: string[];
+}
+
+interface SolverInfoData {
+  solver: string;
+  is_available: boolean;
+  status: string;
+  execution_environment?: string;
+  executable_path?: string | null;
+  version?: string | null;
+  supported_physics?: string[];
+  supported_domains?: string[];
+  supported_dimensions?: string[];
+  detection_diagnostic?: string | null;
+}
+
+interface SimulationManifestData {
+  experiment_id: string;
+  solver: string;
+  solver_version?: string;
+  geometry: string;
+  run_mode: string;
+  result_status: string;
+  epistemic_status: string;
+  input_checksum: string;
+  output_checksum?: string | null;
+  is_converged: boolean;
+  cl?: number | null;
+  cd?: number | null;
+  cm?: number | null;
+  residuals?: Record<string, number>;
+  logs?: string[];
+  result_files?: string[];
+  input_parameters?: Record<string, any>;
+  boundary_conditions?: Record<string, any>;
+}
+
 interface Message {
   id: string;
   sender: "user" | "assistant";
@@ -59,6 +120,8 @@ interface Message {
   provenance?: Record<string, any>[];
   limitations?: string[];
   dataset_match?: Record<string, any> | null;
+  scientific_result?: ScientificResultData | null;
+  resolution_trace?: string[];
 }
 
 interface HealthStatus {
@@ -86,11 +149,11 @@ interface DocumentMeta {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 const QUICK_PROMPTS = [
+  "What is the drag coefficient of NACA 0012 at Mach 0.15, Re=3000000 and AoA=4°?",
+  "What is the lift coefficient of NACA 0012 at Mach 0.25, Re=1500000, AoA=6° using AeroGraphNet surrogate?",
+  "Generate an OpenFOAM simpleFoam simulation case for NACA 0012 at Mach 0.15 and AoA 4° in dry-run mode.",
+  "What is the drag coefficient of an airfoil?",
   "What does NASA report about NACA 0012 aerodynamic behavior?",
-  "What is the drag coefficient of NACA 0012 at Mach 0.3, Re=500000 and AoA=8°?",
-  "What is the solar constant outside Earth according to NASA SP-8005?",
-  "What is the circular orbital velocity at 500 km altitude around Earth?",
-  "For a rocket with Isp = 350 s, initial mass = 10000 kg, final mass = 3000 kg, calculate Δv.",
 ];
 
 export default function AASIChatApp() {
@@ -100,13 +163,17 @@ export default function AASIChatApp() {
       sender: "assistant",
       content:
         "Greetings. I am AASI (Autonomous Aerospace Scientific Intelligence).\n\n" +
-        "In Phase 3, I am grounded in a verified Scientific Knowledge & Dataset Foundation with strict provenance tracking:\n" +
-        "• NASA NTRS & historical NACA technical reports\n" +
-        "• Wind-tunnel experimental polar databases (NACA 0012)\n" +
-        "• OpenFOAM RANS CFD benchmark simulation metadata\n" +
-        "• Astropy orbital mechanics, RocketPy propulsion, and SymPy solvers\n\n" +
-        "Ask a scientific question, inspect reference datasets, or run engineering calculations.",
-      model: "AASI Agent (Phase 3)",
+        "In Phase 4, I operate under a deterministic 8-level scientific resolution hierarchy with strict epistemic classification:\n" +
+        "• Level 0: Query normalization and completeness audit (geometry, Mach, Reynolds, AoA)\n" +
+        "• Level 1: Scientific dataset registry\n" +
+        "• Level 2: Official experimental wind tunnel database (NASA TN-D-628 polar)\n" +
+        "• Level 3: Validated benchmark CFD database (OpenFOAM RANS, SA/SST closures)\n" +
+        "• Level 4: Physics AI surrogates with declared validity envelopes\n" +
+        "• Level 5: Analytical and numerical engineering solvers (Astropy, RocketPy, SymPy)\n" +
+        "• Level 6: Local & remote simulation execution fabric (OpenFOAM dry-run case generator)\n" +
+        "• Level 7: Graceful clarification requests for underspecified conditions\n\n" +
+        "Select a benchmark prompt or inspect the Research & Simulation Fabric drawer.",
+      model: "AASI Agent (Phase 4)",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -116,9 +183,9 @@ export default function AASIChatApp() {
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [isCheckingHealth, setIsCheckingHealth] = useState(false);
 
-  // Research Drawer State
+  // Research & Simulation Drawer State
   const [isResearchOpen, setIsResearchOpen] = useState(false);
-  const [researchTab, setResearchTab] = useState<"literature" | "datasets">("literature");
+  const [researchTab, setResearchTab] = useState<"literature" | "datasets" | "simulations">("literature");
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
   const [docList, setDocList] = useState<DocumentMeta[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -127,11 +194,28 @@ export default function AASIChatApp() {
 
   // Dataset Condition Search State
   const [geoInput, setGeoInput] = useState("NACA 0012");
-  const [machInput, setMachInput] = useState("0.3");
-  const [reInput, setReInput] = useState("500000");
-  const [aoaInput, setAoaInput] = useState("8.0");
+  const [machInput, setMachInput] = useState("0.15");
+  const [reInput, setReInput] = useState("3000000");
+  const [aoaInput, setAoaInput] = useState("4.0");
   const [datasetMatches, setDatasetMatches] = useState<any[]>([]);
   const [isQueryingDataset, setIsQueryingDataset] = useState(false);
+
+  // Simulation Fabric State
+  const [solversList, setSolversList] = useState<SolverInfoData[]>([]);
+  const [isLoadingSolvers, setIsLoadingSolvers] = useState(false);
+  const [simCaseId, setSimCaseId] = useState("naca0012-simplefoam-subsonic-001");
+  const [simSolver, setSimSolver] = useState("OpenFOAM");
+  const [simGeometry, setSimGeometry] = useState("NACA 0012");
+  const [simMach, setSimMach] = useState("0.15");
+  const [simReynolds, setSimReynolds] = useState("3000000");
+  const [simAoa, setSimAoa] = useState("4.0");
+  const [simTurbulence, setSimTurbulence] = useState("k-omega SST");
+  const [simMeshCells, setSimMeshCells] = useState("16384");
+  const [simRunMode, setSimRunMode] = useState("DRY_RUN");
+  const [simManifest, setSimManifest] = useState<SimulationManifestData | null>(null);
+  const [isSubmittingSim, setIsSubmittingSim] = useState(false);
+  const [simError, setSimError] = useState<string | null>(null);
+  const [selectedManifestModal, setSelectedManifestModal] = useState<SimulationManifestData | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -180,9 +264,25 @@ export default function AASIChatApp() {
     }
   };
 
+  const loadSolvers = async () => {
+    setIsLoadingSolvers(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/solvers`);
+      if (res.ok) {
+        const data = await res.json();
+        setSolversList(data.solvers || []);
+      }
+    } catch (e) {
+      console.error("Failed to load solvers", e);
+    } finally {
+      setIsLoadingSolvers(false);
+    }
+  };
+
   useEffect(() => {
     checkHealth();
     loadDocuments();
+    loadSolvers();
     const interval = setInterval(checkHealth, 15000);
     return () => clearInterval(interval);
   }, []);
@@ -228,6 +328,40 @@ export default function AASIChatApp() {
       console.error("Dataset query error", e);
     } finally {
       setIsQueryingDataset(false);
+    }
+  };
+
+  const handleRunSimulation = async () => {
+    setIsSubmittingSim(true);
+    setSimError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/simulations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: simCaseId,
+          solver: simSolver,
+          geometry: simGeometry,
+          mach: parseFloat(simMach) || 0.15,
+          reynolds: parseFloat(simReynolds) || 3000000.0,
+          aoa_deg: parseFloat(simAoa) || 4.0,
+          turbulence_model: simTurbulence,
+          mesh_cells: parseInt(simMeshCells, 10) || 16384,
+          run_mode: simRunMode,
+          max_iterations: 1000,
+          convergence_tolerance: 1e-6,
+        }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `Server returned ${res.status}`);
+      }
+      const data = await res.json();
+      setSimManifest(data);
+    } catch (err: any) {
+      setSimError(err.message || "Failed to submit simulation case.");
+    } finally {
+      setIsSubmittingSim(false);
     }
   };
 
@@ -277,7 +411,7 @@ export default function AASIChatApp() {
         id: "assistant-" + Date.now(),
         sender: "assistant",
         content: data.response,
-        model: data.model || health?.configured_model || "AASI Agent",
+        model: data.model || health?.configured_model || "AASI Agent (Phase 4)",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         tool_calls: data.tool_calls || [],
         calculations: data.calculations || [],
@@ -288,6 +422,8 @@ export default function AASIChatApp() {
         provenance: data.provenance || [],
         limitations: data.limitations || [],
         dataset_match: data.dataset_match,
+        scientific_result: data.scientific_result,
+        resolution_trace: data.resolution_trace || [],
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -311,12 +447,32 @@ export default function AASIChatApp() {
       {
         id: "initial-welcome",
         sender: "assistant",
-        content: "Session reset. Ready for scientific knowledge inquiries, dataset lookups, and engineering calculations.",
+        content: "Session reset. Ready for scientific result resolution, simulation cases, and engineering queries.",
         model: "AASI Agent",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       },
     ]);
     setErrorMessage(null);
+  };
+
+  const renderEpistemicBadge = (status: string) => {
+    switch (status) {
+      case "OFFICIAL_EXPERIMENT":
+        return <span className="epistemic-badge exp">OFFICIAL EXPERIMENT</span>;
+      case "VALIDATED_CFD":
+        return <span className="epistemic-badge cfd">VALIDATED BENCHMARK CFD</span>;
+      case "SURROGATE_PREDICTION":
+        return <span className="epistemic-badge surrogate">SURROGATE PREDICTION</span>;
+      case "ANALYTICAL_RESULT":
+        return <span className="epistemic-badge analytical">ANALYTICAL RESULT</span>;
+      case "LOCAL_CFD":
+        return <span className="epistemic-badge local">LOCAL SIMULATION</span>;
+      case "DEMO_DATA":
+        return <span className="epistemic-badge demo">DEMO DATA</span>;
+      case "NO_RESULT":
+      default:
+        return <span className="epistemic-badge no-result">NO VALIDATED RESULT</span>;
+    }
   };
 
   return (
@@ -325,7 +481,7 @@ export default function AASIChatApp() {
       <header className="app-header">
         <div className="header-top">
           <div className="brand-section">
-            <span className="logo-badge">PHASE 3</span>
+            <span className="logo-badge">PHASE 4</span>
             <div className="title-group">
               <h1>
                 <span className="title-accent">AASI</span>
@@ -339,17 +495,17 @@ export default function AASIChatApp() {
             <button
               onClick={() => setIsResearchOpen(true)}
               className="btn-research-toggle"
-              title="Open Scientific Knowledge and Dataset Catalog"
+              title="Open Scientific Knowledge, Datasets, and Simulation Fabric"
               type="button"
             >
               <span className="pulse-research-icon" />
-              <span>RESEARCH CATALOG ({docList.length} DOCS)</span>
+              <span>RESEARCH & SIMULATION FABRIC</span>
             </button>
 
-            {/* Active Tools Badge */}
-            <div className="status-badge tools-badge" title="Registered Computational Tools & RAG">
+            {/* Active Solvers Badge */}
+            <div className="status-badge tools-badge" title="Computational Tools & Simulation Fabric">
               <span className="status-dot online" />
-              <span>FAISS RAG • NASA • ORBIT • ROCKET</span>
+              <span>8-LEVEL RESOLUTION • OPENFOAM (DRY-RUN) • ASTROPY • ROCKETPY</span>
             </div>
 
             {/* Backend Status */}
@@ -396,7 +552,7 @@ export default function AASIChatApp() {
         </div>
 
         <p className="header-subtitle">
-          Autonomous Aerospace Scientific Intelligence • Grounded in NASA/NACA Technical Archives & Physical Datasets
+          Autonomous Aerospace Scientific Intelligence • Epistemic Provenance • Deterministic Resolution Hierarchy • Simulation Fabric
         </p>
       </header>
 
@@ -406,10 +562,10 @@ export default function AASIChatApp() {
         {messages.length <= 1 && (
           <div className="welcome-card">
             <div className="welcome-title">
-              <span>Phase 3 Scientific & Engineering Inquiries</span>
+              <span>Phase 4 Deterministic Scientific Resolution & Simulation Prompts</span>
             </div>
             <p className="welcome-text">
-              Select a benchmark question to evaluate provenance-first scientific RAG or physical dataset retrieval:
+              Select a benchmark prompt to evaluate the 8-level resolution hierarchy, multi-source conflict reconciliation, surrogate envelopes, or simulation case generation:
             </p>
             <div className="quick-prompts">
               {QUICK_PROMPTS.map((prompt, idx) => (
@@ -442,41 +598,135 @@ export default function AASIChatApp() {
                 <span>• {msg.timestamp}</span>
               </div>
 
-              {/* 1. VERIFIED PHYSICAL DATASET MATCH (if dataset matched) */}
-              {msg.dataset_match && (
-                <div className="dataset-match-card">
-                  <div className="dataset-match-header">
-                    <span className="dataset-badge">
-                      {msg.dataset_match.is_experimental ? "EXPERIMENTAL WIND TUNNEL DATA" : "BENCHMARK CFD SIMULATION"}
-                    </span>
-                    <span className="dataset-status-tag">✓ VALIDATED</span>
+              {/* 1. SCIENTIFIC RESOLUTION PROCESS TRACE (Phase 4 Hierarchy) */}
+              {msg.resolution_trace && msg.resolution_trace.length > 0 && (
+                <div className="resolution-trace-card">
+                  <div className="resolution-trace-header">
+                    <span className="trace-title">SCIENTIFIC RESOLUTION PROCESS (8-LEVEL HIERARCHY)</span>
+                    <span className="trace-count">{msg.resolution_trace.length} MILESTONES</span>
                   </div>
-                  <div className="dataset-details-row">
-                    <strong>{msg.dataset_match.dataset_name}</strong>
+                  <ul className="resolution-trace-steps">
+                    {msg.resolution_trace.map((step, sIdx) => (
+                      <li key={sIdx} className="resolution-step-item">
+                        <span className="step-badge">L{sIdx}</span>
+                        <span className="step-text">{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* 2. FIRST-CLASS SCIENTIFIC RESULT CARD WITH EPISTEMIC CLASSIFICATION */}
+              {msg.scientific_result && (
+                <div className="scientific-result-card">
+                  <div className="result-card-top">
+                    <div className="result-badge-group">
+                      {renderEpistemicBadge(msg.scientific_result.epistemic_status)}
+                      {msg.scientific_result.condition_match_status && (
+                        <span className="match-status-badge">
+                          MATCH: {msg.scientific_result.condition_match_status}
+                        </span>
+                      )}
+                    </div>
+                    {msg.scientific_result.confidence !== undefined && (
+                      <span className="confidence-pill">
+                        CONFIDENCE: {(msg.scientific_result.confidence * 100).toFixed(0)}%
+                      </span>
+                    )}
                   </div>
-                  <div className="dataset-conditions-text">
-                    Source: {msg.dataset_match.source} • Citation: {msg.dataset_match.citation}
-                  </div>
-                  {msg.dataset_match.matched_points && (
-                    <div className="matched-points-grid">
-                      {msg.dataset_match.matched_points.map((pt: any, pIdx: number) => (
-                        <div key={pIdx} className="point-chip">
-                          {Object.entries(pt).map(([k, v]) => (
-                            <span key={k}><strong>{k}:</strong> {String(v)} </span>
-                          ))}
+
+                  {/* Primary Numerical Output */}
+                  {msg.scientific_result.value !== undefined && msg.scientific_result.value !== null && (
+                    <div className="result-metric-display">
+                      <div className="metric-quantity">
+                        {msg.scientific_result.quantity}
+                      </div>
+                      <div className="metric-value-row">
+                        <span className="metric-number">
+                          {typeof msg.scientific_result.value === "object"
+                            ? JSON.stringify(msg.scientific_result.value)
+                            : String(msg.scientific_result.value)}
+                        </span>
+                        {msg.scientific_result.units && (
+                          <span className="metric-units">{msg.scientific_result.units}</span>
+                        )}
+                        {msg.scientific_result.uncertainty !== null && msg.scientific_result.uncertainty !== undefined && (
+                          <span className="metric-uncertainty">
+                            (Uncertainty: {typeof msg.scientific_result.uncertainty === "object"
+                              ? Object.entries(msg.scientific_result.uncertainty).map(([k, v]) => `±${v} (${k})`).join(", ")
+                              : `±${msg.scientific_result.uncertainty}`})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Flow and Geometric Conditions */}
+                  {msg.scientific_result.conditions && Object.keys(msg.scientific_result.conditions).length > 0 && (
+                    <div className="result-conditions-section">
+                      <span className="section-label">NORMALIZED CONDITIONS:</span>
+                      <div className="conditions-grid">
+                        {Object.entries(msg.scientific_result.conditions).map(([k, v]) => (
+                          <div key={k} className="condition-item">
+                            <span className="cond-key">{k}:</span>
+                            <span className="cond-val">{String(v)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Provenance and Citation */}
+                  {(msg.scientific_result.source_dataset_id || msg.scientific_result.citation || msg.scientific_result.methodology) && (
+                    <div className="result-provenance-section">
+                      <div className="provenance-row">
+                        <strong>Source / Dataset:</strong> {msg.scientific_result.source_dataset_id || "N/A"}
+                      </div>
+                      {msg.scientific_result.citation && (
+                        <div className="provenance-row">
+                          <strong>Citation:</strong> {msg.scientific_result.citation}
+                        </div>
+                      )}
+                      {msg.scientific_result.methodology && (
+                        <div className="provenance-row">
+                          <strong>Methodology:</strong> {msg.scientific_result.methodology}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Multi-Source Discrepancies and Reconciliation */}
+                  {msg.scientific_result.discrepancies && msg.scientific_result.discrepancies.length > 0 && (
+                    <div className="discrepancy-section">
+                      <span className="discrepancy-title">MULTI-SOURCE DISCREPANCY ANALYSIS & RECONCILIATION:</span>
+                      {msg.scientific_result.discrepancies.map((disc, dIdx) => (
+                        <div key={dIdx} className="discrepancy-card">
+                          <div className="discrepancy-compare-row">
+                            <span className="source-a-pill">{disc.source_a}: {disc.value_a}</span>
+                            <span className="vs-tag">vs</span>
+                            <span className="source-b-pill">{disc.source_b}: {disc.value_b}</span>
+                            <span className="diff-pill">Δ {(disc.relative_difference * 100).toFixed(1)}%</span>
+                          </div>
+                          {disc.physical_explanation && (
+                            <p className="physical-explanation-text">
+                              <strong>Aerodynamic Reason:</strong> {disc.physical_explanation}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
                   )}
-                  {msg.dataset_match.uncertainty && (
-                    <div className="uncertainty-note">
-                      Uncertainty: {Object.entries(msg.dataset_match.uncertainty).map(([k, v]) => `±${v} (${k})`).join(", ")}
+
+                  {/* Limitations */}
+                  {msg.scientific_result.limitations && msg.scientific_result.limitations.length > 0 && (
+                    <div className="result-limitations-section">
+                      <strong>Limitations:</strong> {msg.scientific_result.limitations.join(" • ")}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* 2. CITED SOURCES & PROVENANCE BADGES */}
+              {/* 3. CITED LITERATURE & EVIDENCE */}
               {msg.sources && msg.sources.length > 0 && (
                 <div className="citations-container">
                   <span className="citations-title">CITED SCIENTIFIC LITERATURE & PROVENANCE:</span>
@@ -498,22 +748,7 @@ export default function AASIChatApp() {
                 </div>
               )}
 
-              {/* 3. AASI PROCESS TRACE (if tool executed) */}
-              {msg.tool_calls && msg.tool_calls.length > 0 && (
-                <div className="tool-trace-block">
-                  <div className="tool-trace-header">AASI PROCESS TRACE</div>
-                  <ul className="tool-trace-list">
-                    {msg.tool_calls[0].trace.map((step, sIdx) => (
-                      <li key={sIdx}>
-                        <span className="trace-check">✓</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* 4. CALCULATION DETAILS CARD (if calculation data present) */}
+              {/* 4. CALCULATION DETAILS CARD (Phase 2 tools) */}
               {msg.calculations && msg.calculations.length > 0 && (
                 <div className="calculation-card">
                   <div className="calculation-header">
@@ -559,7 +794,7 @@ export default function AASIChatApp() {
               <div className="bubble-content">{msg.content}</div>
 
               {/* 6. ASSUMPTIONS & LIMITATIONS */}
-              {(msg.assumptions && msg.assumptions.length > 0 || msg.limitations && msg.limitations.length > 0) && (
+              {((msg.assumptions && msg.assumptions.length > 0) || (msg.limitations && msg.limitations.length > 0)) && (
                 <div className="assumptions-block">
                   {msg.assumptions && msg.assumptions.length > 0 && (
                     <div className="assumptions-list">
@@ -587,7 +822,7 @@ export default function AASIChatApp() {
         {isLoading && (
           <div className="thinking-indicator">
             <div className="pulse-spinner" />
-            <span>AASI is searching knowledge archives, datasets, and reasoning...</span>
+            <span>AASI is executing resolution hierarchy, verifying datasets, and reasoning...</span>
           </div>
         )}
 
@@ -612,7 +847,7 @@ export default function AASIChatApp() {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a scientific question, cite NASA/NACA reports, or submit flight conditions for verified datasets..."
+            placeholder="Ask a scientific question, cite NASA/NACA reports, submit flow conditions, or request simulation..."
             disabled={isLoading}
           />
           <div className="input-actions">
@@ -629,18 +864,18 @@ export default function AASIChatApp() {
         </div>
         <div className="input-hint">
           <span>Press Enter to send, Shift + Enter for new line</span>
-          <span>AASI Phase 3 • Provenance-First Scientific RAG • Verified Datasets</span>
+          <span>AASI Phase 4 • Deterministic Resolution Hierarchy • Epistemic Provenance</span>
         </div>
       </footer>
 
-      {/* RESEARCH DRAWER MODAL */}
+      {/* RESEARCH & SIMULATION DRAWER MODAL */}
       {isResearchOpen && (
         <div className="drawer-overlay" onClick={() => setIsResearchOpen(false)}>
           <div className="research-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-header">
               <div className="drawer-title-group">
-                <h2>SCIENTIFIC KNOWLEDGE & DATASET FOUNDATION</h2>
-                <span className="drawer-subtitle">Cryptographic Provenance • NASA NTRS • NACA Historical Reports</span>
+                <h2>SCIENTIFIC KNOWLEDGE, DATASETS & SIMULATION FABRIC</h2>
+                <span className="drawer-subtitle">NASA NTRS • Wind Tunnel Databases • Validated CFD • OpenFOAM Fabric</span>
               </div>
               <button className="btn-close-drawer" onClick={() => setIsResearchOpen(false)} type="button">
                 ✕
@@ -660,12 +895,23 @@ export default function AASIChatApp() {
                 onClick={() => setResearchTab("datasets")}
                 type="button"
               >
-                PHYSICAL DATASETS (CFD & WIND TUNNEL)
+                PHYSICAL DATASETS (EXP & CFD)
+              </button>
+              <button
+                className={`drawer-tab-btn ${researchTab === "simulations" ? "active" : ""}`}
+                onClick={() => {
+                  setResearchTab("simulations");
+                  loadSolvers();
+                }}
+                type="button"
+              >
+                SIMULATION FABRIC & SOLVERS
               </button>
             </div>
 
             <div className="drawer-body">
-              {researchTab === "literature" ? (
+              {/* TAB 1: LITERATURE */}
+              {researchTab === "literature" && (
                 <div className="literature-pane">
                   {/* Search Bar */}
                   <div className="search-bar-row">
@@ -749,7 +995,10 @@ export default function AASIChatApp() {
                     </div>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {/* TAB 2: DATASETS */}
+              {researchTab === "datasets" && (
                 <div className="datasets-pane">
                   {/* Condition Query Box */}
                   <div className="condition-query-card">
@@ -773,7 +1022,7 @@ export default function AASIChatApp() {
                           type="text"
                           value={machInput}
                           onChange={(e) => setMachInput(e.target.value)}
-                          placeholder="e.g. 0.3"
+                          placeholder="e.g. 0.15"
                         />
                       </div>
                       <div className="input-group">
@@ -782,7 +1031,7 @@ export default function AASIChatApp() {
                           type="text"
                           value={reInput}
                           onChange={(e) => setReInput(e.target.value)}
-                          placeholder="e.g. 500000"
+                          placeholder="e.g. 3000000"
                         />
                       </div>
                       <div className="input-group">
@@ -791,7 +1040,7 @@ export default function AASIChatApp() {
                           type="text"
                           value={aoaInput}
                           onChange={(e) => setAoaInput(e.target.value)}
-                          placeholder="e.g. 8.0"
+                          placeholder="e.g. 4.0"
                         />
                       </div>
                     </div>
@@ -847,6 +1096,205 @@ export default function AASIChatApp() {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* TAB 3: SIMULATION FABRIC & SOLVERS */}
+              {researchTab === "simulations" && (
+                <div className="simulations-pane">
+                  {/* Security Sandbox Notice */}
+                  <div className="sandbox-security-banner">
+                    <div className="banner-badge">SECURITY SANDBOX ACTIVE</div>
+                    <p>
+                      Simulations execute in isolated temporary directories with strict executable allowlists (<code>simpleFoam</code>, <code>blockMesh</code>, <code>SU2_CFD</code>, <code>xfoil</code>). Raw shell input is rejected, timeouts enforced, and output files are cryptographically hashed into reproducible manifests.
+                    </p>
+                  </div>
+
+                  {/* Solvers Discovery Status */}
+                  <div className="solvers-discovery-section">
+                    <div className="section-header-row">
+                      <h3>DETECTED SCIENTIFIC SOLVERS & RUNTIMES</h3>
+                      <button className="btn-refresh-solvers" onClick={loadSolvers} disabled={isLoadingSolvers} type="button">
+                        {isLoadingSolvers ? "PROBING..." : "REFRESH ENVIRONMENT"}
+                      </button>
+                    </div>
+
+                    <div className="solvers-grid">
+                      {solversList.map((s) => (
+                        <div key={s.solver} className={`solver-card ${s.is_available ? "available" : "unavailable"}`}>
+                          <div className="solver-card-header">
+                            <span className="solver-name">{s.solver}</span>
+                            <span className={`solver-status-tag ${s.is_available ? "online" : "offline"}`}>
+                              {s.status}
+                            </span>
+                          </div>
+                          <p className="solver-desc">{s.detection_diagnostic || "Deterministic aerodynamic solver"}</p>
+                          <div className="solver-meta-info">
+                            <div><strong>Environment:</strong> {s.execution_environment || "host"}</div>
+                            <div><strong>Path:</strong> <code>{s.executable_path || "Not detected in PATH"}</code></div>
+                            <div><strong>Physics:</strong> {(s.supported_physics || []).join(", ") || "Aerodynamics (2D)"}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Interactive Simulation Case Generator */}
+                  <div className="simulation-case-generator">
+                    <h3>CREATE & VALIDATE SIMULATION CASE (DRY-RUN / VALIDATION)</h3>
+                    <p className="generator-subtitle">
+                      Configure aerodynamic simulation cases. In DRY_RUN mode, AASI writes authenticated OpenFOAM / SU2 dictionary decks, verifies boundary conditions, and generates reproducible manifests without requiring a live CFD cluster.
+                    </p>
+
+                    <div className="generator-form-grid">
+                      <div className="input-group">
+                        <label>CASE IDENTIFIER</label>
+                        <input
+                          type="text"
+                          value={simCaseId}
+                          onChange={(e) => setSimCaseId(e.target.value)}
+                          placeholder="e.g. naca0012-simplefoam-subsonic-001"
+                        />
+                      </div>
+
+                      <div className="input-group">
+                        <label>TARGET SOLVER</label>
+                        <select value={simSolver} onChange={(e) => setSimSolver(e.target.value)}>
+                          <option value="OpenFOAM">OpenFOAM (simpleFoam)</option>
+                          <option value="SU2">SU2 (SU2_CFD)</option>
+                          <option value="XFOIL">XFOIL (Panel Method)</option>
+                          <option value="XFLR5">XFLR5</option>
+                        </select>
+                      </div>
+
+                      <div className="input-group">
+                        <label>GEOMETRY</label>
+                        <input
+                          type="text"
+                          value={simGeometry}
+                          onChange={(e) => setSimGeometry(e.target.value)}
+                          placeholder="e.g. NACA 0012"
+                        />
+                      </div>
+
+                      <div className="input-group">
+                        <label>MACH NUMBER</label>
+                        <input
+                          type="text"
+                          value={simMach}
+                          onChange={(e) => setSimMach(e.target.value)}
+                          placeholder="e.g. 0.15"
+                        />
+                      </div>
+
+                      <div className="input-group">
+                        <label>REYNOLDS NUMBER</label>
+                        <input
+                          type="text"
+                          value={simReynolds}
+                          onChange={(e) => setSimReynolds(e.target.value)}
+                          placeholder="e.g. 3000000"
+                        />
+                      </div>
+
+                      <div className="input-group">
+                        <label>ANGLE OF ATTACK (DEG)</label>
+                        <input
+                          type="text"
+                          value={simAoa}
+                          onChange={(e) => setSimAoa(e.target.value)}
+                          placeholder="e.g. 4.0"
+                        />
+                      </div>
+
+                      <div className="input-group">
+                        <label>TURBULENCE CLOSURE</label>
+                        <select value={simTurbulence} onChange={(e) => setSimTurbulence(e.target.value)}>
+                          <option value="k-omega SST">k-omega SST</option>
+                          <option value="Spalart-Allmaras">Spalart-Allmaras</option>
+                          <option value="k-epsilon">k-epsilon</option>
+                          <option value="Inviscid">Inviscid / Euler</option>
+                        </select>
+                      </div>
+
+                      <div className="input-group">
+                        <label>EXECUTION MODE</label>
+                        <select value={simRunMode} onChange={(e) => setSimRunMode(e.target.value)}>
+                          <option value="DRY_RUN">DRY_RUN (Case Deck & Manifest Only)</option>
+                          <option value="VALIDATION_RUN">VALIDATION_RUN (Mesh & Schemes Check)</option>
+                          <option value="FULL_RUN">FULL_RUN (Execute Solver)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="generator-actions-row">
+                      <button
+                        className="btn-submit-sim"
+                        onClick={handleRunSimulation}
+                        disabled={isSubmittingSim}
+                        type="button"
+                      >
+                        {isSubmittingSim ? "GENERATING CASE..." : "GENERATE CASE & VALIDATE"}
+                      </button>
+                    </div>
+
+                    {simError && (
+                      <div className="sim-error-card">
+                        <strong>Simulation Error:</strong> {simError}
+                      </div>
+                    )}
+
+                    {/* Simulation Manifest Output */}
+                    {simManifest && (
+                      <div className="simulation-manifest-card">
+                        <div className="manifest-header-row">
+                          <div>
+                            <h4>MANIFEST: {simManifest.experiment_id}</h4>
+                            <span className="manifest-case-id">Solver: {simManifest.solver} ({simManifest.solver_version || "v2312"}) • Geometry: {simManifest.geometry}</span>
+                          </div>
+                          <span className="manifest-status-badge">{simManifest.result_status}</span>
+                        </div>
+
+                        <div className="manifest-meta-details">
+                          <div><strong>Run Mode:</strong> <code>{simManifest.run_mode}</code> • <strong>Epistemic Status:</strong> <span className="epistemic-badge local">{simManifest.epistemic_status}</span></div>
+                          <div><strong>Input Hash (SHA-256):</strong> <code>{simManifest.input_checksum}</code></div>
+                          {simManifest.output_checksum && (
+                            <div><strong>Output Hash:</strong> <code>{simManifest.output_checksum}</code></div>
+                          )}
+                          <div><strong>Convergence:</strong> {simManifest.is_converged ? "✓ Converged (< 1e-6)" : "Verified Dictionary & Deck Setup (Dry-Run)"}</div>
+                        </div>
+
+                        {simManifest.result_files && simManifest.result_files.length > 0 && (
+                          <div className="manifest-hashes-section">
+                            <h5>GENERATED ARTIFACT FILES ({simManifest.result_files.length})</h5>
+                            <div className="hashes-table">
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>GENERATED ARTIFACT</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {simManifest.result_files.map((fPath) => (
+                                    <tr key={fPath}>
+                                      <td className="mono-path">{fPath}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+
+                        {simManifest.logs && simManifest.logs.length > 0 && (
+                          <div className="manifest-log-section">
+                            <h5>EXECUTION & VALIDATION LOGS</h5>
+                            <pre className="log-code-box">{simManifest.logs.join("\n")}</pre>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
