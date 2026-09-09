@@ -5,6 +5,9 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-14+-black.svg)](https://nextjs.org/)
+[![Astropy](https://img.shields.io/badge/Astropy-6.0+-orange.svg)](https://www.astropy.org/)
+[![RocketPy](https://img.shields.io/badge/RocketPy-1.13+-red.svg)](https://rocketpy.org/)
+[![SymPy](https://img.shields.io/badge/SymPy-1.14+-darkblue.svg)](https://www.sympy.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -14,42 +17,54 @@
 > **Notice:**  
 > **AASI is not an AGI or ASI system.** It is an experimental aerospace-focused AI application built using open-source software and open-weight models.
 >
-> The long-term vision is autonomous scientific research and engineering assistance, but the current implementation is a conventional AI application built using an open-weight language model, software tools, and retrieval. AASI does not possess superintelligence, nor is it an engineering certification authority.
+> The long-term vision is autonomous scientific research and engineering assistance, but the current implementation is an educational and research prototype. AASI does not possess superintelligence, nor is it an engineering certification authority.
+>
+> **Core Architectural Principle: LLM $\neq$ Calculator**  
+> Large Language Models are used for natural language understanding, intent recognition, parameter extraction, and explanatory synthesis. Verified open-source engineering libraries (`Astropy`, `RocketPy`, `SymPy`, `Scipy`) execute all actual mathematical computations. AASI never allows the language model to invent or fabricate calculations.
 
 ---
 
-## What is AASI?
+## Current Status: Phase 2 — Engineering Tool Intelligence
 
-AASI is designed to assist aerospace students, researchers, and engineers in exploring technical concepts, formulating problems, deriving physical relations, and structuring engineering workflows across:
-- Orbital mechanics & astrodynamics
-- Rocket propulsion & trajectory modeling
-- Fluid dynamics & atmospheric aerodynamics
-- Spacecraft systems engineering & mission design
+AASI has evolved from a conversational prototype (Phases 0 & 1) into a tool-using engineering assistant (Phase 2):
 
----
-
-## Current Status: Phase 0 & Phase 1
-
-This repository currently implements **Phase 0 (Project Foundation)** and **Phase 1 (Basic AI Intelligence)**:
-
-### Current Capabilities
-- **Decoupled Architecture**: High-performance FastAPI backend communicating with an open-weight LLM runtime via an asynchronous agent layer.
-- **Local Model Execution**: Direct integration with Ollama for running open-weight models (e.g. Qwen 2.5 series) privately on local hardware without sending telemetry or prompts to third parties.
-- **Engineered System Prompt**: Enforces technical transparency, explicit statement of assumptions and units, acknowledgement of uncertainty, and clear distinction between reasoning and computation.
-- **Health & Diagnostic Probing**: Real-time inspection of backend health and Ollama connectivity at `/api/health`.
-- **Interactive Developer UI**: Responsive Next.js TypeScript interface with live status indicators, markdown chat streaming, and session controls.
-
-### Current Limitations (Phases 0 & 1)
-- **No External Computational Tools Yet**: AASI cannot currently execute live numerical solvers, orbital propagators, or CFD runs.
-- **No Scientific RAG / Document Retrieval**: Responses rely entirely on parametric weights of the underlying open-weight model; scientific paper indexing is scheduled for a later phase.
-- **Not for Safety-Critical Systems**: Outputs must never be used as flight-critical decisions without external mathematical validation and human sign-off.
+### Capabilities
+- **Orbital Mechanics Tool (`orbit`)**:
+  - Precision two-body Keplerian calculations backed by Astropy constants.
+  - Circular orbital velocity, orbital period, escape velocity.
+  - Planar Hohmann transfer Delta-v requirements ($\Delta v_1, \Delta v_2, \Delta v_{total}$) and transfer duration.
+  - Multi-body support (Earth, Moon, Mars, Sun).
+- **Rocket Propulsion Tool (`rocket`)**:
+  - Ideal Tsiolkovsky rocket equation ($\Delta v = g_0 I_{sp} \ln(m_0/m_f)$).
+  - Required mass ratio and propellant fraction for target Delta-v.
+  - Preliminary propellant mass estimation.
+  - Standard SI gravity constants ($g_0 = 9.80665\text{ m/s}^2$).
+- **Symbolic Mathematics & Verification (`math`)**:
+  - SymPy-backed symbolic algebra and analytical equation solving.
+  - Independent numerical verification layer re-computing results from first principles.
+- **Execution Tracing**: Transparent, user-safe execution traces displayed in the UI without exposing internal chain-of-thought.
+- **Dynamic Tool Registry**: Extensible catalog accessible via `GET /api/tools`.
+- **Hardware-Aware Local Execution**: Configured by default for lightweight local models (e.g. `qwen2.5:0.5b`) running via Ollama.
+- **Deterministic Engineering Benchmarks**: 33 automated tests and physics benchmarks with documented tolerances.
 
 ---
 
 ## Architecture Overview
 
 ```
-User ──► Next.js Frontend ──► FastAPI Backend ──► AASI Agent Layer ──► Ollama (Local LLM) ──► Response
+User ──► Next.js Frontend ──► FastAPI ──► AASI Agent ──► Tool Selection
+                                                            ├── orbit.py (Astropy)
+                                                            ├── rocket.py (RocketPy)
+                                                            └── math_utils.py (SymPy)
+                                                            │
+                                                            ▼
+                                                     Exact Computation
+                                                            │
+                                                            ▼
+                                                   LLM Synthesis (Ollama)
+                                                            │
+                                                            ▼
+                                              Trace + Results + Explanation
 ```
 
 For complete architectural details, see [docs/architecture.md](docs/architecture.md).
@@ -59,9 +74,10 @@ For complete architectural details, see [docs/architecture.md](docs/architecture
 ## Technology Stack
 
 - **Backend**: Python 3.12, FastAPI, Pydantic v2, Uvicorn, HTTPX, Pytest
+- **Scientific Libraries**: Astropy, RocketPy, SymPy, SciPy, NumPy, Pint
 - **Frontend**: Next.js (App Router), TypeScript, React, Vanilla CSS
-- **Runtime**: Ollama (Open-weight models, e.g., `qwen2.5:3b`, `qwen2.5:7b`)
-- **Version Control**: Git
+- **Runtime**: Ollama (e.g., `qwen2.5:0.5b`, `qwen2.5:3b`)
+- **Version Control**: Git & GitHub
 
 ---
 
@@ -75,36 +91,32 @@ For complete architectural details, see [docs/architecture.md](docs/architecture
 
 ### 2. Ollama Setup
 
-Start the Ollama daemon and pull a lightweight model (e.g., Qwen 2.5):
+Start the Ollama daemon and pull the lightweight model:
 
 ```bash
-# Start Ollama service (if not already running)
+# Start Ollama service (if not running)
 ollama serve
 
-# Pull the default recommended model
-ollama pull qwen2.5:3b
+# Pull the lightweight model (recommended for laptops)
+ollama pull qwen2.5:0.5b
 ```
 
 ### 3. Backend Setup
 
 ```powershell
-# In PowerShell (from project root)
+# From project root
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
 # Install dependencies
 pip install -r backend/requirements.txt
 
-# (Optional) Customize environment
-cp backend/.env.example backend/.env
-
-# Launch backend server
-uvicorn backend.main:app --reload --port 8000
+# Run backend
+python -m uvicorn backend.main:app --reload --port 8000
 ```
-
-The backend will be available at `http://localhost:8000`.  
-Health check: `http://localhost:8000/api/health`  
-Interactive Swagger docs: `http://localhost:8000/docs`
+- API Health Check: `http://localhost:8000/api/health`
+- Tool Catalog: `http://localhost:8000/api/tools`
+- Swagger Docs: `http://localhost:8000/docs`
 
 ### 4. Frontend Setup
 
@@ -113,18 +125,20 @@ cd frontend
 npm install
 npm run dev
 ```
-
-The frontend will be available at `http://localhost:3000`.
+Open `http://localhost:3000` in your browser.
 
 ---
 
-## Running the Automated Tests
+## Running the Automated Tests & Benchmarks
 
-The test suite validates API contracts and error handling without needing a GPU or running Ollama instance (using mock HTTP responses):
+The automated test suite runs completely offline without requiring a GPU or active model:
 
 ```powershell
-# From project root with venv activated
+# Run full unit and integration test suite
 python -m pytest tests/ -v
+
+# Run deterministic engineering benchmarks
+python -m pytest tests/benchmarks/ -v
 ```
 
 ---
@@ -133,11 +147,10 @@ python -m pytest tests/ -v
 
 - [x] **Phase 0**: Foundation, project layout, Git setup, environment management.
 - [x] **Phase 1**: Basic AI intelligence pipeline (Frontend → FastAPI → Agent → Ollama → Response).
-- [ ] **Phase 2**: Scientific calculator & symbolic math tool integrations (SymPy, Pint).
-- [ ] **Phase 3**: Orbital mechanics tool integration (Astropy, Poliastro).
-- [ ] **Phase 4**: Rocketry & propulsion analysis tools (RocketPy).
-- [ ] **Phase 5**: Aerospace RAG (NASA Technical Reports, ArXiv papers, aerospace standards).
-- [ ] **Phase 6**: Verification engine & autonomous scientific research loops.
+- [x] **Phase 2**: Real engineering tool intelligence (Astropy orbit tools, RocketPy propulsion sizing, SymPy symbolic verification, execution traces).
+- [ ] **Phase 3**: Aerospace scientific literature retrieval & RAG (NASA NTRS, ArXiv, AIAA papers).
+- [ ] **Phase 4**: Multi-agent verification engine & dimensional auditing.
+- [ ] **Phase 5**: Autonomous scientific research loops and simulation parameter sweeps.
 
 ---
 

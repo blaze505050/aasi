@@ -15,20 +15,33 @@ client = TestClient(app)
 
 
 def test_root_endpoint():
-    """Verify root index returns application metadata."""
+    """Verify root index returns application metadata and tool endpoint link."""
     response = client.get("/")
     assert response.status_code == 200
     data = response.json()
     assert "name" in data
     assert "version" in data
     assert data["version"] == settings.app_version
+    assert data["tools_url"] == "/api/tools"
+
+
+def test_tools_endpoint():
+    """Verify GET /api/tools returns the registered engineering tools catalog."""
+    response = client.get("/api/tools")
+    assert response.status_code == 200
+    data = response.json()
+    assert "tools" in data
+    tool_names = [t["name"] for t in data["tools"]]
+    assert "orbit" in tool_names
+    assert "rocket" in tool_names
+    assert "math" in tool_names
 
 
 def test_health_endpoint_ollama_connected():
     """Verify /api/health when Ollama is running and accessible."""
     mock_tags_response = httpx.Response(
         status_code=200,
-        json={"models": [{"name": "qwen2.5:3b"}]},
+        json={"models": [{"name": settings.ollama_model}]},
         request=httpx.Request("GET", f"{settings.ollama_base_url}/api/tags"),
     )
 
@@ -58,12 +71,12 @@ def test_health_endpoint_ollama_unreachable():
     assert "Could not connect to Ollama" in data["error"]
 
 
-def test_chat_endpoint_success():
-    """Verify POST /api/chat returns structured response on successful inference."""
+def test_chat_endpoint_conceptual_success():
+    """Verify POST /api/chat returns structured response on successful conceptual inference."""
     mock_chat_response = httpx.Response(
         status_code=200,
         json={
-            "model": "qwen2.5:3b",
+            "model": settings.ollama_model,
             "message": {
                 "role": "assistant",
                 "content": "A Hohmann transfer is an elliptical orbital maneuver used to transfer between two circular orbits.",
@@ -80,8 +93,41 @@ def test_chat_endpoint_success():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "success"
-    assert data["model"] == "qwen2.5:3b"
+    assert data["model"] == settings.ollama_model
     assert "Hohmann transfer" in data["response"]
+    assert len(data["tool_calls"]) == 0
+
+
+def test_chat_endpoint_computational_tool_execution():
+    """Verify POST /api/chat executes tool and provides trace for numerical calculation."""
+    mock_chat_response = httpx.Response(
+        status_code=200,
+        json={
+            "model": settings.ollama_model,
+            "message": {
+                "role": "assistant",
+                "content": "The circular orbital velocity at 500 km is approximately 7.61 km/s with a period of 94.6 minutes.",
+            },
+            "done": True,
+        },
+        request=httpx.Request("POST", f"{settings.ollama_base_url}/api/chat"),
+    )
+
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_chat_response
+        response = client.post(
+            "/api/chat",
+            json={"message": "What is the circular orbital velocity at 500 km altitude around Earth?"},
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert len(data["tool_calls"]) == 1
+    assert data["tool_calls"][0]["tool"] == "orbit"
+    assert data["tool_calls"][0]["operation"] == "circular_orbit"
+    assert len(data["calculations"]) == 1
+    assert data["calculations"][0]["results"]["orbital_velocity_km_s"] > 7.0
 
 
 def test_chat_endpoint_validation_empty():
@@ -112,13 +158,13 @@ def test_chat_endpoint_ollama_model_not_found():
     """Verify POST /api/chat returns HTTP 502 with diagnostic when model is not installed."""
     mock_err_response = httpx.Response(
         status_code=404,
-        text='{"error":"model \'qwen2.5:3b\' not found, try pulling it first"}',
+        text='{"error":"model not found, try pulling it first"}',
         request=httpx.Request("POST", f"{settings.ollama_base_url}/api/chat"),
     )
 
     with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
         mock_post.return_value = mock_err_response
-        response = client.post("/api/chat", json={"message": "Calculate thrust."})
+        response = client.post("/api/chat", json={"message": "Explain specific impulse."})
 
     assert response.status_code == 502
     data = response.json()
@@ -130,7 +176,7 @@ def test_chat_endpoint_ollama_timeout():
     """Verify POST /api/chat returns HTTP 502 when Ollama query times out."""
     with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
         mock_post.side_effect = httpx.TimeoutException("Timeout")
-        response = client.post("/api/chat", json={"message": "Complex trajectory calculation."})
+        response = client.post("/api/chat", json={"message": "What is the Oberth effect?"})
 
     assert response.status_code == 502
     data = response.json()

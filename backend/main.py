@@ -1,15 +1,17 @@
 """
 FastAPI application for AASI — Autonomous Aerospace Scientific Intelligence.
+Phase 2: Engineering Tool Intelligence.
 """
 
 import logging
-from typing import Optional
+from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend.config import settings
 from backend.agent import AASIAgent, OllamaUnavailableError, OllamaRuntimeError, default_agent
+from backend.tools.registry import tool_registry
 
 # Configure logging
 logging.basicConfig(
@@ -50,11 +52,27 @@ class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=16384, description="User query or technical prompt")
 
 
+class ToolCallInfo(BaseModel):
+    """Execution information for a tool invocation."""
+    tool: str
+    operation: str
+    status: str
+    trace: List[str] = []
+
+
 class ChatResponse(BaseModel):
     """Schema for POST /api/chat response."""
-    response: str = Field(..., description="AASI AI response")
+    response: str = Field(..., description="AASI AI response or synthesis")
     model: str = Field(..., description="Model identifier that produced the response")
-    status: str = Field(default="success", description="Status of the generation")
+    status: str = Field(default="success", description="Status of the request execution")
+    tool_calls: List[ToolCallInfo] = Field(default_factory=list, description="List of tool executions")
+    calculations: List[Dict[str, Any]] = Field(default_factory=list, description="Structured numerical outputs")
+    verification: Optional[Dict[str, Any]] = Field(None, description="Independent verification results")
+
+
+class ToolsResponse(BaseModel):
+    """Schema for GET /api/tools."""
+    tools: List[Dict[str, Any]]
 
 
 # --- API Routes ---
@@ -75,20 +93,31 @@ async def get_health():
     )
 
 
-@app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat Completion")
+@app.get("/api/tools", response_model=ToolsResponse, summary="List Registered Tools")
+async def get_tools():
+    """
+    Returns the catalog of available scientific and computational tools.
+    """
+    return ToolsResponse(tools=tool_registry.list_tools())
+
+
+@app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
 async def chat_completion(request: ChatRequest):
     """
     Receives user query, orchestrates AASI agent prompt and context,
-    invokes configured Ollama model, and returns structured response.
+    invokes scientific tools if computational, and returns structured synthesis.
     """
     logger.info("Received chat query: '%s...'", request.message[:80])
 
     try:
-        result = await default_agent.generate_response(request.message)
+        result = await default_agent.process_chat(request.message)
         return ChatResponse(
             response=result["response"],
             model=result["model"],
-            status="success",
+            status=result["status"],
+            tool_calls=result.get("tool_calls", []),
+            calculations=result.get("calculations", []),
+            verification=result.get("verification"),
         )
     except OllamaUnavailableError as exc:
         logger.error("Ollama unavailable: %s", exc)
@@ -124,4 +153,5 @@ async def root():
         "version": settings.app_version,
         "docs_url": "/docs",
         "health_url": "/api/health",
+        "tools_url": "/api/tools",
     }

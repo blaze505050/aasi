@@ -2,12 +2,40 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
+interface ToolCall {
+  tool: string;
+  operation: string;
+  status: string;
+  trace: string[];
+}
+
+interface CalculationData {
+  tool: string;
+  calculation: string;
+  inputs: Record<string, any>;
+  results: Record<string, any>;
+  units?: Record<string, string>;
+  assumptions?: string[];
+}
+
+interface VerificationData {
+  is_verified: boolean;
+  calculated_value: number;
+  recomputed_value: number;
+  relative_error: number;
+  tolerance_rel: number;
+  reference_formula: string;
+}
+
 interface Message {
   id: string;
   sender: "user" | "assistant";
   content: string;
   model?: string;
   timestamp: string;
+  tool_calls?: ToolCall[];
+  calculations?: CalculationData[];
+  verification?: VerificationData | null;
 }
 
 interface HealthStatus {
@@ -22,9 +50,9 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 const QUICK_PROMPTS = [
   "What is a Hohmann transfer?",
-  "How is specific impulse (Isp) defined in rocketry?",
-  "Explain the Tsiolkovsky rocket equation assumptions.",
-  "What physical phenomenon defines the Kármán line?",
+  "What is the circular orbital velocity at 500 km altitude around Earth?",
+  "Calculate the Δv required for a Hohmann transfer from a 200 km circular orbit to a 500 km circular orbit around Earth.",
+  "For a rocket with Isp = 350 s, initial mass = 10000 kg, final mass = 3000 kg, calculate Δv.",
 ];
 
 export default function AASIChatApp() {
@@ -33,11 +61,11 @@ export default function AASIChatApp() {
       id: "initial-welcome",
       sender: "assistant",
       content:
-        "Greetings. I am AASI, an experimental AI research assistant for aerospace engineering, space science, and related physics disciplines.\n\n" +
-        "Please note that I am an experimental reasoning assistant and not an engineering certification authority. " +
-        "In this phase, I do not have direct access to external calculation solvers or flight simulation tools. " +
-        "How can I assist your technical inquiry today?",
-      model: "AASI Agent",
+        "Greetings. I am AASI, an experimental AI research assistant for aerospace engineering and space science.\n\n" +
+        "In Phase 2, I am equipped with verified Python engineering tools for orbital mechanics (Astropy), " +
+        "rocket propulsion (RocketPy standard equations), and symbolic verification (SymPy).\n\n" +
+        "Ask a conceptual question or submit an engineering problem with parameters to trigger real computational calculations.",
+      model: "AASI Agent (Phase 2)",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -68,14 +96,14 @@ export default function AASIChatApp() {
       const data: HealthStatus = await res.json();
       setHealth(data);
       if (!data.ollama_connected && data.error) {
-        setErrorMessage(`Ollama Runtime Notice: ${data.error}`);
+        setErrorMessage(`Ollama Notice: ${data.error}`);
       } else {
         setErrorMessage(null);
       }
     } catch (err: any) {
       setHealth(null);
       setErrorMessage(
-        `Cannot connect to AASI backend at ${API_BASE}. Ensure the FastAPI server is running via 'uvicorn backend.main:app --port 8000'.`
+        `Cannot connect to AASI backend at ${API_BASE}. Ensure the FastAPI server is running.`
       );
     } finally {
       setIsCheckingHealth(false);
@@ -122,8 +150,11 @@ export default function AASIChatApp() {
         id: "assistant-" + Date.now(),
         sender: "assistant",
         content: data.response,
-        model: data.model || health?.configured_model || "Ollama",
+        model: data.model || health?.configured_model || "AASI Agent",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        tool_calls: data.tool_calls || [],
+        calculations: data.calculations || [],
+        verification: data.verification,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -147,8 +178,7 @@ export default function AASIChatApp() {
       {
         id: "initial-welcome",
         sender: "assistant",
-        content:
-          "Conversation history cleared. Ready for aerospace research queries and problem formulation.",
+        content: "Session reset. Ready for aerospace inquiries and engineering calculations.",
         model: "AASI Agent",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       },
@@ -162,7 +192,7 @@ export default function AASIChatApp() {
       <header className="app-header">
         <div className="header-top">
           <div className="brand-section">
-            <span className="logo-badge">PHASE 1</span>
+            <span className="logo-badge">PHASE 2</span>
             <div className="title-group">
               <h1>
                 <span className="title-accent">AASI</span>
@@ -172,6 +202,12 @@ export default function AASIChatApp() {
 
           {/* Telemetry Status Indicators */}
           <div className="telemetry-bar">
+            {/* Active Tools Badge */}
+            <div className="status-badge tools-badge" title="Registered Computational Tools">
+              <span className="status-dot online" />
+              <span>TOOLS: ORBIT • ROCKET • MATH</span>
+            </div>
+
             {/* Backend Status */}
             <div className="status-badge" title="FastAPI Gateway Status">
               <span
@@ -240,14 +276,14 @@ export default function AASIChatApp() {
 
       {/* Chat Viewport */}
       <section className="chat-container">
-        {/* Aerospace Quick Prompts */}
+        {/* Quick Prompts */}
         {messages.length <= 1 && (
           <div className="welcome-card">
             <div className="welcome-title">
-              <span>Quick Aerospace Inquiries</span>
+              <span>Phase 2 Engineering Inquiries</span>
             </div>
             <p className="welcome-text">
-              Select a foundational topic below or submit your own engineering problem statement:
+              Test conceptual reasoning or run real numerical solvers with explicit SI units:
             </p>
             <div className="quick-prompts">
               {QUICK_PROMPTS.map((prompt, idx) => (
@@ -279,6 +315,80 @@ export default function AASIChatApp() {
                 {msg.model && <span>• {msg.model}</span>}
                 <span>• {msg.timestamp}</span>
               </div>
+
+              {/* 1. AASI PROCESS TRACE (if tool executed) */}
+              {msg.tool_calls && msg.tool_calls.length > 0 && (
+                <div className="tool-trace-block">
+                  <div className="tool-trace-header">AASI PROCESS</div>
+                  <ul className="tool-trace-list">
+                    {msg.tool_calls[0].trace.map((step, sIdx) => (
+                      <li key={sIdx}>
+                        <span className="trace-check">✓</span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* 2. CALCULATION DETAILS CARD (if calculation data present) */}
+              {msg.calculations && msg.calculations.length > 0 && (
+                <div className="calculation-card">
+                  <div className="calculation-header">
+                    <span>CALCULATION: {msg.calculations[0].calculation.toUpperCase()}</span>
+                    <span className="calculation-tool-tag">TOOL: {msg.calculations[0].tool.toUpperCase()}</span>
+                  </div>
+
+                  {/* Inputs */}
+                  <div className="calc-section">
+                    <span className="calc-section-title">INPUTS:</span>
+                    <div className="calc-grid">
+                      {Object.entries(msg.calculations[0].inputs).map(([k, v]) => (
+                        <div key={k} className="calc-item">
+                          <span className="calc-label">{k}:</span>
+                          <span className="calc-value">{String(v)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Outputs */}
+                  <div className="calc-section">
+                    <span className="calc-section-title">OUTPUTS:</span>
+                    <div className="calc-grid">
+                      {Object.entries(msg.calculations[0].results).map(([k, v]) => (
+                        <div key={k} className="calc-item">
+                          <span className="calc-label">{k}:</span>
+                          <span className="calc-value highlight">{String(v)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Assumptions */}
+                  {msg.calculations[0].assumptions && msg.calculations[0].assumptions.length > 0 && (
+                    <div className="calc-section">
+                      <span className="calc-section-title">PHYSICAL ASSUMPTIONS:</span>
+                      <ul className="calc-assumptions-list">
+                        {msg.calculations[0].assumptions.map((asm, aIdx) => (
+                          <li key={aIdx}>• {asm}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Independent SymPy Verification */}
+                  {msg.verification && (
+                    <div className="verification-badge-container">
+                      <span className="verification-badge">
+                        ✓ Independently verified with SymPy (relative error: {msg.verification.relative_error})
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 3. AASI EXPLANATION */}
               <div className="bubble-content">{msg.content}</div>
             </div>
 
@@ -294,7 +404,7 @@ export default function AASIChatApp() {
         {isLoading && (
           <div className="thinking-indicator">
             <div className="pulse-spinner" />
-            <span>AASI is processing inquiry through open-weight model...</span>
+            <span>AASI is reasoning and executing scientific tools...</span>
           </div>
         )}
 
@@ -319,7 +429,7 @@ export default function AASIChatApp() {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a technical aerospace, astrodynamics, or propulsion question..."
+            placeholder="Ask a technical concept or submit parameters for orbital / rocket calculations..."
             disabled={isLoading}
           />
           <div className="input-actions">
@@ -336,7 +446,7 @@ export default function AASIChatApp() {
         </div>
         <div className="input-hint">
           <span>Press Enter to send, Shift + Enter for new line</span>
-          <span>AASI Phase 1 Prototype • Open-weight Engine</span>
+          <span>AASI Phase 2 • Astropy • RocketPy • SymPy</span>
         </div>
       </footer>
     </main>

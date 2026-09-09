@@ -5,69 +5,126 @@
 **AASI (Autonomous Aerospace Scientific Intelligence)** is an experimental AI research assistant designed specifically for aerospace engineering, space science, and related computational disciplines.
 
 > **Important Framing:**
-> AASI is **not** an AGI, ASI, or superintelligence system. It is a domain-adapted AI assistant constructed with standard software engineering practices, open-weight language models, and structured orchestration.
+> AASI is **not** an AGI, ASI, or superintelligence system. It is a domain-adapted AI assistant constructed with standard software engineering practices, open-weight language models, and structured tool orchestration.
 
 ---
 
-## Current Architecture (Phase 0 & Phase 1)
+## Phase 2 Architecture: Engineering Tool Intelligence
 
-In Phases 0 and 1, AASI establishes a robust, decoupled, and runnable baseline pipeline:
+In Phase 2, AASI establishes the fundamental architectural principle:
+
+### Core Principle: LLM $\neq$ Calculator
 
 ```
-[ User ]
-   │
-   ▼
-[ Next.js Frontend ] (TypeScript, React, Polished Developer Prototype)
-   │
-   │  HTTP / JSON (REST)
-   ▼
-[ FastAPI Backend ] (Validation via Pydantic, CORS, Logging)
-   │
-   ▼
-[ AASI Agent Layer ] (System prompt conditioning, error handling, health probing)
-   │
-   │  HTTP (Ollama REST API: /api/chat & /api/tags)
-   ▼
-[ Ollama Runtime ] (Local model engine)
-   │
-   ▼
-[ Open-Weight LLM ] (e.g. Qwen 2.5 series)
-   │
-   ▼
-[ Structured Response ] ──► Back to User Interface
+[ LLM (Language Model) ]                    [ Scientific Tool Subsystem ]
+  • Natural language understanding            • Precise orbital mechanics (Astropy)
+  • Problem formulation & intent parsing      • Propulsion sizing & Tsiolkovsky (RocketPy)
+  • Tool selection & parameter extraction     • Symbolic algebra & verification (SymPy)
+  • Technical explanation synthesis           • Explicit SI dimensional units (Pint)
 ```
 
-### Component Details
+**The language model is NEVER allowed to invent or fabricate engineering numbers.**  
+When a calculation is required, the task is routed to Python engineering libraries, and the exact verified outputs are fed back to the LLM for contextual explanation.
 
-1. **Frontend (`frontend/`)**:
-   - Built with Next.js and TypeScript.
-   - Provides a clean, technical interface for researchers and engineers.
-   - Features real-time backend/Ollama connection status, model indicators, error messaging, conversation history, and quick resets.
+---
 
-2. **Backend Gateway (`backend/main.py`)**:
-   - Built with FastAPI and Uvicorn.
-   - Enforces schema validation using Pydantic (`ChatRequest`, `ChatResponse`, `HealthResponse`).
-   - Implements `/api/health` for monitoring system connectivity without exposing internal credentials.
-   - Implements `/api/chat` for conversational interactions.
+## Execution Pipeline
 
-3. **AASI Agent Layer (`backend/agent.py`)**:
-   - Decoupled from the HTTP transport layer.
-   - Injects the domain-specific AASI system prompt (clarifying assumptions, stating uncertainties, disclaiming certification authority, and distinguishing model reasoning from verified calculations).
-   - Asynchronously communicates with Ollama via `httpx.AsyncClient`.
-   - Distinguishes network failures, missing models, and timeout events.
+```
+[ User Query ]
+      │
+      ▼
+[ Next.js Frontend ]
+      │  HTTP / JSON (REST)
+      ▼
+[ FastAPI Gateway (/api/chat, /api/tools, /api/health) ]
+      │
+      ▼
+[ AASI Agent Layer ]
+      │
+      ├───► [ Intent Classification ]
+      │        ├── Conceptual? ──────────────► [ Direct LLM Inference ] ─────────┐
+      │        │                                                                   │
+      │        └── Computational?                                                 │
+      │                 │                                                         │
+      │                 ▼                                                         │
+      │        [ Parameter Extraction & Validation ]                              │
+      │                 │                                                         │
+      │                 ▼                                                         │
+      │        [ Tool Registry Dispatcher ]                                       │
+      │                 ├── orbit.py (Astropy constants & two-body physics)       │
+      │                 ├── rocket.py (RocketPy standard equations & sizing)      │
+      │                 └── math_utils.py (SymPy symbolic verification)           │
+      │                 │                                                         │
+      │                 ▼                                                         │
+      │        [ Structured Numerical Result ]                                    │
+      │                 │                                                         │
+      │                 ▼                                                         │
+      │        [ Contextual Synthesis via LLM (Ollama) ]                          │
+      │                 │                                                         │
+      ▼                 ▼                                                         │
+[ Unified Response: Trace + Calculations + Verification + Explanation ] ◄─────────┘
+      │
+      ▼
+[ Next.js Telemetry UI: Trace badges, Calculation card, Explanations ]
+```
 
-4. **Model Runtime (`Ollama`)**:
-   - Runs locally on the host machine.
-   - Serves open-weight models (e.g., `qwen2.5:3b`, `qwen2.5:7b`).
-   - No proprietary API keys or external cloud dependencies required for inference.
+---
+
+## Tool Subsystem Architecture (`backend/tools/`)
+
+The tool subsystem is modular and extensible via `backend/tools/registry.py`:
+
+1. **Orbital Mechanics (`backend/tools/orbit.py`)**:
+   - Backed by `astropy.constants` and `astropy.units`.
+   - Operations: `circular_orbit`, `escape_velocity`, `hohmann_transfer`.
+   - Supports Earth, Moon, Mars, Sun with exact gravitational parameters ($\mu = GM$) and radii.
+   - Outputs: orbital radii, velocities, period, $\Delta v_1$, $\Delta v_2$, transfer duration, and explicit physical assumptions.
+
+2. **Rocket Propulsion (`backend/tools/rocket.py`)**:
+   - Standard SI rocketry formulations and RocketPy constants ($g_0 = 9.80665\text{ m/s}^2$).
+   - Operations: `rocket_equation` (Tsiolkovsky $\Delta v = g_0 I_{sp} \ln(m_0/m_f)$), `required_mass_ratio`, `propellant_mass_estimation`.
+   - Outputs: $\Delta v$, mass ratio, propellant mass, mass fraction, exhaust velocity, and assumptions.
+
+3. **Symbolic Mathematics & Verification (`backend/tools/math_utils.py`)**:
+   - Backed by `sympy`.
+   - Operations: `symbolic_evaluation`, `solve_equation`, `verify_calculation`.
+   - Provides independent re-computation of numerical results from first principles to ensure consistency.
+
+4. **Central Registry (`backend/tools/registry.py`)**:
+   - Dynamic discovery and signature inspection.
+   - Allows future engineering domains (aerodynamics, thermal, CFD, flight dynamics) to register without altering agent code.
+
+---
+
+## Tool Execution Trace
+
+All computational responses include a user-safe execution trace:
+```json
+{
+  "tool_calls": [
+    {
+      "tool": "orbit",
+      "operation": "circular_orbit",
+      "status": "success",
+      "trace": [
+        "Identified aerospace calculation: orbit.circular_orbit",
+        "Extracted input parameters: {'altitude_km': 500.0, 'central_body': 'Earth'}",
+        "Executing verified tool 'orbit' (operation: 'circular_orbit')",
+        "Executed calculation successfully with physical constants",
+        "Independently verified orbital velocity with SymPy",
+        "Generating technical synthesis with open-weight model",
+        "Completed response synthesis"
+      ]
+    }
+  ]
+}
+```
+**Safety Guarantee:** Private chain-of-thought is never exposed; only auditable operational milestones are presented.
 
 ---
 
 ## Future Architecture (Upcoming Phases)
-
-Future phases will incrementally evolve AASI from a basic conversational assistant into an integrated scientific computing and research partner.
-
-Planned architectural expansions include:
 
 ```
                           ┌───────────────────────────┐
@@ -95,20 +152,6 @@ Planned architectural expansions include:
                           └───────────────────────────┘
 ```
 
-### Planned Capabilities (Not implemented in Phase 0/1):
-
-1. **Aerospace Computational Tools**:
-   - **Orbital Mechanics**: Integrations with Astropy/Poliastro for ephemeris, delta-v budgets, and transfer orbits.
-   - **Propulsion & Trajectory**: RocketPy simulations for solid/liquid motor performance and flight trajectories.
-   - **Aerodynamics & CFD**: OpenFOAM or low-order panel methods for aerodynamic coefficients ($C_L, C_D, C_M$).
-
-2. **Scientific Knowledge Retrieval (RAG)**:
-   - Ingestion of peer-reviewed aerospace literature, NASA Technical Reports Server (NTRS), and engineering standards.
-   - Grounded citations with direct document and equation links.
-
-3. **Verification & Audit Subsystems**:
-   - Unit and dimensional consistency validation (e.g. Pint / SymPy).
-   - Multi-agent review passes to verify scientific reasoning before delivering engineering outputs.
-
-4. **Autonomous Scientific Research Loops**:
-   - Multi-step experimental planning, parameter sweeping, and automated synthetic report synthesis.
+- **Phase 3**: Aerospace Literature RAG (NASA Technical Reports, ArXiv papers, AIAA standards).
+- **Phase 4**: Verification engine & dimensional consistency checks.
+- **Phase 5**: Autonomous scientific research loops and simulation sweeps.
