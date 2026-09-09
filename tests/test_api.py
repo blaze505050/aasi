@@ -1,0 +1,138 @@
+"""
+Automated tests for AASI backend API endpoints.
+Tests run without requiring a GPU or a live Ollama service by mocking HTTP transport.
+"""
+
+import pytest
+from unittest.mock import AsyncMock, patch
+import httpx
+from fastapi.testclient import TestClient
+
+from backend.main import app
+from backend.config import settings
+
+client = TestClient(app)
+
+
+def test_root_endpoint():
+    """Verify root index returns application metadata."""
+    response = client.get("/")
+    assert response.status_code == 200
+    data = response.json()
+    assert "name" in data
+    assert "version" in data
+    assert data["version"] == settings.app_version
+
+
+def test_health_endpoint_ollama_connected():
+    """Verify /api/health when Ollama is running and accessible."""
+    mock_tags_response = httpx.Response(
+        status_code=200,
+        json={"models": [{"name": "qwen2.5:3b"}]},
+        request=httpx.Request("GET", f"{settings.ollama_base_url}/api/tags"),
+    )
+
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
+        mock_get.return_value = mock_tags_response
+        response = client.get("/api/health")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["version"] == settings.app_version
+    assert data["ollama_connected"] is True
+    assert data["configured_model"] == settings.ollama_model
+    assert data["error"] is None
+
+
+def test_health_endpoint_ollama_unreachable():
+    """Verify /api/health reports disconnected state when Ollama is not running."""
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
+        mock_get.side_effect = httpx.ConnectError("Connection refused")
+        response = client.get("/api/health")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["ollama_connected"] is False
+    assert "Could not connect to Ollama" in data["error"]
+
+
+def test_chat_endpoint_success():
+    """Verify POST /api/chat returns structured response on successful inference."""
+    mock_chat_response = httpx.Response(
+        status_code=200,
+        json={
+            "model": "qwen2.5:3b",
+            "message": {
+                "role": "assistant",
+                "content": "A Hohmann transfer is an elliptical orbital maneuver used to transfer between two circular orbits.",
+            },
+            "done": True,
+        },
+        request=httpx.Request("POST", f"{settings.ollama_base_url}/api/chat"),
+    )
+
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_chat_response
+        response = client.post("/api/chat", json={"message": "What is a Hohmann transfer?"})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["model"] == "qwen2.5:3b"
+    assert "Hohmann transfer" in data["response"]
+
+
+def test_chat_endpoint_validation_empty():
+    """Verify POST /api/chat rejects empty messages with HTTP 422."""
+    response = client.post("/api/chat", json={"message": ""})
+    assert response.status_code == 422
+
+
+def test_chat_endpoint_validation_missing_field():
+    """Verify POST /api/chat rejects payload with missing 'message' field with HTTP 422."""
+    response = client.post("/api/chat", json={})
+    assert response.status_code == 422
+
+
+def test_chat_endpoint_ollama_unavailable():
+    """Verify POST /api/chat returns HTTP 503 when Ollama is not running."""
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.side_effect = httpx.ConnectError("Connection refused")
+        response = client.post("/api/chat", json={"message": "What is specific impulse?"})
+
+    assert response.status_code == 503
+    data = response.json()
+    assert "detail" in data
+    assert "Cannot connect to Ollama" in data["detail"]
+
+
+def test_chat_endpoint_ollama_model_not_found():
+    """Verify POST /api/chat returns HTTP 502 with diagnostic when model is not installed."""
+    mock_err_response = httpx.Response(
+        status_code=404,
+        text='{"error":"model \'qwen2.5:3b\' not found, try pulling it first"}',
+        request=httpx.Request("POST", f"{settings.ollama_base_url}/api/chat"),
+    )
+
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_err_response
+        response = client.post("/api/chat", json={"message": "Calculate thrust."})
+
+    assert response.status_code == 502
+    data = response.json()
+    assert "detail" in data
+    assert "was not found in Ollama" in data["detail"]
+
+
+def test_chat_endpoint_ollama_timeout():
+    """Verify POST /api/chat returns HTTP 502 when Ollama query times out."""
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.side_effect = httpx.TimeoutException("Timeout")
+        response = client.post("/api/chat", json={"message": "Complex trajectory calculation."})
+
+    assert response.status_code == 502
+    data = response.json()
+    assert "detail" in data
+    assert "timed out" in data["detail"]
