@@ -23,60 +23,65 @@
 > Large Language Models are used for natural language understanding, intent recognition, parameter extraction, and explanatory synthesis. Verified open-source engineering libraries (`Astropy`, `RocketPy`, `SymPy`, `Scipy`) execute all actual mathematical computations. AASI never allows the language model to invent or fabricate calculations.
 
 ---
+## Current Status: Phase 3 — Scientific Knowledge + Dataset Foundation
 
-## Current Status: Phase 2 — Engineering Tool Intelligence
+AASI has established a **provenance-first scientific knowledge and dataset foundation** (Phase 3) building upon its Phase 2 engineering tool intelligence:
 
-AASI has evolved from a conversational prototype (Phases 0 & 1) into a tool-using engineering assistant (Phase 2):
+### Core Architecture Principle: LLM $\neq$ Knowledge Omniscience
+AASI is **not** an LLM trained on all aerospace knowledge. It is an orchestrating scientific assistant that grounds its reasoning in:
+1. **Verified Literature & Technical Reports** (NASA NTRS, historical NACA reports, arXiv) with cryptographic provenance.
+2. **Physical Datasets & Reference Results** (Wind tunnel measurements, peer-reviewed CFD benchmarks).
+3. **Engineering Libraries & Solvers** (Astropy, RocketPy, SymPy) that execute actual calculations.
+4. **Physics AI Neural Surrogates** (Abstract interfaces preparing for Phase 4 PINN/FNO models).
 
-### Capabilities
-- **Orbital Mechanics Tool (`orbit`)**:
-  - Precision two-body Keplerian calculations backed by Astropy constants.
-  - Circular orbital velocity, orbital period, escape velocity.
-  - Planar Hohmann transfer Delta-v requirements ($\Delta v_1, \Delta v_2, \Delta v_{total}$) and transfer duration.
-  - Multi-body support (Earth, Moon, Mars, Sun).
-- **Rocket Propulsion Tool (`rocket`)**:
-  - Ideal Tsiolkovsky rocket equation ($\Delta v = g_0 I_{sp} \ln(m_0/m_f)$).
-  - Required mass ratio and propellant fraction for target Delta-v.
-  - Preliminary propellant mass estimation.
-  - Standard SI gravity constants ($g_0 = 9.80665\text{ m/s}^2$).
-- **Symbolic Mathematics & Verification (`math`)**:
-  - SymPy-backed symbolic algebra and analytical equation solving.
-  - Independent numerical verification layer re-computing results from first principles.
-  - AST-level expression validator protecting against arbitrary code injection.
-- **Dimensional Analysis & Units (`units`)**:
-  - Pint-backed verified dimensional conversion (distance, velocity, mass, time, acceleration).
-- **Execution Tracing**: Transparent, user-safe execution traces displayed in the UI without exposing internal chain-of-thought.
-- **Dynamic Tool Registry**: Extensible catalog accessible via `GET /api/tools`.
-- **Hardware-Aware Local Execution**: Configured by default for lightweight local models (e.g. `qwen2.5:0.5b`) running via Ollama.
-- **Deterministic Engineering Benchmarks & QA**: 112 automated tests, physics validation matrix, and browser QA evidence. See [Phase 2 Validation Report](docs/qa/PHASE_2_VALIDATION.md).
+### Phase 3 Capabilities
+- **Provenance-First Schema & Integrity**:
+  - Cryptographic SHA-256 checksums, publishing organizations, report numbers, authors, publication years, source URLs, and license categories.
+  - Unattributed scientific facts are never admitted to the knowledge base.
+- **Scientific Object Taxonomy**:
+  - Distinct types for `DOCUMENT`, `DATASET`, `EXPERIMENT`, `SIMULATION`, `SURROGATE`, `ANALYTICAL_RESULT`, and `RETRIEVED_REFERENCE` to prevent false equivalences (e.g. wind tunnel measurements $\neq$ simulation $\neq$ analytical equation).
+- **Source Registry & Adapters**:
+  - `NASA_NTRS`, `NACA`, `ARXIV`, `ESA`, `ISRO`, `OPEN_DATASETS`.
+  - Transparent documentation of unautomated sources (e.g. ESA / ISRO portal restrictions).
+- **Structure-Aware Chunking & Equation Preservation**:
+  - Preserves section hierarchies, page numbers, and tables.
+  - Extracts mathematical formulas in LaTeX and plain text with identified physical variables and units.
+- **FAISS Vector Index & Hybrid Retrieval**:
+  - Inner-product cosine similarity in 384-dimensional dense space.
+  - Lexical scoring prioritizing exact aerospace identifiers ("NACA 0012", "Mach 0.3", "Re=500000", "RANS", "AoA").
+  - Metadata filtering by organization, discipline, and year range.
+- **Physical Dataset Registry & CFD Data Schema**:
+  - `CFDDataModel`: Mach, Reynolds, AoA, turbulence models, $C_L, C_D, C_M, C_p$, mesh, and solver metadata.
+  - `query_conditions`: Search experimental databases by flight conditions.
+- **Numerical Question Resolution Hierarchy**:
+  - Questions like *"What is the drag coefficient of NACA 0012 at Mach 0.3, Re=500000, AoA=8°?"* query verified databases and return exact reference data points ($C_D = 0.0142 \pm 0.0005$) with provenance, never fabricating numbers.
+- **Adversarial & Prompt-Injection Quarantine**:
+  - Untrusted document inputs are sanitized and quarantined in `<UNTRUSTED_REFERENCE_DATA>` XML blocks to prevent prompt-injection attacks.
+- **Scientific Research UI**:
+  - Interactive Research Catalog drawer with document search, cryptographic provenance inspection, and flow condition queries.
 
 ---
 
 ## Architecture Overview
 
 ```
-User ──► Next.js Frontend ──► FastAPI ──► AASI Agent ──► Tool Selection
-                                                            ├── orbit.py (Astropy)
-                                                            ├── rocket.py (RocketPy)
-                                                            └── math_utils.py (SymPy)
-                                                            │
-                                                            ▼
-                                                     Exact Computation
-                                                            │
-                                                            ▼
-                                                   LLM Synthesis (Ollama)
-                                                            │
-                                                            ▼
-                                              Trace + Results + Explanation
+User ──► Next.js Frontend ──► FastAPI ──► AASI Agent ──► Result-Resolution Hierarchy
+                                                            ├── 1. Condition Search (Dataset Registry)
+                                                            │     └── Exact Match? ──► Return Reference + Provenance
+                                                            ├── 2. Engineering Tools (orbit, rocket, math)
+                                                            │     └── Applicable? ──► Compute + SymPy Verify
+                                                            └── 3. Hybrid Literature RAG (NASA/NACA/FAISS)
+                                                                  └── Retrieved Passages ──► Grounded Answer + Citations
 ```
 
-For complete architectural details, see [docs/architecture.md](docs/architecture.md).
+For complete architectural details, see [docs/architecture.md](docs/architecture.md) and [docs/knowledge/architecture.md](docs/knowledge/architecture.md).
 
 ---
 
 ## Technology Stack
 
 - **Backend**: Python 3.12, FastAPI, Pydantic v2, Uvicorn, HTTPX, Pytest
+- **Knowledge & Retrieval**: FAISS (`faiss-cpu`), PyPDF, Dense Semantic Embeddings
 - **Scientific Libraries**: Astropy, RocketPy, SymPy, SciPy, NumPy, Pint
 - **Frontend**: Next.js (App Router), TypeScript, React, Vanilla CSS
 - **Runtime**: Ollama (e.g., `qwen2.5:0.5b`, `qwen2.5:3b`)
@@ -93,8 +98,6 @@ For complete architectural details, see [docs/architecture.md](docs/architecture
 - **Ollama**: [Download and install Ollama](https://ollama.com/)
 
 ### 2. Ollama Setup
-
-Start the Ollama daemon and pull the lightweight model:
 
 ```bash
 # Start Ollama service (if not running)
@@ -119,6 +122,9 @@ python -m uvicorn backend.main:app --reload --port 8000
 ```
 - API Health Check: `http://localhost:8000/api/health`
 - Tool Catalog: `http://localhost:8000/api/tools`
+- Knowledge Sources: `http://localhost:8000/api/knowledge/sources`
+- Knowledge Documents: `http://localhost:8000/api/knowledge/documents`
+- Physical Datasets: `http://localhost:8000/api/knowledge/datasets`
 - Swagger Docs: `http://localhost:8000/docs`
 
 ### 4. Frontend Setup
@@ -137,11 +143,8 @@ Open `http://localhost:3000` in your browser.
 The automated test suite runs completely offline without requiring a GPU or active model:
 
 ```powershell
-# Run full unit and integration test suite
+# Run full unit and integration test suite (141 tests)
 python -m pytest tests/ -v
-
-# Run deterministic engineering benchmarks
-python -m pytest tests/benchmarks/ -v
 ```
 
 ---
@@ -151,9 +154,9 @@ python -m pytest tests/benchmarks/ -v
 - [x] **Phase 0**: Foundation, project layout, Git setup, environment management.
 - [x] **Phase 1**: Basic AI intelligence pipeline (Frontend → FastAPI → Agent → Ollama → Response).
 - [x] **Phase 2**: Real engineering tool intelligence (Astropy orbit tools, RocketPy propulsion sizing, SymPy symbolic verification, execution traces).
-- [ ] **Phase 3**: Aerospace scientific literature retrieval & RAG (NASA NTRS, ArXiv, AIAA papers).
-- [ ] **Phase 4**: Multi-agent verification engine & dimensional auditing.
-- [ ] **Phase 5**: Autonomous scientific research loops and simulation parameter sweeps.
+- [x] **Phase 3**: Scientific Knowledge + Dataset Foundation (NASA NTRS/NACA ingestion, FAISS vector indexing, provenance-first schemas, CFD data models, condition lookup, prompt-injection defense).
+- [ ] **Phase 4**: Physics AI Models & Neural Surrogates (PINN, PINO, FNO, GNN training & inference).
+- [ ] **Phase 5**: Simulation Engines & Autonomous Scientific Research Loops (OpenFOAM, SU2, XFOIL integration).
 
 ---
 

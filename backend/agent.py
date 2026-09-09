@@ -356,6 +356,106 @@ class AASIAgent:
         intent = self.detect_calculation_intent(user_message)
 
         if intent is None:
+            # Check knowledge subsystem for validated physical datasets or literature
+            from backend.knowledge.service import get_knowledge_service
+            knowledge_svc = get_knowledge_service()
+
+            # 1. Check if query asks for specific validated physical conditions
+            resolution = knowledge_svc.resolve_scientific_query(user_message)
+            if resolution.get("resolution_type") == "EXACT_VALIDATED_DATASET":
+                matched_pts = resolution.get("matched_points", [])
+                geo = resolution.get("query_conditions", {}).get("geometry", "Airfoil")
+                conds = resolution.get("query_conditions", {})
+                target_var = resolution.get("target_variable", "aerodynamic coefficients")
+                uncertainty = resolution.get("uncertainty", {})
+
+                pt_desc = ", ".join(f"{k} = {v}" for k, v in matched_pts[0].items()) if matched_pts else "N/A"
+                unc_desc = ", ".join(f"{k}: +/- {v}" for k, v in uncertainty.items()) if uncertainty else "Standard experimental bounds"
+
+                resp_text = (
+                    f"**Verified Reference Dataset Match:**\n\n"
+                    f"According to verified {('experimental' if resolution.get('is_experimental') else 'benchmark CFD')} data from "
+                    f"**{resolution.get('source')}** ({resolution.get('citation')}):\n\n"
+                    f"- **Geometry:** {geo}\n"
+                    f"- **Conditions:** Mach {conds.get('mach', 'N/A')}, Re {conds.get('reynolds', 'N/A')}, AoA {conds.get('aoa_deg', 'N/A')} deg\n"
+                    f"- **Data Point:** {pt_desc}\n"
+                    f"- **Reported Uncertainty:** {unc_desc}\n"
+                    f"- **Validation Status:** {resolution.get('validation_status')}\n\n"
+                    f"This value is retrieved directly from the verified dataset registry and was not fabricated."
+                )
+
+                rag_result = knowledge_svc.rag_pipeline.synthesize_response(
+                    user_query=user_message,
+                    retrieved=[],
+                    llm_response_text=resp_text,
+                    dataset_match=resolution,
+                )
+
+                return {
+                    "response": resp_text,
+                    "tool_calls": [],
+                    "calculations": [],
+                    "verification": {"status": "MATCHED_REFERENCE_DATASET", "dataset_id": resolution.get("dataset_id")},
+                    "sources": rag_result.get("sources", []),
+                    "evidence": rag_result.get("evidence", []),
+                    "assumptions": rag_result.get("assumptions", []),
+                    "provenance": rag_result.get("provenance", []),
+                    "limitations": rag_result.get("limitations", []),
+                    "dataset_match": resolution,
+                    "model": self.model,
+                    "status": "success",
+                }
+
+            # 2. Check if query explicitly asks for literature, reports, or aerodynamic data
+            msg_lower = user_message.lower()
+            literature_keywords = [
+                "nasa", "ntrs", "naca", "report", "paper", "literature", "publication",
+                "study", "journal", "experiment", "measured", "wind tunnel", "aerodynamic behavior",
+                "sp-8005", "tr-824", "tr-460", "tn-d-628", "tm-x-1361", "rp-1111", "sp-8013",
+                "sutton-graves", "drag polar", "critical mach", "van driest", "eddy viscosity",
+                "solar constant", "meteoroid", "drag coefficient of naca"
+            ]
+            is_literature_query = any(kw in msg_lower for kw in literature_keywords)
+
+            if is_literature_query:
+                lit_matches = knowledge_svc.search_literature(user_message, k=3)
+                if lit_matches and lit_matches[0].relevance >= 0.15:
+                    context_block = knowledge_svc.rag_pipeline.build_context_block(lit_matches)
+                    system_with_rag = f"{self.system_prompt}\n\n{knowledge_svc.rag_pipeline.SECURITY_PROMPT_HEADER}\n\n{context_block}"
+                    
+                    try:
+                        res = await self.generate_response(user_message, system_override=system_with_rag)
+                        model_resp = res["response"]
+                        model_name = res["model"]
+                    except (OllamaUnavailableError, OllamaRuntimeError) as err:
+                        logger.warning("Model synthesis unavailable (%s); formatting deterministic literature synthesis", err)
+                        model_name = f"{self.model} (deterministic-grounded)"
+                        model_resp = (
+                            f"**Verified Scientific Literature Grounding:**\n\n"
+                            f"Based on **{lit_matches[0].source}** ({lit_matches[0].title}, {lit_matches[0].provenance.report_number or lit_matches[0].year}):\n\n"
+                            f"{lit_matches[0].snippet}\n"
+                        )
+
+                    rag_result = knowledge_svc.rag_pipeline.synthesize_response(
+                        user_query=user_message,
+                        retrieved=lit_matches,
+                        llm_response_text=model_resp,
+                    )
+
+                    return {
+                        "response": rag_result["answer"],
+                        "tool_calls": [],
+                        "calculations": [],
+                        "verification": None,
+                        "sources": rag_result.get("sources", []),
+                        "evidence": rag_result.get("evidence", []),
+                        "assumptions": rag_result.get("assumptions", []),
+                        "provenance": rag_result.get("provenance", []),
+                        "limitations": rag_result.get("limitations", []),
+                        "model": model_name,
+                        "status": "success",
+                    }
+
             # Pure conceptual question -> direct LLM answer
             res = await self.generate_response(user_message)
             return {
@@ -363,6 +463,11 @@ class AASIAgent:
                 "tool_calls": [],
                 "calculations": [],
                 "verification": None,
+                "sources": [],
+                "evidence": [],
+                "assumptions": [],
+                "provenance": [],
+                "limitations": [],
                 "model": res["model"],
                 "status": "success",
             }

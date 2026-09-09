@@ -68,11 +68,36 @@ class ChatResponse(BaseModel):
     tool_calls: List[ToolCallInfo] = Field(default_factory=list, description="List of tool executions")
     calculations: List[Dict[str, Any]] = Field(default_factory=list, description="Structured numerical outputs")
     verification: Optional[Dict[str, Any]] = Field(None, description="Independent verification results")
+    sources: List[Dict[str, Any]] = Field(default_factory=list, description="Cited publications and reports")
+    evidence: List[Dict[str, Any]] = Field(default_factory=list, description="Direct cited passage excerpts")
+    assumptions: List[str] = Field(default_factory=list, description="Physical and aerodynamic assumptions")
+    provenance: List[Dict[str, Any]] = Field(default_factory=list, description="Cryptographic and bibliographical provenance")
+    limitations: List[str] = Field(default_factory=list, description="Validity envelope and known limitations")
+    dataset_match: Optional[Dict[str, Any]] = Field(None, description="Matched physical dataset if applicable")
 
 
 class ToolsResponse(BaseModel):
     """Schema for GET /api/tools."""
     tools: List[Dict[str, Any]]
+
+
+class KnowledgeSearchRequest(BaseModel):
+    """Schema for POST /api/knowledge/search."""
+    query: str = Field(..., min_length=1, max_length=1000, description="Search query string")
+    k: int = Field(default=5, ge=1, le=50, description="Maximum number of passages to return")
+    source_filter: Optional[str] = Field(None, description="Filter by source organization (e.g. NASA, NACA)")
+    discipline_filter: Optional[str] = Field(None, description="Filter by discipline (e.g. Aerodynamics, Hypersonics)")
+    year_min: Optional[int] = Field(None, description="Minimum publication year")
+    year_max: Optional[int] = Field(None, description="Maximum publication year")
+
+
+class DatasetQueryRequest(BaseModel):
+    """Schema for POST /api/knowledge/datasets/query."""
+    geometry: str = Field(..., description="Airfoil or body geometry (e.g. 'NACA 0012')")
+    mach: Optional[float] = Field(None, ge=0.0, description="Mach number")
+    reynolds: Optional[float] = Field(None, gt=0.0, description="Reynolds number")
+    aoa_deg: Optional[float] = Field(None, description="Angle of attack in degrees")
+    domain: str = Field("aerodynamics", description="Physical domain")
 
 
 # --- API Routes ---
@@ -101,11 +126,108 @@ async def get_tools():
     return ToolsResponse(tools=tool_registry.list_tools())
 
 
+# --- Scientific Knowledge & Dataset Endpoints ---
+
+@app.get("/api/knowledge/sources", summary="List Registered Knowledge Sources")
+async def list_knowledge_sources():
+    """
+    Returns registered scientific literature and data repositories with adapter status,
+    license handling, and justification notes for unautomated sources.
+    """
+    from backend.knowledge.service import get_knowledge_service
+    svc = get_knowledge_service()
+    return {"sources": [m.model_dump() for m in svc.list_sources()]}
+
+
+@app.post("/api/knowledge/search", summary="Hybrid Literature & Document Search")
+async def search_knowledge(request: KnowledgeSearchRequest):
+    """
+    Performs hybrid retrieval combining FAISS vector similarity, exact technical
+    keyword matching, and metadata filtering. Returns passages with full provenance.
+    """
+    from backend.knowledge.service import get_knowledge_service
+    svc = get_knowledge_service()
+    results = svc.search_literature(
+        query=request.query,
+        k=request.k,
+        source_filter=request.source_filter,
+        discipline_filter=request.discipline_filter,
+        year_min=request.year_min,
+        year_max=request.year_max,
+    )
+    return {
+        "query": request.query,
+        "count": len(results),
+        "results": [r.model_dump() for r in results],
+    }
+
+
+@app.get("/api/knowledge/documents", summary="List Ingested Technical Documents")
+async def list_documents():
+    """Returns catalog of ingested technical reports and papers with provenance hashes."""
+    from backend.knowledge.service import get_knowledge_service
+    svc = get_knowledge_service()
+    return {"documents": svc.list_documents()}
+
+
+@app.get("/api/knowledge/documents/{document_id}", summary="Get Detailed Document & Provenance")
+async def get_document(document_id: str):
+    """Returns document metadata, sections, extracted equations, and cryptographic provenance."""
+    from backend.knowledge.service import get_knowledge_service
+    svc = get_knowledge_service()
+    doc = svc.get_document(document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found in knowledge base.")
+    return doc.model_dump()
+
+
+@app.get("/api/knowledge/datasets", summary="List Registered Physical Datasets")
+async def list_datasets(domain: Optional[str] = None, geometry: Optional[str] = None):
+    """Returns catalog of registered aerodynamic, CFD, and experimental datasets."""
+    from backend.knowledge.service import get_knowledge_service
+    svc = get_knowledge_service()
+    datasets = svc.list_datasets(domain=domain, geometry=geometry)
+    return {"datasets": [d.model_dump() for d in datasets]}
+
+
+@app.get("/api/knowledge/datasets/{dataset_id}", summary="Get Detailed Dataset by ID")
+async def get_dataset(dataset_id: str):
+    """Returns complete dataset metadata, flow conditions, and tabular data points."""
+    from backend.knowledge.service import get_knowledge_service
+    svc = get_knowledge_service()
+    ds = svc.get_dataset(dataset_id)
+    if not ds:
+        raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found in registry.")
+    return ds.model_dump()
+
+
+@app.post("/api/knowledge/datasets/query", summary="Query Datasets by Flight & Flow Conditions")
+async def query_datasets(request: DatasetQueryRequest):
+    """
+    Searches registered datasets for exact condition matches (geometry, Mach, Reynolds, AoA).
+    Returns verified data points with uncertainty bounds.
+    """
+    from backend.knowledge.service import get_knowledge_service
+    svc = get_knowledge_service()
+    matches = svc.query_datasets(
+        geometry=request.geometry,
+        mach=request.mach,
+        reynolds=request.reynolds,
+        aoa_deg=request.aoa_deg,
+        domain=request.domain,
+    )
+    return {
+        "query": request.model_dump(),
+        "match_count": len(matches),
+        "matches": matches,
+    }
+
+
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
 async def chat_completion(request: ChatRequest):
     """
     Receives user query, orchestrates AASI agent prompt and context,
-    invokes scientific tools if computational, and returns structured synthesis.
+    invokes scientific tools or knowledge retrieval, and returns structured synthesis.
     """
     logger.info("Received chat query: '%s...'", request.message[:80])
 
@@ -118,6 +240,12 @@ async def chat_completion(request: ChatRequest):
             tool_calls=result.get("tool_calls", []),
             calculations=result.get("calculations", []),
             verification=result.get("verification"),
+            sources=result.get("sources", []),
+            evidence=result.get("evidence", []),
+            assumptions=result.get("assumptions", []),
+            provenance=result.get("provenance", []),
+            limitations=result.get("limitations", []),
+            dataset_match=result.get("dataset_match"),
         )
     except OllamaUnavailableError as exc:
         logger.error("Ollama unavailable: %s", exc)
@@ -154,4 +282,7 @@ async def root():
         "docs_url": "/docs",
         "health_url": "/api/health",
         "tools_url": "/api/tools",
+        "knowledge_sources_url": "/api/knowledge/sources",
+        "knowledge_documents_url": "/api/knowledge/documents",
+        "knowledge_datasets_url": "/api/knowledge/datasets",
     }

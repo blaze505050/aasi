@@ -132,6 +132,86 @@ All computational responses include a user-safe execution trace:
 
 ---
 
+## Phase 3 Architecture: Scientific Knowledge & Dataset Foundation
+
+In Phase 3, AASI introduces a provenance-first scientific knowledge and dataset retrieval infrastructure that enforces the principle:
+
+### Core Principle: Literature & Datasets Are Not Ground Truth Without Provenance
+
+```
+                              [ User Scientific Query ]
+                                          │
+                                          ▼
+                       [ Result Resolution Dispatcher ]
+                                          │
+                  ┌───────────────────────┴───────────────────────┐
+                  ▼                                               ▼
+     [ Exact Parameterized Query ]                 [ General Literature / Inquiry ]
+                  │                                               │
+                  ▼                                               ▼
+       [ Dataset Registry ]                            [ Hybrid Retriever ]
+    • Experimental Wind Tunnel Polars               • FAISS Vector Similarity (Dense)
+    • Validated CFD Benchmarks                      • BM25 Aerospace Keyword Scoring
+    • Normalized Condition Matching                 • Metadata Filtering (Organization, Type)
+                  │                                               │
+                  ▼                                               ▼
+     [ Validated Dataset Record ]                      [ Scored Document Chunks ]
+    • Provenance (SHA-256, Report #)                • Section & Page Hierarchy
+    • Grid / Mesh Classification                    • LaTeX Equation Preservation
+    • Uncertainty / Error Bounds                                  │
+                  │                                               ▼
+                  │                                  [ Quarantine Sanitizer ]
+                  │                                 • Strips Prompt Injection Attacks
+                  │                                 • Isolates Untrusted Text Data
+                  │                                               │
+                  └───────────────────────┬───────────────────────┘
+                                          │
+                                          ▼
+                         [ Context-Enriched Scientific LLM ]
+                                          │
+                                          ▼
+                       [ Verified Response + Full Citations ]
+                      • Mathematical Equations ($C_L$, $C_D$)
+                      • Direct Report Numbers (e.g. NACA-TR-824)
+                      • Cryptographic Hashes & Verification Tags
+```
+
+### Knowledge Subsystem Architecture (`backend/knowledge/`)
+
+1. **Information Models (`backend/knowledge/models.py`)**:
+   - `ScientificObjectType`: Categorizes documents, datasets, experimental data, simulation benchmarks, surrogates, analytical results, and retrieved references.
+   - `Provenance`: Full metadata tracking (title, authors, organization, report number, DOI, license, publication date, SHA-256 hash).
+   - `Equation`: Preserves LaTeX syntax, plain text, variable definitions, and dimensional units.
+   - `CFDDataModel`: Captures solver, mesh type, cell count, turbulence model, $y^+$, convergence criteria, and boundary conditions.
+   - `Chunk`: Preserves section hierarchy, page numbers, equation bindings, and token lengths.
+
+2. **Source Registries (`backend/knowledge/source_registry.py`)**:
+   - Manages authorized aerospace repositories: `NASA_NTRS`, `NACA`, `ARXIV`, `ESA` (Planned), `ISRO` (Planned), and `OPEN_DATASETS`.
+   - Explicitly reports unsupported / planned sources with honest technical reasons (e.g. lack of public open-access REST APIs).
+
+3. **Hybrid Scientific Retrieval (`backend/knowledge/retriever.py`)**:
+   - Combines 384-dimensional dense semantic vector similarity (backed by `FAISSVectorIndex`) with exact aerospace keyword boosting (NACA identifiers, Mach numbers, Reynolds numbers, turbulence models).
+   - Enforces metadata filters (e.g., organization `NASA`, type `EXPERIMENT`).
+
+4. **Condition-Aware Dataset Registry (`backend/knowledge/dataset_registry.py` & `resolution.py`)**:
+   - Resolves queries matching explicit experimental conditions (e.g. NACA 0012 at $M=0.3$, $Re=5\times 10^5$, $\alpha=8^\circ$) directly to validated wind tunnel polars or benchmark OpenFOAM RANS CFD results rather than loose text approximations.
+
+5. **Prompt-Injection Quarantined RAG (`backend/knowledge/rag.py`)**:
+   - Wraps all retrieved literature text in `<UNTRUSTED_REFERENCE_DATA>` isolation blocks.
+   - Neutralizes control instruction strings (e.g. "Ignore all previous instructions") before feeding context to the LLM.
+
+6. **Physics AI Neural Surrogate Stubs (`backend/physics/models.py`)**:
+   - Establishes clean abstract interfaces (`PINNModel`, `PINOModel`, `FNOModel`, `MeshGraphNetModel`, `DoMINOModel`, etc.) raising explicit `NotImplementedError("Planned for Phase 4")` to prepare the foundation without prematurely destabilizing the stack.
+
+For detailed knowledge subsystem documentation, see:
+- [Knowledge Architecture](knowledge/architecture.md)
+- [Data Sources](knowledge/data-sources.md)
+- [Provenance System](knowledge/provenance.md)
+- [Dataset Schema](knowledge/dataset-schema.md)
+- [Retrieval Architecture](knowledge/retrieval.md)
+
+---
+
 ## Future Architecture (Upcoming Phases)
 
 ```
@@ -142,12 +222,12 @@ All computational responses include a user-safe execution trace:
            ┌────────────────────────────┼────────────────────────────┐
            ▼                            ▼                            ▼
 ┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
-│  Scientific Tools   │      │   Retrieval & RAG   │      │ Verification Engine │
+│  Scientific Tools   │      │   Knowledge & RAG   │      │ Physics AI & Sim    │
 │ ─────────────────── │      │ ─────────────────── │      │ ─────────────────── │
-│ • Orbital Mechanics │      │ • ArXiv & NASA NTRS │      │ • Dimensional Check │
-│ • RocketPy Engine   │      │ • AIAA Papers       │      │ • Unit Sanity Tests │
-│ • Aerodynamics / CFD│      │ • Vector DB Index   │      │ • Cross-Model Audit │
-│ • Thermal Analysis  │      │ • Formula Parsing   │      │ • Code Sandbox      │
+│ • Orbital Mechanics │      │ • NASA NTRS & NACA  │      │ • PINN / PINO / FNO │
+│ • RocketPy Engine   │      │ • Hybrid Retriever  │      │ • OpenFOAM Sweeps   │
+│ • Symbolic Math     │      │ • Wind Tunnel Polars│      │ • MeshGraphNet      │
+│ • Pint Units        │      │ • Provenance Audit  │      │ • Neural Surrogates │
 └─────────────────────┘      └─────────────────────┘      └─────────────────────┘
            │                            │                            │
            └────────────────────────────┼────────────────────────────┘
@@ -155,11 +235,12 @@ All computational responses include a user-safe execution trace:
                           ┌───────────────────────────┐
                           │ Autonomous Research Loops │
                           │ • Hypothesis formulation  │
-                          │ • Iterative simulation    │
-                          │ • Report generation       │
+                          │ • Multi-fidelity sweeps   │
+                          │ • Technical publication   │
                           └───────────────────────────┘
 ```
 
-- **Phase 3**: Aerospace Literature RAG (NASA Technical Reports, ArXiv papers, AIAA standards).
-- **Phase 4**: Verification engine & dimensional consistency checks.
-- **Phase 5**: Autonomous scientific research loops and simulation sweeps.
+- **Phase 4**: Physics AI Models & Neural Surrogates (PINNs, PINO, FNO, MeshGraphNet, verification engine).
+- **Phase 5**: Autonomous Simulation & Meshing (OpenFOAM automation, SU2 integration, grid convergence studies).
+- **Phase 6**: Autonomous Scientific Research Loops (hypothesis generation, active learning experiment design).
+
