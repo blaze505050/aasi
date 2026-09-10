@@ -493,7 +493,7 @@ AASI will automatically ingest the returned logs and perform:
 - Epistemic classification assignment (`LOCAL_CFD` or `VALIDATED_CFD`).
 """)
 
-        # 5. Write validation_checklist.md
+        # 5. Write validation_checklist.md and validation/ subfolder
         checklist_path = os.path.join(case_dir, "validation_checklist.md")
         with open(checklist_path, "w", encoding="utf-8") as f:
             f.write(f"""# AASI Case Validation Checklist: {request.case_id}
@@ -508,6 +508,64 @@ AASI will automatically ingest the returned logs and perform:
 - [ ] Lift and drag coefficients converged to 4 decimal places
 - [ ] Log files saved and packaged for upload back to AASI
 """)
+
+        # Phase 7: validation/ directory
+        validation_dir = os.path.join(case_dir, "validation")
+        os.makedirs(validation_dir, exist_ok=True)
+        with open(os.path.join(validation_dir, "convergence.md"), "w", encoding="utf-8") as f:
+            f.write(f"""# Numerical Convergence Targets - {request.case_id}
+- Equation Residual Threshold: 1e-5 (p, Ux, Uy, k, omega)
+- Aerodynamic Force Oscillation: < 0.5% over the final 100 iterations
+- Minimum Required Iterations: 200
+- Asymptotic Force Stabilization: Expected between 400-800 iterations
+""")
+        with open(os.path.join(validation_dir, "grid-study.md"), "w", encoding="utf-8") as f:
+            f.write(f"""# Grid Convergence & GCI Guidelines - ASME V&V 20
+- Recommended Refinement Ratio: r = 1.414 (Coarse: ~25k, Medium: ~50k, Fine: ~100k cells)
+- Target y+: <= 1.0 at wall boundary
+- GCI Target: Numerical uncertainty <= 2.5% on CL and CD
+""")
+        with open(os.path.join(validation_dir, "expected-outputs.md"), "w", encoding="utf-8") as f:
+            f.write(f"""# Expected Output Artifacts for Upload
+1. `postProcessing/forceCoeffs/0/coefficient.dat` or `forceCoeffs.dat`
+2. `log.simpleFoam` (Solver iteration log)
+3. `log.checkMesh` (Mesh quality audit)
+""")
+
+        # Phase 7: metadata/ directory
+        metadata_dir = os.path.join(case_dir, "metadata")
+        os.makedirs(metadata_dir, exist_ok=True)
+        with open(os.path.join(metadata_dir, "mesh.json"), "w", encoding="utf-8") as f:
+            json.dump({
+                "topology": "C-GRID",
+                "target_cells": 45000,
+                "target_yplus": 0.8,
+                "farfield_chords": 25.0
+            }, f, indent=2)
+        with open(os.path.join(metadata_dir, "physics.json"), "w", encoding="utf-8") as f:
+            json.dump({
+                "compressibility": "INCOMPRESSIBLE" if request.mach < 0.3 else "COMPRESSIBLE",
+                "turbulence_model": request.turbulence_model,
+                "mach": request.mach,
+                "reynolds": request.reynolds,
+                "aoa_deg": request.aoa_deg
+            }, f, indent=2)
+
+        # Phase 7: provenance.json
+        provenance_data = {
+            "case_id": request.case_id,
+            "geometry": request.geometry,
+            "created_by": "AASI Scientific Engine Phase 7",
+            "solver": request.solver,
+            "backend": request.backend.value,
+            "operating_point": {
+                "mach": request.mach,
+                "reynolds": request.reynolds,
+                "aoa_deg": request.aoa_deg
+            }
+        }
+        with open(os.path.join(case_dir, "provenance.json"), "w", encoding="utf-8") as f:
+            json.dump(provenance_data, f, indent=2)
 
         # 6. Compute file hashes & manifest.json
         file_hashes = {}

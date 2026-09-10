@@ -28,6 +28,8 @@ class EntityType(str, Enum):
     SOLVER = "Solver"
     MODEL = "Model"
     ORGANIZATION = "Organization"
+    RESEARCH_OBJECTIVE = "ResearchObjective"
+    JOB_SPEC = "JobSpec"
 
 
 class RelationType(str, Enum):
@@ -41,6 +43,10 @@ class RelationType(str, Enum):
     DERIVED_FROM = "DERIVED_FROM"
     CITES = "CITES"
     TRAINED_ON = "TRAINED_ON"
+    PRODUCED = "PRODUCED"
+    SUPERSEDES = "SUPERSEDES"
+    SPAWNED = "SPAWNED"
+
 
 
 class GraphEntity(BaseModel):

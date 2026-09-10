@@ -17,6 +17,8 @@ from .models import (
     AeroGraphNetModel,
     PhysicsNeMoModel,
 )
+from .dimensional import AerodynamicDimensionalizer, DimensionlessFlowState
+from .constraints import AerodynamicConstraintEngine, PhysicalConstraintReport
 
 __all__ = [
     "PhysicsModelType",
@@ -30,4 +32,9 @@ __all__ = [
     "MeshGraphNetModel",
     "AeroGraphNetModel",
     "PhysicsNeMoModel",
+    "AerodynamicDimensionalizer",
+    "DimensionlessFlowState",
+    "AerodynamicConstraintEngine",
+    "PhysicalConstraintReport",
 ]
+

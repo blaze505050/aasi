@@ -2642,5 +2642,196 @@ body {
   width: 100%;
 }
 
+/* ==========================================
+   PHASE 7: AUTONOMOUS RESEARCH LOOP STYLES
+   ========================================== */
 
+.loop-flow-card {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.4), rgba(15, 23, 42, 0.6));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
 
+.loop-pipeline-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.loop-step-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 6px;
+  min-width: 115px;
+  text-align: center;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  transition: all 0.2s ease;
+}
+
+.loop-step-badge.active-step {
+  border-color: #818cf8;
+  background: rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.35);
+}
+
+.loop-step-badge .step-icon {
+  font-size: 1.1rem;
+}
+
+.loop-step-badge .step-label {
+  font-weight: 700;
+  color: #c7d2fe;
+}
+
+.loop-arrow {
+  color: #6366f1;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.research-lab-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+  .research-lab-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+.tier-badge-experiment {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #34d399;
+}
+
+.tier-badge-cfd {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+}
+
+.tier-badge-surrogate {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid #a855f7;
+  color: #c084fc;
+}
+
+.tier-badge-analytical {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+}
+
+.candidate-table-container {
+  overflow-x: auto;
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.candidate-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+}
+
+.candidate-table th {
+  background: rgba(15, 23, 42, 0.9);
+  padding: 8px 10px;
+  text-align: left;
+  color: #94a3b8;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+}
+
+.candidate-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.candidate-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.candidate-status-btn {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  margin-right: 4px;
+  transition: all 0.15s ease;
+}
+
+.candidate-status-btn.approve {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.candidate-status-btn.approve:hover {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.candidate-status-btn.reject {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+.candidate-status-btn.reject:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.coverage-canvas {
+  width: 100%;
+  height: 220px;
+  background: #090d16;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  display: block;
+}
+
+.report-markdown-preview {
+  background: #0b0f19;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  max-height: 280px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #cbd5e1;
+  line-height: 1.5;
+}

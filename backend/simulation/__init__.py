@@ -8,6 +8,17 @@ from .artifacts import SimulationArtifactManager
 from .validators import SimulationCaseValidator
 from .registry import SolverRegistry, solver_registry
 from .runner import SimulationRunner, simulation_runner
+from .job_spec import (
+    SolverType,
+    ExecutionBackend,
+    MeshSpecification,
+    PhysicsSpecification,
+    ValidationRequirements,
+    EstimatedComputeCost,
+    CFDJobSpec,
+)
+from .quality_control import CFDQualityControlEngine
+from .ingest import SimulationIngestionService
 
 __all__ = [
     "SimulationRunMode",
@@ -27,4 +38,14 @@ __all__ = [
     "solver_registry",
     "SimulationRunner",
     "simulation_runner",
+    "SolverType",
+    "ExecutionBackend",
+    "MeshSpecification",
+    "PhysicsSpecification",
+    "ValidationRequirements",
+    "EstimatedComputeCost",
+    "CFDJobSpec",
+    "CFDQualityControlEngine",
+    "SimulationIngestionService",
 ]
+

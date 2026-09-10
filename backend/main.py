@@ -640,9 +640,295 @@ async def get_graph_neighbors(entity_id: str):
     return {"entity_id": entity_id, "neighbors": neighbors}
 
 
+# ==========================================
+# --- Phase 7 Multi-Fidelity & Research Loop ---
+# ==========================================
+
+class MultiFidelityResolveRequest(BaseModel):
+    geometry: str = Field("NACA 0012")
+    mach: float = Field(0.15, ge=0.01, le=1.5)
+    reynolds: float = Field(3.0e6, ge=1e4, le=5e7)
+    aoa_deg: float = Field(4.0, ge=-20.0, le=25.0)
+    quantity: str = Field("CL")
+
+
+class ActiveLearningCandidateRequest(BaseModel):
+    geometry: str = Field("NACA 0012")
+    strategy: str = Field("COST_AWARE")
+    max_candidates: int = Field(5, ge=1, le=25)
+    cost_weight: float = Field(0.2, ge=0.0, le=1.0)
+
+
+class CandidateStatusUpdateRequest(BaseModel):
+    status: str
+    rationale: str = ""
+    actor: str = "AASI Researcher"
+
+
+class CoverageMapRequest(BaseModel):
+    geometry: str = Field("NACA 0012")
+    plane: str = Field("aoa_vs_mach")
+
+
+class IngestSimulationRequest(BaseModel):
+    file_content: str
+    geometry: str
+    mach: float
+    reynolds: float
+    aoa_deg: float
+    job_id: Optional[str] = None
+
+
+class RetrainRequest(BaseModel):
+    dataset_version: str = Field("AERO-AIRFOIL-V2.0")
+    epochs: int = Field(5, ge=1, le=50)
+
+
+class SurfaceCpRequest(BaseModel):
+    geometry: str = Field("NACA 0012")
+    mach: float = Field(0.15, ge=0.01, le=0.85)
+    reynolds: float = Field(3.0e6, ge=1e4, le=5e7)
+    aoa_deg: float = Field(4.0, ge=-20.0, le=20.0)
+    n_chord_points: int = Field(65, ge=20, le=200)
+
+
+class DimensionalStateRequest(BaseModel):
+    mach: Optional[float] = None
+    velocity_ms: Optional[float] = None
+    temperature_k: float = 288.15
+    pressure_pa: float = 101325.0
+    chord_m: float = 1.0
+
+
+class ConstraintCheckRequest(BaseModel):
+    cl: float
+    cd: float
+    cm: float
+    mach: float
+    aoa_deg: float
+
+
+@app.post("/api/multifidelity/resolve", summary="Resolve Scientific Query Across 5-Tier Fidelity Hierarchy")
+async def resolve_multifidelity(req: MultiFidelityResolveRequest):
+    """Deterministically cascades through Tier 1 (Experiment) -> Tier 2 (CFD) -> Tier 5 (Surrogate) -> Tier 4 (Analytical)."""
+    from backend.multifidelity.service import multi_fidelity_service
+    res = multi_fidelity_service.resolve(
+        geometry=req.geometry,
+        mach=req.mach,
+        reynolds=req.reynolds,
+        aoa_deg=req.aoa_deg,
+        quantity=req.quantity
+    )
+    return res
+
+
+@app.get("/api/multifidelity/calibration", summary="Get Uncertainty Calibration Audit")
+async def get_multifidelity_calibration(quantity: str = "CL"):
+    """Audits empirical 1-sigma / 2-sigma coverage and epistemic scaling factors against authentic benchmarks."""
+    from backend.multifidelity.service import multi_fidelity_service
+    metrics = multi_fidelity_service.evaluate_surrogate_calibration(quantity=quantity)
+    return metrics.model_dump()
+
+
+@app.get("/api/multifidelity/statistics", summary="Get Multi-Fidelity Registry Statistics")
+async def get_multifidelity_statistics():
+    """Returns record count breakdown across EXPERIMENT, CFD, SURROGATE, and ANALYTICAL."""
+    from backend.multifidelity.service import multi_fidelity_service
+    return multi_fidelity_service.get_statistics()
+
+
+@app.get("/api/multifidelity/records", summary="Query Multi-Fidelity Registry Records")
+async def get_multifidelity_records(geometry: Optional[str] = None, quantity: Optional[str] = None, limit: int = 50):
+    from backend.multifidelity.service import multi_fidelity_service
+    from backend.multifidelity.models import FidelityLevel
+    recs = multi_fidelity_service.registry.query_results(geometry=geometry, quantity=quantity)
+    return {"total": len(recs), "records": [r.model_dump() for r in recs[:limit]]}
+
+
+@app.post("/api/active-learning/candidates", summary="Generate Active Learning Candidates")
+async def generate_active_learning_candidates(req: ActiveLearningCandidateRequest):
+    """Evaluates parameter space uncertainty and generates ranked candidates using chosen acquisition function."""
+    from backend.physics_ai.active_learning import ActiveLearning2Engine, AcquisitionStrategy, active_learning_registry
+    from backend.multifidelity.service import multi_fidelity_service
+    
+    # Query known points
+    raw = multi_fidelity_service.query()
+    pts = [{"mach": r.conditions.mach, "aoa": r.conditions.aoa_deg, "reynolds": r.conditions.reynolds} for r in raw[:100]]
+    
+    strat = getattr(AcquisitionStrategy, req.strategy.upper(), AcquisitionStrategy.COST_AWARE)
+    candidates = ActiveLearning2Engine.generate_candidates(
+        geometry=req.geometry,
+        existing_points=pts,
+        strategy=strat,
+        max_candidates=req.max_candidates,
+        cost_weight=req.cost_weight
+    )
+    # Register them
+    for c in candidates:
+        active_learning_registry.register_candidate(c)
+
+    return {"candidates": [c.model_dump() for c in candidates]}
+
+
+@app.get("/api/active-learning/candidates", summary="List Registered Active Learning Candidates")
+async def list_active_learning_candidates(geometry: Optional[str] = None, priority: Optional[str] = None):
+    from backend.physics_ai.active_learning import active_learning_registry
+    cands = active_learning_registry.list_candidates(geometry=geometry, priority=priority)
+    return {"candidates": [c.model_dump() for c in cands]}
+
+
+@app.post("/api/active-learning/candidates/{candidate_id}/status", summary="Update Candidate Lifecycle Status")
+async def update_candidate_status(candidate_id: str, req: CandidateStatusUpdateRequest):
+    """Updates candidate status: PROPOSED -> APPROVED -> EXECUTED -> INGESTED -> VALIDATED."""
+    from backend.physics_ai.active_learning import active_learning_registry, CandidateStatus
+    try:
+        new_status = CandidateStatus(req.status.upper())
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid candidate status: {req.status}")
+
+    updated = active_learning_registry.update_status(
+        candidate_id=candidate_id,
+        new_status=new_status,
+        rationale=req.rationale,
+        actor=req.actor
+    )
+    if not updated:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    return updated.model_dump()
+
+
+@app.post("/api/active-learning/coverage-map", summary="Get 2D Parameter Coverage Map")
+async def get_coverage_map(req: CoverageMapRequest):
+    """Generates 2D parameter projection showing sampled, candidate, and unexplored regions."""
+    from backend.physics_ai.active_learning import ActiveLearning2Engine, active_learning_registry
+    from backend.multifidelity.service import multi_fidelity_service
+
+    raw = multi_fidelity_service.query()
+    pts = [{"mach": r.conditions.mach, "aoa": r.conditions.aoa_deg, "reynolds": r.conditions.reynolds} for r in raw[:100]]
+    cands = active_learning_registry.list_candidates(geometry=req.geometry)
+
+    cmap = ActiveLearning2Engine.compute_coverage_map(
+        geometry=req.geometry,
+        existing_points=pts,
+        candidate_points=cands,
+        plane=req.plane
+    )
+    return cmap.model_dump()
+
+
+@app.post("/api/simulation/ingest", summary="Ingest and QC Raw Simulation Artifacts")
+async def ingest_simulation_output(req: IngestSimulationRequest):
+    """Parses OpenFOAM/CSV log, runs automated QC, and ingests into multi-fidelity registry."""
+    from backend.simulation.ingest import SimulationIngestionService
+    from backend.multifidelity.models import FlowConditions
+    from backend.multifidelity.service import multi_fidelity_service
+
+    cond = FlowConditions(mach=req.mach, reynolds=req.reynolds, aoa_deg=req.aoa_deg)
+    results, qc_status, report = SimulationIngestionService.ingest_openfoam_force_coeffs(
+        file_content=req.file_content,
+        geometry=req.geometry,
+        conditions=cond,
+        job_id=req.job_id
+    )
+
+    # If valid, register in multi-fidelity database
+    if report.get("is_valid", False):
+        for r in results:
+            multi_fidelity_service.registry.register_result(r)
+
+    return {
+        "qc_classification": qc_status.value,
+        "qc_report": report,
+        "ingested_results": [r.model_dump() for r in results]
+    }
+
+
+@app.get("/api/research/objectives", summary="List Scientific Research Objectives")
+async def list_research_objectives():
+    from backend.research.service import research_loop_service
+    return {"objectives": [o.model_dump() for o in research_loop_service.list_objectives()]}
+
+
+@app.post("/api/research/campaigns/plan", summary="Plan Simulation Campaign for Research Objective")
+async def plan_research_campaign(objective_id: str, max_cases: int = 5):
+    from backend.research.service import research_loop_service
+    camp = research_loop_service.plan_campaign(objective_id=objective_id, max_cases=max_cases)
+    if not camp:
+        raise HTTPException(status_code=404, detail="Research objective not found")
+    return camp.model_dump()
+
+
+@app.get("/api/research/campaigns", summary="List Simulation Campaigns")
+async def list_research_campaigns():
+    from backend.research.service import research_loop_service
+    return {"campaigns": [c.model_dump() for c in research_loop_service.list_campaigns()]}
+
+
+@app.post("/api/research/retrain", summary="Trigger Continuous Surrogate Retraining Loop")
+async def trigger_retraining_loop(req: RetrainRequest):
+    """Executes closed-loop retraining: train candidate -> benchmark test -> compare with V1 -> promotion audit."""
+    from backend.research.service import research_loop_service
+    summary = research_loop_service.trigger_retraining(
+        dataset_version=req.dataset_version,
+        epochs=req.epochs
+    )
+    return summary.model_dump()
+
+
+@app.get("/api/research/datasets/versions", summary="List Immutable Dataset Versions")
+async def list_dataset_versions():
+    from backend.datasets.versioning import dataset_version_manager
+    return {"versions": [v.model_dump() for v in dataset_version_manager.versions.values()]}
+
+
+@app.get("/api/research/report/{objective_id}", summary="Generate Scientific Research Report")
+async def get_research_report(objective_id: str, format: str = "markdown"):
+    from backend.research.service import research_loop_service
+    content = research_loop_service.export_report(objective_id=objective_id, format_type=format)
+    return {"objective_id": objective_id, "format": format, "content": content}
+
+
+@app.post("/api/physics/aerodynamics/surface-cp", summary="Predict Chordwise Surface Cp Distribution")
+async def predict_surface_cp(req: SurfaceCpRequest):
+    from backend.physics_ai.field.surrogate import SurfaceCpSurrogate
+    dist = SurfaceCpSurrogate.predict_surface_cp(
+        geometry=req.geometry,
+        mach=req.mach,
+        reynolds=req.reynolds,
+        aoa_deg=req.aoa_deg,
+        n_chord_points=req.n_chord_points
+    )
+    return dist.model_dump()
+
+
+@app.post("/api/physics/dimensional/state", summary="Compute Aerodynamic Dimensional and Dimensionless Flow State")
+async def compute_dimensional_flow_state(req: DimensionalStateRequest):
+    from backend.physics.dimensional import AerodynamicDimensionalizer
+    state = AerodynamicDimensionalizer.compute_flow_state(
+        velocity_ms=req.velocity_ms,
+        mach=req.mach,
+        temperature_k=req.temperature_k,
+        pressure_pa=req.pressure_pa,
+        chord_m=req.chord_m
+    )
+    return state.model_dump()
+
+
+@app.post("/api/physics/constraints/check", summary="Verify Aerodynamic Physical Invariants")
+async def check_physical_constraints(req: ConstraintCheckRequest):
+    from backend.physics.constraints import AerodynamicConstraintEngine
+    report = AerodynamicConstraintEngine.check_aerodynamic_invariants(
+        cl=req.cl,
+        cd=req.cd,
+        cm=req.cm,
+        mach=req.mach,
+        aoa_deg=req.aoa_deg
+    )
+    return report.model_dump()
 
 
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
+
 async def chat_completion(request: ChatRequest):
     """
     Receives user query, orchestrates AASI agent prompt and context,

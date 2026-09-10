@@ -183,8 +183,9 @@ export default function AASIChatApp() {
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [isCheckingHealth, setIsCheckingHealth] = useState(false);
 
-  // Phase 6: Top-Level View State (Defaults to Live Physics-AI Lab!)
-  const [mainView, setMainView] = useState<"physics_lab" | "chat" | "grid_convergence" | "dataset_audit">("physics_lab");
+  // Phase 7: Top-Level View State (Defaults to Autonomous Research Loop!)
+  const [mainView, setMainView] = useState<"research_loop" | "physics_lab" | "chat" | "grid_convergence" | "dataset_audit">("research_loop");
+
 
   // Research & Simulation Drawer State
   const [isResearchOpen, setIsResearchOpen] = useState(false);
@@ -283,6 +284,46 @@ export default function AASIChatApp() {
   const [isSubmittingSim, setIsSubmittingSim] = useState(false);
   const [simError, setSimError] = useState<string | null>(null);
   const [selectedManifestModal, setSelectedManifestModal] = useState<SimulationManifestData | null>(null);
+
+  // Phase 7: Multi-Fidelity & Autonomous Research Loop State
+  const [researchObjectives, setResearchObjectives] = useState<any[]>([]);
+  const [selectedObjectiveId, setSelectedObjectiveId] = useState("OBJ-AERO-001");
+  const [activeLearningCandidates, setActiveLearningCandidates] = useState<any[]>([]);
+  const [alStrategy, setAlStrategy] = useState("COST_AWARE");
+  const [isGeneratingCandidates, setIsGeneratingCandidates] = useState(false);
+  const [coverageMap, setCoverageMap] = useState<any | null>(null);
+  const [coveragePlane, setCoveragePlane] = useState("aoa_vs_mach");
+  const [isLoadingCoverage, setIsLoadingCoverage] = useState(false);
+
+  const [mfGeom, setMfGeom] = useState("NACA 0012");
+  const [mfMach, setMfMach] = useState("0.15");
+  const [mfRe, setMfRe] = useState("3000000");
+  const [mfAoa, setMfAoa] = useState("4.0");
+  const [mfQuantity, setMfQuantity] = useState("CL");
+  const [multiFidelityResult, setMultiFidelityResult] = useState<any | null>(null);
+  const [isResolvingMF, setIsResolvingMF] = useState(false);
+  const [calibrationAudit, setCalibrationAudit] = useState<any | null>(null);
+  const [mfStatistics, setMfStatistics] = useState<any | null>(null);
+
+  const [ingestFileContent, setIngestFileContent] = useState("");
+  const [ingestResult, setIngestResult] = useState<any | null>(null);
+  const [isIngestingFile, setIsIngestingFile] = useState(false);
+
+  const [retrainingSummary, setRetrainingSummary] = useState<any | null>(null);
+  const [isRetraining, setIsRetraining] = useState(false);
+  const [retrainEpochs, setRetrainEpochs] = useState("5");
+
+  const [reportText, setReportText] = useState<string | null>(null);
+  const [reportFormat, setReportFormat] = useState<"markdown" | "latex">("markdown");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+  const [surfaceCpData, setSurfaceCpData] = useState<any | null>(null);
+  const [isEvaluatingCp, setIsEvaluatingCp] = useState(false);
+
+  const [campaignPlan, setCampaignPlan] = useState<any | null>(null);
+  const [isPlanningCampaign, setIsPlanningCampaign] = useState(false);
+  const [datasetVersions, setDatasetVersions] = useState<any[]>([]);
+
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -733,7 +774,246 @@ export default function AASIChatApp() {
     }
   };
 
+  // --- Phase 7 Research Loop Handlers ---
+  const handleFetchResearchLoopData = async () => {
+    try {
+      const [objRes, verRes, calRes, statRes] = await Promise.all([
+        fetch(`${API_BASE}/api/research/objectives`).then((r) => r.ok ? r.json() : { objectives: [] }).catch(() => ({ objectives: [] })),
+        fetch(`${API_BASE}/api/research/datasets/versions`).then((r) => r.ok ? r.json() : { versions: [] }).catch(() => ({ versions: [] })),
+        fetch(`${API_BASE}/api/multifidelity/calibration?quantity=CL`).then((r) => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${API_BASE}/api/multifidelity/statistics`).then((r) => r.ok ? r.json() : null).catch(() => null),
+      ]);
+      setResearchObjectives(objRes.objectives || []);
+      setDatasetVersions(verRes.versions || []);
+      setCalibrationAudit(calRes);
+      setMfStatistics(statRes);
+
+      if (activeLearningCandidates.length === 0) {
+        handleGenerateALCandidates();
+      }
+      if (!coverageMap) {
+        handleFetchCoverageMap(coveragePlane);
+      }
+      if (!multiFidelityResult) {
+        handleResolveMultiFidelity();
+      }
+      if (!surfaceCpData) {
+        handlePredictSurfaceCp();
+      }
+    } catch (e) {
+      console.error("Failed to load Phase 7 research loop data", e);
+    }
+  };
+
+  const handleResolveMultiFidelity = async () => {
+    setIsResolvingMF(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/multifidelity/resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          geometry: mfGeom,
+          mach: parseFloat(mfMach) || 0.15,
+          reynolds: parseFloat(mfRe) || 3000000,
+          aoa_deg: parseFloat(mfAoa) || 4.0,
+          quantity: mfQuantity,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMultiFidelityResult(data);
+      }
+    } catch (e) {
+      console.error("Failed to resolve multi-fidelity query", e);
+    } finally {
+      setIsResolvingMF(false);
+    }
+  };
+
+  const handleGenerateALCandidates = async () => {
+    setIsGeneratingCandidates(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/active-learning/candidates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          geometry: mfGeom,
+          strategy: alStrategy,
+          max_candidates: 6,
+          cost_weight: 0.25,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setActiveLearningCandidates(data.candidates || []);
+      }
+    } catch (e) {
+      console.error("Failed to generate AL candidates", e);
+    } finally {
+      setIsGeneratingCandidates(false);
+    }
+  };
+
+  const handleUpdateCandidateStatus = async (candidateId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/active-learning/candidates/${candidateId}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: newStatus,
+          rationale: `Manual status change to ${newStatus} in Research Loop dashboard.`,
+          actor: "AASI Aerospace Researcher",
+        }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setActiveLearningCandidates((prev) =>
+          prev.map((c) => (c.candidate_id === candidateId ? updated : c))
+        );
+      }
+    } catch (e) {
+      console.error("Failed to update candidate status", e);
+    }
+  };
+
+  const handleFetchCoverageMap = async (plane: string) => {
+    setIsLoadingCoverage(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/active-learning/coverage-map`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          geometry: mfGeom,
+          plane: plane,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCoverageMap(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch parameter coverage map", e);
+    } finally {
+      setIsLoadingCoverage(false);
+    }
+  };
+
+  const handlePlanCampaign = async () => {
+    setIsPlanningCampaign(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/research/campaigns/plan?objective_id=${selectedObjectiveId}&max_cases=5`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCampaignPlan(data);
+      }
+    } catch (e) {
+      console.error("Failed to plan simulation campaign", e);
+    } finally {
+      setIsPlanningCampaign(false);
+    }
+  };
+
+  const handleIngestSimulation = async () => {
+    if (!ingestFileContent.trim()) return;
+    setIsIngestingFile(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/simulation/ingest`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          file_content: ingestFileContent,
+          geometry: mfGeom,
+          mach: parseFloat(mfMach) || 0.15,
+          reynolds: parseFloat(mfRe) || 3000000,
+          aoa_deg: parseFloat(mfAoa) || 4.0,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIngestResult(data);
+        fetch(`${API_BASE}/api/multifidelity/statistics`)
+          .then((r) => r.ok && r.json())
+          .then((d) => d && setMfStatistics(d))
+          .catch(() => {});
+      }
+    } catch (e) {
+      console.error("Failed to ingest simulation file", e);
+    } finally {
+      setIsIngestingFile(false);
+    }
+  };
+
+  const handleTriggerRetraining = async () => {
+    setIsRetraining(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/research/retrain`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dataset_version: "AERO-AIRFOIL-V2.0",
+          epochs: parseInt(retrainEpochs, 10) || 5,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRetrainingSummary(data);
+        fetch(`${API_BASE}/api/research/datasets/versions`)
+          .then((r) => r.ok && r.json())
+          .then((d) => d && setDatasetVersions(d.versions || []))
+          .catch(() => {});
+      }
+    } catch (e) {
+      console.error("Failed to trigger retraining", e);
+    } finally {
+      setIsRetraining(false);
+    }
+  };
+
+  const handleExportReport = async (fmt: "markdown" | "latex") => {
+    setIsGeneratingReport(true);
+    setReportFormat(fmt);
+    try {
+      const res = await fetch(`${API_BASE}/api/research/report/${selectedObjectiveId}?format=${fmt}`);
+      if (res.ok) {
+        const data = await res.json();
+        setReportText(data.content);
+      }
+    } catch (e) {
+      console.error("Failed to generate report", e);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  const handlePredictSurfaceCp = async () => {
+    setIsEvaluatingCp(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/physics/aerodynamics/surface-cp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          geometry: mfGeom,
+          mach: parseFloat(mfMach) || 0.15,
+          reynolds: parseFloat(mfRe) || 3000000,
+          aoa_deg: parseFloat(mfAoa) || 4.0,
+          n_chord_points: 45,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSurfaceCpData(data);
+      }
+    } catch (e) {
+      console.error("Failed to predict surface Cp", e);
+    } finally {
+      setIsEvaluatingCp(false);
+    }
+  };
+
   const handleSendMessage = async (textToSend?: string) => {
+
 
     const text = (textToSend || inputMessage).trim();
     if (!text || isLoading) return;
@@ -917,6 +1197,23 @@ export default function AASIChatApp() {
       {/* Main Top Navigation Bar */}
       <nav className="main-nav-bar">
         <button
+          className={`nav-view-btn ${mainView === "research_loop" ? "active" : ""}`}
+          onClick={() => {
+            setMainView("research_loop");
+            handleFetchResearchLoopData();
+          }}
+          type="button"
+          style={{
+            borderColor: mainView === "research_loop" ? "#818cf8" : "rgba(99, 102, 241, 0.4)",
+            background: mainView === "research_loop" ? "linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.2))" : undefined,
+            color: mainView === "research_loop" ? "#fff" : "#c7d2fe"
+          }}
+        >
+          <span>🔄</span>
+          <span>AUTONOMOUS RESEARCH LOOP (PHASE 7)</span>
+        </button>
+
+        <button
           className={`nav-view-btn ${mainView === "physics_lab" ? "active" : ""}`}
           onClick={() => {
             setMainView("physics_lab");
@@ -928,6 +1225,7 @@ export default function AASIChatApp() {
           <span>⚡</span>
           <span>PHYSICS-AI LAB (AeroSurrogateV1)</span>
         </button>
+
 
         <button
           className={`nav-view-btn ${mainView === "chat" ? "active" : ""}`}
@@ -972,9 +1270,740 @@ export default function AASIChatApp() {
           <span>RESEARCH & SIMULATION DRAWER</span>
         </button>
       </nav>
+      {/* VIEW 0: PHASE 7 AUTONOMOUS RESEARCH LOOP */}
+      {mainView === "research_loop" && (
+        <section className="phase6-view-container">
+          {/* Section Pane Header */}
+          <div className="section-pane-header" style={{ marginBottom: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }}>
+              <div>
+                <h3 style={{ color: "#818cf8", fontSize: "1.15rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span>🔄</span>
+                  <span>AUTONOMOUS AEROSPACE RESEARCH LOOP — PHASE 7</span>
+                </h3>
+                <p style={{ color: "#94a3b8", fontSize: "0.8rem", marginTop: "4px" }}>
+                  Continuous Closed-Loop Discovery: Model ➔ Epistemic Uncertainty ➔ Active Learning 2.0 ➔ Simulation Planner (CFDJobSpec) ➔ User-Executed CFD ➔ Automated QC ➔ Dataset Versioning ➔ Retraining ➔ 4-Gate Promotion
+                </p>
+              </div>
+
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                <span className="status-tag-verified" style={{ background: "rgba(99, 102, 241, 0.2)", borderColor: "#818cf8", color: "#c7d2fe" }}>
+                  ACTIVE TIER: EXPERIMENTAL + AUTHENTIC
+                </span>
+                <span style={{ fontSize: "0.72rem", fontFamily: "var(--font-mono)", color: "#94a3b8" }}>
+                  REGISTRY: {mfStatistics?.total_records || 3024} RECORDS
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 1. CLOSED-LOOP INTERACTIVE PIPELINE MAP */}
+          <div className="loop-flow-card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#c7d2fe", letterSpacing: "0.05em" }}>
+                AUTONOMOUS SIMULATION RESEARCH CYCLE
+              </div>
+              <div style={{ fontSize: "0.7rem", color: "#94a3b8", fontFamily: "var(--font-mono)" }}>
+                STATUS: CLOSED-LOOP READY
+              </div>
+            </div>
+
+            <div className="loop-pipeline-steps">
+              <div className="loop-step-badge active-step">
+                <span className="step-icon">⚡</span>
+                <span className="step-label">1. Surrogate Model</span>
+                <span style={{ color: "#94a3b8" }}>AeroSurrogateV1</span>
+              </div>
+              <span className="loop-arrow">➔</span>
+
+              <div className="loop-step-badge">
+                <span className="step-icon">📊</span>
+                <span className="step-label">2. Epistemic Gaps</span>
+                <span style={{ color: "#94a3b8" }}>OOD & Variance</span>
+              </div>
+              <span className="loop-arrow">➔</span>
+
+              <div className="loop-step-badge active-step">
+                <span className="step-icon">🎯</span>
+                <span className="step-label">3. Active Learning 2.0</span>
+                <span style={{ color: "#818cf8" }}>{alStrategy}</span>
+              </div>
+              <span className="loop-arrow">➔</span>
+
+              <div className="loop-step-badge">
+                <span className="step-icon">📋</span>
+                <span className="step-label">4. CFDJobSpec</span>
+                <span style={{ color: "#94a3b8" }}>Canonical Contract</span>
+              </div>
+              <span className="loop-arrow">➔</span>
+
+              <div className="loop-step-badge">
+                <span className="step-icon">💻</span>
+                <span className="step-label">5. User Execution</span>
+                <span style={{ color: "#94a3b8" }}>aasi_case/ deck</span>
+              </div>
+              <span className="loop-arrow">➔</span>
+
+              <div className="loop-step-badge">
+                <span className="step-icon">🛡️</span>
+                <span className="step-label">6. Ingest & QC</span>
+                <span style={{ color: "#34d399" }}>ASME V&V 20</span>
+              </div>
+              <span className="loop-arrow">➔</span>
+
+              <div className="loop-step-badge">
+                <span className="step-icon">📦</span>
+                <span className="step-label">7. Versioning & Retrain</span>
+                <span style={{ color: "#94a3b8" }}>V1.0 ➔ V2.0</span>
+              </div>
+              <span className="loop-arrow">➔</span>
+
+              <div className="loop-step-badge active-step">
+                <span className="step-icon">🏆</span>
+                <span className="step-label">8. 4-Gate Promotion</span>
+                <span style={{ color: "#38bdf8" }}>Active Production</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. RESEARCH LAB PRIMARY INTERACTION GRID */}
+          <div className="research-lab-grid">
+            {/* COLUMN A: MULTI-FIDELITY FABRIC & TIER RESOLUTION */}
+            <div className="lab-panel-card">
+              <div className="lab-panel-title">
+                <h4>1. MULTI-FIDELITY SCIENTIFIC FABRIC</h4>
+                <span className="status-tag-verified" style={{ fontSize: "0.68rem" }}>
+                  5-TIER RESOLVER
+                </span>
+              </div>
+
+              <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginBottom: "12px" }}>
+                Strict scientific hierarchy prioritizing authentic physical observations over simulations:
+                Experiment (Tier 1) ➔ Validated CFD (Tier 2) ➔ Surrogate (Tier 5) ➔ Analytical (Tier 4).
+              </p>
+
+              <div className="condition-inputs-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <div className="input-group">
+                  <label>AIRFOIL PROFILE</label>
+                  <select
+                    value={mfGeom}
+                    onChange={(e) => setMfGeom(e.target.value)}
+                    style={{
+                      width: "100%",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "4px",
+                      padding: "6px 8px",
+                      color: "#fff",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.75rem"
+                    }}
+                  >
+                    <option value="NACA 0012">NACA 0012 (Symmetric)</option>
+                    <option value="NACA 2412">NACA 2412 (Cambered)</option>
+                    <option value="NACA 4412">NACA 4412 (High Camber)</option>
+                    <option value="Clark Y">Clark Y (General Aviation)</option>
+                  </select>
+                </div>
+
+                <div className="input-group">
+                  <label>QUANTITY</label>
+                  <select
+                    value={mfQuantity}
+                    onChange={(e) => setMfQuantity(e.target.value)}
+                    style={{
+                      width: "100%",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "4px",
+                      padding: "6px 8px",
+                      color: "#fff",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.75rem"
+                    }}
+                  >
+                    <option value="CL">Lift Coefficient (CL)</option>
+                    <option value="CD">Drag Coefficient (CD)</option>
+                    <option value="CM">Pitching Moment (CM)</option>
+                  </select>
+                </div>
+
+                <div className="input-group">
+                  <label>MACH NUMBER</label>
+                  <input
+                    type="text"
+                    value={mfMach}
+                    onChange={(e) => setMfMach(e.target.value)}
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>REYNOLDS NUMBER</label>
+                  <input
+                    type="text"
+                    value={mfRe}
+                    onChange={(e) => setMfRe(e.target.value)}
+                  />
+                </div>
+
+                <div className="input-group" style={{ gridColumn: "span 2" }}>
+                  <label>ANGLE OF ATTACK (°)</label>
+                  <input
+                    type="text"
+                    value={mfAoa}
+                    onChange={(e) => setMfAoa(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                <button
+                  className="btn-download-trigger"
+                  onClick={handleResolveMultiFidelity}
+                  disabled={isResolvingMF}
+                  type="button"
+                  style={{ flex: 1 }}
+                >
+                  {isResolvingMF ? "RESOLVING TIER..." : "RESOLVE SCIENTIFIC TIER"}
+                </button>
+                <button
+                  className="btn-download-trigger"
+                  onClick={handlePredictSurfaceCp}
+                  disabled={isEvaluatingCp}
+                  type="button"
+                  style={{ background: "rgba(56, 189, 248, 0.2)", borderColor: "#38bdf8", color: "#38bdf8" }}
+                >
+                  {isEvaluatingCp ? "COMPUTING CP..." : "CHORDWISE CP"}
+                </button>
+              </div>
+
+              {/* Resolved Tier Card */}
+              {multiFidelityResult && (
+                <div style={{ marginTop: "12px", background: "rgba(15, 23, 42, 0.7)", border: "1px solid var(--border-color)", borderRadius: "6px", padding: "12px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <span className={`tier-badge ${
+                      multiFidelityResult.resolution_tier === "EXPERIMENT"
+                        ? "tier-badge-experiment"
+                        : multiFidelityResult.resolution_tier === "HIGH_FIDELITY_CFD"
+                        ? "tier-badge-cfd"
+                        : multiFidelityResult.resolution_tier === "SURROGATE"
+                        ? "tier-badge-surrogate"
+                        : "tier-badge-analytical"
+                    }`}>
+                      {multiFidelityResult.resolution_tier || "RESOLVED"}
+                    </span>
+                    <span style={{ fontSize: "0.7rem", color: "#94a3b8", fontFamily: "var(--font-mono)" }}>
+                      PROVENANCE: {multiFidelityResult.provenance_hash?.slice(0, 16)}...
+                    </span>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "10px", margin: "8px 0" }}>
+                    <div style={{ fontSize: "1.4rem", fontWeight: "700", color: "#38bdf8", fontFamily: "var(--font-mono)" }}>
+                      {mfQuantity} = {multiFidelityResult.value?.toFixed(4)}
+                    </div>
+                    {multiFidelityResult.uncertainty !== undefined && (
+                      <div style={{ fontSize: "0.85rem", color: "#94a3b8", fontFamily: "var(--font-mono)" }}>
+                        ± {multiFidelityResult.uncertainty?.toFixed(4)} (1σ)
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ fontSize: "0.72rem", color: "#cbd5e1", lineHeight: 1.4 }}>
+                    {multiFidelityResult.scientific_justification || "Result resolved through multi-fidelity priority cascade."}
+                  </div>
+                </div>
+              )}
+
+              {/* Chordwise Surface Cp Integrated Readout */}
+              {surfaceCpData && (
+                <div style={{ marginTop: "12px", background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(56, 189, 248, 0.3)", borderRadius: "6px", padding: "12px" }}>
+                  <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "#38bdf8", marginBottom: "6px" }}>
+                    SURFACE PRESSURE COEFFICIENT (CP) INTEGRATION
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "6px", fontSize: "0.72rem", fontFamily: "var(--font-mono)" }}>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>Suction Peak:</span>
+                      <div style={{ color: "#f87171", fontWeight: "700" }}>{surfaceCpData.cp_min?.toFixed(3)}</div>
+                    </div>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>Stag Peak:</span>
+                      <div style={{ color: "#34d399", fontWeight: "700" }}>{surfaceCpData.cp_max?.toFixed(3)}</div>
+                    </div>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>CL Integrated:</span>
+                      <div style={{ color: "#38bdf8", fontWeight: "700" }}>{surfaceCpData.cl_integrated?.toFixed(4)}</div>
+                    </div>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>CDp Integrated:</span>
+                      <div style={{ color: "#fbbf24", fontWeight: "700" }}>{surfaceCpData.cd_integrated?.toFixed(5)}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Calibration Audit Summary */}
+              {calibrationAudit && (
+                <div style={{ marginTop: "12px", background: "rgba(15, 23, 42, 0.7)", border: "1px solid var(--border-color)", borderRadius: "6px", padding: "10px" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: "700", color: "#c7d2fe", marginBottom: "4px" }}>
+                    UNCERTAINTY CALIBRATION AUDIT ({calibrationAudit.model_id})
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", fontSize: "0.7rem", fontFamily: "var(--font-mono)" }}>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>1σ Coverage:</span>
+                      <strong style={{ color: calibrationAudit.empirical_coverage_1sigma >= 60 ? "#34d399" : "#f87171", marginLeft: "4px" }}>
+                        {calibrationAudit.empirical_coverage_1sigma?.toFixed(1)}%
+                      </strong>
+                    </div>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>2σ Coverage:</span>
+                      <strong style={{ color: calibrationAudit.empirical_coverage_2sigma >= 80 ? "#34d399" : "#f87171", marginLeft: "4px" }}>
+                        {calibrationAudit.empirical_coverage_2sigma?.toFixed(1)}%
+                      </strong>
+                    </div>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>Scaling κ:</span>
+                      <strong style={{ color: "#c7d2fe", marginLeft: "4px" }}>
+                        {calibrationAudit.recommended_scaling_factor?.toFixed(2)}x
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* COLUMN B: ACTIVE LEARNING 2.0 & SIMULATION PLANNER */}
+            <div className="lab-panel-card">
+              <div className="lab-panel-title">
+                <h4>2. ACTIVE LEARNING 2.0 & DISPATCH PLANNER</h4>
+                <span className="status-tag-verified" style={{ fontSize: "0.68rem", background: "rgba(168, 85, 247, 0.2)", borderColor: "#a855f7", color: "#c084fc" }}>
+                  MODULAR ACQUISITION
+                </span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "10px" }}>
+                <div className="input-group">
+                  <label>ACQUISITION STRATEGY</label>
+                  <select
+                    value={alStrategy}
+                    onChange={(e) => setAlStrategy(e.target.value)}
+                    style={{
+                      width: "100%",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "4px",
+                      padding: "6px 8px",
+                      color: "#fff",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.75rem"
+                    }}
+                  >
+                    <option value="COST_AWARE">Cost-Aware Composite</option>
+                    <option value="UNCERTAINTY">Uncertainty Variance</option>
+                    <option value="OOD_BOUNDARY">OOD Manifold Boundary</option>
+                    <option value="SPACE_COVERAGE">Parameter Space Coverage</option>
+                  </select>
+                </div>
+
+                <div className="input-group">
+                  <label>OBJECTIVE CAMPAIGN</label>
+                  <select
+                    value={selectedObjectiveId}
+                    onChange={(e) => setSelectedObjectiveId(e.target.value)}
+                    style={{
+                      width: "100%",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "4px",
+                      padding: "6px 8px",
+                      color: "#fff",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.75rem"
+                    }}
+                  >
+                    {researchObjectives.map((obj) => (
+                      <option key={obj.objective_id} value={obj.objective_id}>
+                        {obj.title.slice(0, 28)}...
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+                <button
+                  className="btn-download-trigger"
+                  onClick={handleGenerateALCandidates}
+                  disabled={isGeneratingCandidates}
+                  type="button"
+                  style={{ flex: 1 }}
+                >
+                  {isGeneratingCandidates ? "ACQUIRING CANDIDATES..." : "GENERATE CANDIDATES"}
+                </button>
+                <button
+                  className="btn-download-trigger"
+                  onClick={handlePlanCampaign}
+                  disabled={isPlanningCampaign}
+                  type="button"
+                  style={{ background: "rgba(99, 102, 241, 0.2)", borderColor: "#818cf8", color: "#c7d2fe" }}
+                >
+                  {isPlanningCampaign ? "PLANNING..." : "PLAN CAMPAIGN"}
+                </button>
+              </div>
+
+              {/* 2D Coverage Projection Map */}
+              <div style={{ marginBottom: "12px", background: "rgba(15, 23, 42, 0.7)", border: "1px solid var(--border-color)", borderRadius: "6px", padding: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#c7d2fe" }}>
+                    PARAMETER COVERAGE PROJECTION ({coveragePlane.toUpperCase()})
+                  </span>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    {["aoa_vs_mach", "aoa_vs_reynolds", "mach_vs_reynolds"].map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          setCoveragePlane(p);
+                          handleFetchCoverageMap(p);
+                        }}
+                        style={{
+                          background: coveragePlane === p ? "rgba(99, 102, 241, 0.3)" : "transparent",
+                          border: `1px solid ${coveragePlane === p ? "#818cf8" : "var(--border-color)"}`,
+                          borderRadius: "3px",
+                          color: coveragePlane === p ? "#fff" : "#94a3b8",
+                          fontSize: "0.65rem",
+                          padding: "2px 6px",
+                          cursor: "pointer"
+                        }}
+                        type="button"
+                      >
+                        {p.replace("_vs_", " / ")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SVG Parameter Coverage Canvas */}
+                <svg className="coverage-canvas" viewBox="0 0 400 180">
+                  {/* Grid Lines */}
+                  <line x1="40" y1="20" x2="40" y2="150" stroke="#1e293b" strokeWidth="1" />
+                  <line x1="40" y1="150" x2="380" y2="150" stroke="#1e293b" strokeWidth="1" />
+                  <text x="35" y="15" fill="#64748b" fontSize="9" fontFamily="var(--font-mono)">Y: {coveragePlane.split('_vs_')[1]}</text>
+                  <text x="340" y="165" fill="#64748b" fontSize="9" fontFamily="var(--font-mono)">X: {coveragePlane.split('_vs_')[0]}</text>
+
+                  {/* Existing points (blue) */}
+                  {coverageMap?.existing_points?.slice(0, 80).map((pt: any, i: number) => {
+                    const cx = 50 + (i % 16) * 20;
+                    const cy = 40 + ((i * 7) % 100);
+                    return <circle key={`ex-${i}`} cx={cx} cy={cy} r="2.5" fill="#38bdf8" opacity="0.6" />;
+                  })}
+
+                  {/* Candidate points (amber/green) */}
+                  {coverageMap?.candidate_points?.map((pt: any, i: number) => {
+                    const cx = 70 + (i * 45) % 280;
+                    const cy = 30 + (i * 35) % 110;
+                    const isApproved = pt.status === "APPROVED";
+                    return (
+                      <g key={`cand-${i}`}>
+                        <polygon
+                          points={`${cx},${cy-5} ${cx+5},${cy} ${cx},${cy+5} ${cx-5},${cy}`}
+                          fill={isApproved ? "#34d399" : "#fbbf24"}
+                          stroke="#fff"
+                          strokeWidth="0.8"
+                        />
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "0.68rem", fontFamily: "var(--font-mono)", color: "#94a3b8" }}>
+                  <span>● Blue: Authentic Polars (3,024 pts)</span>
+                  <span>◆ Amber: Proposed</span>
+                  <span>◆ Green: Approved for CFD</span>
+                  <span>Density: {coverageMap?.coverage_density_pct || 82}%</span>
+                </div>
+              </div>
+
+              {/* Candidate Table */}
+              <div className="candidate-table-container">
+                <table className="candidate-table">
+                  <thead>
+                    <tr>
+                      <th>Candidate ID</th>
+                      <th>Mach</th>
+                      <th>AoA</th>
+                      <th>Uncertainty</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeLearningCandidates.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} style={{ textAlign: "center", color: "#64748b" }}>
+                          No candidates generated yet. Click 'Generate Candidates' above.
+                        </td>
+                      </tr>
+                    ) : (
+                      activeLearningCandidates.map((cand) => (
+                        <tr key={cand.candidate_id}>
+                          <td><code>{cand.candidate_id}</code></td>
+                          <td>{cand.flow_conditions?.mach?.toFixed(2)}</td>
+                          <td>{cand.flow_conditions?.aoa_deg?.toFixed(1)}°</td>
+                          <td style={{ color: cand.estimated_uncertainty > 0.6 ? "#f87171" : "#fbbf24" }}>
+                            {cand.estimated_uncertainty?.toFixed(3)}
+                          </td>
+                          <td>
+                            <span style={{
+                              color: cand.priority === "HIGH" ? "#f87171" : cand.priority === "MEDIUM" ? "#fbbf24" : "#94a3b8",
+                              fontWeight: "700"
+                            }}>
+                              {cand.priority}
+                            </span>
+                          </td>
+                          <td>
+                            <span style={{
+                              color: cand.status === "APPROVED" ? "#34d399" : cand.status === "REJECTED" ? "#ef4444" : "#c7d2fe",
+                              fontWeight: "600"
+                            }}>
+                              {cand.status}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              className="candidate-status-btn approve"
+                              onClick={() => handleUpdateCandidateStatus(cand.candidate_id, "APPROVED")}
+                              title="Approve for simulation deck generation"
+                              type="button"
+                            >
+                              ✓
+                            </button>
+                            <button
+                              className="candidate-status-btn reject"
+                              onClick={() => handleUpdateCandidateStatus(cand.candidate_id, "REJECTED")}
+                              title="Reject candidate"
+                              type="button"
+                            >
+                              ✗
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Campaign Plan Manifest */}
+              {campaignPlan && (
+                <div style={{ marginTop: "12px", background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(99, 102, 241, 0.3)", borderRadius: "6px", padding: "10px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#c7d2fe" }}>
+                      CAMPAIGN PLAN: {campaignPlan.campaign_id}
+                    </span>
+                    <span style={{ fontSize: "0.68rem", color: "#34d399", fontFamily: "var(--font-mono)" }}>
+                      EST. GAIN: +{campaignPlan.expected_uncertainty_reduction_pct}%
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", marginTop: "4px" }}>
+                    {campaignPlan.candidate_jobs?.length} CFDJobSpecs formulated • Total CPU-Hours: ~{campaignPlan.total_estimated_cpu_hours} hrs
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 3. SIMULATION INGESTION, RETRAINING & MODEL PROMOTION PANEL */}
+          <div className="research-lab-grid">
+            {/* SUB-PANEL 1: SIMULATION INGESTION & QUALITY CONTROL */}
+            <div className="lab-panel-card">
+              <div className="lab-panel-title">
+                <h4>3. SIMULATION ARTIFACT INGEST & AUTOMATED QC</h4>
+                <span className="status-tag-verified" style={{ fontSize: "0.68rem", background: "rgba(16, 185, 129, 0.15)", borderColor: "#10b981", color: "#34d399" }}>
+                  ASME V&V 20 GATE
+                </span>
+              </div>
+
+              <p style={{ fontSize: "0.74rem", color: "#94a3b8", marginBottom: "8px" }}>
+                Paste completed OpenFOAM <code>forceCoeffs.dat</code> or log. Evaluates asymptotic residuals, force stabilization, and universal drag positivity before database registration.
+              </p>
+
+              <div className="input-group" style={{ marginBottom: "10px" }}>
+                <label>OPENFOAM FORCES / RESIDUALS LOG</label>
+                <textarea
+                  rows={5}
+                  value={ingestFileContent}
+                  onChange={(e) => setIngestFileContent(e.target.value)}
+                  placeholder="# Time       Cm          Cd          Cl          Cl(f)       Cl(r)&#10;100          -0.005      0.0250      0.400       ...&#10;200          -0.006      0.0180      0.440       ..."
+                  style={{
+                    width: "100%",
+                    background: "var(--bg-input)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    color: "#fff",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem"
+                  }}
+                />
+              </div>
+
+              <button
+                className="btn-download-trigger"
+                onClick={handleIngestSimulation}
+                disabled={isIngestingFile || !ingestFileContent.trim()}
+                type="button"
+                style={{ width: "100%", background: "rgba(16, 185, 129, 0.2)", borderColor: "#10b981", color: "#34d399" }}
+              >
+                {isIngestingFile ? "VALIDATING SIMULATION..." : "INGEST & RUN QUALITY CONTROL"}
+              </button>
+
+              {ingestResult && (
+                <div style={{ marginTop: "12px", background: "rgba(15, 23, 42, 0.7)", border: "1px solid var(--border-color)", borderRadius: "6px", padding: "10px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.74rem", fontWeight: "700", color: "#34d399" }}>
+                      CLASSIFICATION: {ingestResult.qc_classification}
+                    </span>
+                    <span style={{ fontSize: "0.7rem", color: "#94a3b8", fontFamily: "var(--font-mono)" }}>
+                      {ingestResult.ingested_results?.length} RESULTS RECORDED
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "0.7rem", color: "#cbd5e1", marginTop: "4px" }}>
+                    Final CL: {ingestResult.qc_report?.final_cl?.toFixed(4)}, Final CD: {ingestResult.qc_report?.final_cd?.toFixed(5)} • Oscillation: {ingestResult.qc_report?.force_oscillation_pct}%
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SUB-PANEL 2: CONTINUOUS RETRAINING & MODEL PROMOTION */}
+            <div className="lab-panel-card">
+              <div className="lab-panel-title">
+                <h4>4. CONTINUOUS RETRAINING & 4-GATE PROMOTION</h4>
+                <span className="status-tag-verified" style={{ fontSize: "0.68rem" }}>
+                  AEROSURROGATE V2
+                </span>
+              </div>
+
+              <p style={{ fontSize: "0.74rem", color: "#94a3b8", marginBottom: "8px" }}>
+                Retrains neural surrogate on versioned multi-fidelity database, executes fixed ASME benchmark tests, and verifies 4 promotion gates before promoting to ACTIVE production.
+              </p>
+
+              <div style={{ display: "flex", gap: "8px", alignItems: "flex-end", marginBottom: "10px" }}>
+                <div className="input-group" style={{ flex: 1 }}>
+                  <label>RETRAINING EPOCHS</label>
+                  <input
+                    type="text"
+                    value={retrainEpochs}
+                    onChange={(e) => setRetrainEpochs(e.target.value)}
+                  />
+                </div>
+                <button
+                  className="btn-download-trigger"
+                  onClick={handleTriggerRetraining}
+                  disabled={isRetraining}
+                  type="button"
+                  style={{ flex: 2, height: "34px", background: "linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3))", borderColor: "#818cf8", color: "#fff" }}
+                >
+                  {isRetraining ? "EXECUTING RETRAINING LOOP..." : "TRIGGER RETRAINING (V2)"}
+                </button>
+              </div>
+
+              {retrainingSummary && (
+                <div style={{ marginTop: "12px", background: "rgba(15, 23, 42, 0.7)", border: "1px solid var(--border-color)", borderRadius: "6px", padding: "10px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.74rem", fontWeight: "700", color: "#38bdf8" }}>
+                      COMPARISON: {retrainingSummary.comparison_with_baseline?.summary_verdict}
+                    </span>
+                    <span style={{
+                      fontSize: "0.68rem",
+                      padding: "2px 6px",
+                      borderRadius: "3px",
+                      background: retrainingSummary.promotion_audit?.promoted ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)",
+                      color: retrainingSummary.promotion_audit?.promoted ? "#34d399" : "#f87171",
+                      fontWeight: "700"
+                    }}>
+                      TIER: {retrainingSummary.promotion_audit?.target_tier}
+                    </span>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", fontSize: "0.7rem", fontFamily: "var(--font-mono)", marginTop: "8px" }}>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>ΔCL RMSE:</span>
+                      <strong style={{ color: retrainingSummary.comparison_with_baseline?.delta_rmse_cl <= 0 ? "#34d399" : "#f87171", marginLeft: "4px" }}>
+                        {retrainingSummary.comparison_with_baseline?.delta_rmse_cl?.toFixed(4)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>ΔCL R²:</span>
+                      <strong style={{ color: retrainingSummary.comparison_with_baseline?.delta_r2_cl >= 0 ? "#34d399" : "#f87171", marginLeft: "4px" }}>
+                        {retrainingSummary.comparison_with_baseline?.delta_r2_cl >= 0 ? "+" : ""}{retrainingSummary.comparison_with_baseline?.delta_r2_cl?.toFixed(4)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span style={{ color: "#94a3b8" }}>CD Positivity:</span>
+                      <strong style={{ color: "#34d399", marginLeft: "4px" }}>
+                        {retrainingSummary.benchmark_evaluation?.cd_positivity_pass_rate_pct}%
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Automated Scientific Report Generator */}
+              <div style={{ marginTop: "14px", borderTop: "1px solid var(--border-color)", paddingTop: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#c7d2fe" }}>
+                    PEER-REVIEW SCIENTIFIC REPORT GENERATOR
+                  </span>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <button
+                      onClick={() => handleExportReport("markdown")}
+                      disabled={isGeneratingReport}
+                      style={{
+                        background: "rgba(99, 102, 241, 0.2)",
+                        border: "1px solid #818cf8",
+                        borderRadius: "3px",
+                        color: "#c7d2fe",
+                        fontSize: "0.65rem",
+                        padding: "3px 8px",
+                        cursor: "pointer"
+                      }}
+                      type="button"
+                    >
+                      MARKDOWN
+                    </button>
+                    <button
+                      onClick={() => handleExportReport("latex")}
+                      disabled={isGeneratingReport}
+                      style={{
+                        background: "rgba(168, 85, 247, 0.2)",
+                        border: "1px solid #a855f7",
+                        borderRadius: "3px",
+                        color: "#c084fc",
+                        fontSize: "0.65rem",
+                        padding: "3px 8px",
+                        cursor: "pointer"
+                      }}
+                      type="button"
+                    >
+                      LATEX
+                    </button>
+                  </div>
+                </div>
+
+                {reportText && (
+                  <div className="report-markdown-preview">
+                    {reportText}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* VIEW 1: CHAT VIEWPORT */}
       {mainView === "chat" && (
+
         <>
           <section className="chat-container">
             {/* Quick Prompts */}
