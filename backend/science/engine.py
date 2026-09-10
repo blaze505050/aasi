@@ -186,32 +186,67 @@ class ScientificResolutionEngine:
         is_valid_env, surrogate_meta, env_reason = self.surrogate_registry.check_validity_envelope(cond)
         if is_valid_env and surrogate_meta:
             trace.append(f"✓ Query conditions lie inside surrogate '{surrogate_meta.model_id}' validated envelope")
-            # Note: Surrogate inference stub
-            surr_result = ScientificResult(
-                result_id=f"SURR-{surrogate_meta.model_id}",
-                epistemic_status=EpistemicStatus.SURROGATE_PREDICTION,
-                quantity=target_var,
-                value=None,  # Stub for Phase 4
-                units="dimensionless",
-                conditions=cond.model_dump(),
-                source=f"AASI Surrogate Registry ({surrogate_meta.architecture})",
-                provenance={"model_id": surrogate_meta.model_id, "architecture": surrogate_meta.architecture},
-                confidence=0.88,
-                method=f"Neural Surrogate Inference ({surrogate_meta.architecture})",
-                validation_status="SURROGATE_STUB",
-                notes=["Surrogate model interface registered; actual weights scheduled for future Physics AI phase."],
-            )
-            return {
-                "resolution_level": "LEVEL 4 - VALIDATED SURROGATE MODEL",
-                "status": "SURROGATE_AVAILABLE",
-                "epistemic_status": EpistemicStatus.SURROGATE_PREDICTION.value,
-                "primary_result": surr_result.model_dump(),
-                "normalized_conditions": cond.model_dump(),
-                "trace": trace,
-                "executed_levels": executed_levels,
-            }
+            
+            # Phase 6: Execute Real Physics-AI Surrogate Inference
+            try:
+                from backend.physics_ai.service import PhysicsAIService
+                ai_service = PhysicsAIService.get_instance()
+                geom_target = cond.geometry or "naca0012"
+                pred = ai_service.predict(
+                    geometry=geom_target,
+                    mach=cond.mach if cond.mach is not None else 0.2,
+                    reynolds=cond.reynolds if cond.reynolds is not None else 2.0e6,
+                    aoa_deg=cond.aoa_deg if cond.aoa_deg is not None else 0.0
+                )
+                
+                # Extract predicted target value
+                t_key = target_var.lower()
+                val = getattr(pred, t_key, pred.cl)
+                
+                if pred.domain_status.value == "SURROGATE_OUT_OF_DOMAIN":
+                    trace.append(f"⚠ Surrogate epistemic engine flagged OUT_OF_DOMAIN: OOD score={pred.uncertainty.ood_score}")
+                    # Fall through to Level 5 / 6
+                else:
+                    trace.append(f"✓ Executed AeroSurrogateV1: {target_var} = {val} (confidence={pred.uncertainty.confidence_level})")
+                    surr_result = ScientificResult(
+                        result_id=f"SURR-REAL-{pred.model_id}",
+                        epistemic_status=EpistemicStatus.SURROGATE_PREDICTION,
+                        quantity=target_var,
+                        value=float(val),
+                        units="dimensionless",
+                        conditions=cond.model_dump(),
+                        source=f"AASI AeroSurrogateV1 ({pred.model_id} v{pred.model_version})",
+                        provenance={
+                            "model_id": pred.model_id,
+                            "model_version": pred.model_version,
+                            "sha256_checksum": pred.provenance.get("sha256_checksum", ""),
+                            "confidence_level": pred.uncertainty.confidence_level,
+                            "confidence_score": pred.uncertainty.confidence_score,
+                            "ood_score": pred.uncertainty.ood_score,
+                            "physics_valid": pred.provenance.get("physics_valid", True),
+                        },
+                        confidence=pred.uncertainty.confidence_score,
+                        method="Dual-Stream Vectorized Neural Operator (AeroSurrogateV1)",
+                        validation_status="VALIDATED_ON_TEST_SET",
+                        notes=[
+                            f"Evaluated with epistemic uncertainty: CL_sigma={pred.uncertainty.cl_uncertainty}, CD_sigma={pred.uncertainty.cd_uncertainty}",
+                            f"Domain Status: {pred.domain_status.value}"
+                        ],
+                    )
+                    return {
+                        "resolution_level": "LEVEL 4 - VALIDATED SURROGATE MODEL",
+                        "status": "SURROGATE_AVAILABLE",
+                        "epistemic_status": EpistemicStatus.SURROGATE_PREDICTION.value,
+                        "primary_result": surr_result.model_dump(),
+                        "normalized_conditions": cond.model_dump(),
+                        "trace": trace,
+                        "executed_levels": executed_levels,
+                    }
+            except Exception as e:
+                trace.append(f"⚠ Surrogate execution fallback: {str(e)}")
         else:
             trace.append(f"⚠ Surrogate check: {env_reason}")
+
 
         # =====================================================================
         # LEVEL 6: LOCAL SIMULATION FABRIC

@@ -58,6 +58,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.tsbuildinfo
 
 # Model & Weight artifacts
 *.bin
@@ -78,5 +79,13 @@ Thumbs.db
 scratch/
 *.docx
 
-# Simulation & Dataset run artifacts
-data/
+# Simulation & Dataset run artifacts (exclude raw simulations by default, include authentic datasets & trained checkpoints)
+data/*
+!data/checkpoints/
+!data/checkpoints/**
+!data/datasets/
+!data/datasets/authentic_airfoils/
+!data/datasets/authentic_airfoils/**
+!data/training_runs/
+!data/training_runs/TR-AERO-SURROGATE-V1-001/
+!data/training_runs/TR-AERO-SURROGATE-V1-001/**

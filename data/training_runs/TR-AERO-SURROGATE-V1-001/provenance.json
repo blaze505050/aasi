@@ -1,0 +1,32 @@
+{
+  "timestamp_utc": "2026-09-10T12:39:02.662145+00:00",
+  "git_commit": "03528e70e8e0532f4656b94d75bd9626bb9304a7",
+  "seed": 42,
+  "os_name": "Windows",
+  "os_release": "11",
+  "python_version": "3.12.10",
+  "torch_version": "N/A (NumPy native CPU)",
+  "numpy_version": "2.5.3",
+  "device": "cpu",
+  "cpu_architecture": "AMD64",
+  "dataset_checksum": "",
+  "split_checksum": "7eeec01120fb08870d50e19232ac3bea9b6b179ed81f5376f09ac5bb22c30128",
+  "training_config": {
+    "training_run_id": "TR-AERO-SURROGATE-V1-001",
+    "model_family": "AeroSurrogateV1",
+    "dataset_id": "DATASET-AUTHENTIC-AIRFOILS-V1",
+    "dataset_version": "1.0.0",
+    "split_version": "GEOMETRY_LEVEL_SPLIT_V1",
+    "seed": 42,
+    "epochs": 150,
+    "batch_size": 32,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "loss_weights": {
+      "cl": 1.0,
+      "cd": 5.0,
+      "cm": 2.0
+    },
+    "hardware": "LOCAL_CPU"
+  }
+}

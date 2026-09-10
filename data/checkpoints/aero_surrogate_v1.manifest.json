@@ -1,0 +1,122 @@
+{
+  "model_id": "AERO_SURROGATE_V1",
+  "model_version": "1.0.0",
+  "checkpoint_file": "aero_surrogate_v1.npz",
+  "sha256_checksum": "bc549596f676c5d336fe33333845c53c6d2c170bce2eb964516c51dc8f4ee433",
+  "parameter_count": 20467,
+  "condition_normalizer": {
+    "mean": [
+      0.1875000298023224,
+      2000000.0,
+      5.0
+    ],
+    "scale": [
+      0.0739508867263794,
+      816494.4375,
+      6.904105186462402
+    ],
+    "features": [
+      "mach",
+      "log10_reynolds",
+      "aoa_deg"
+    ]
+  },
+  "target_scaler": {
+    "mean": [
+      0.608299970626831,
+      0.03435469791293144,
+      -0.057928599417209625
+    ],
+    "scale": [
+      0.6349567174911499,
+      0.056480638682842255,
+      0.045945510268211365
+    ],
+    "targets": [
+      "CL",
+      "CD",
+      "CM"
+    ]
+  },
+  "training_metadata": {
+    "training_run_id": "TR-AERO-SURROGATE-V1-001",
+    "test_metrics": {
+      "split_name": "test",
+      "sample_count": 180,
+      "geometry_count": 2,
+      "cl_mae": 0.1341,
+      "cl_rmse": 0.1349,
+      "cl_r2": 0.9495,
+      "cd_mae": 0.00109,
+      "cd_rmse": 0.00134,
+      "cd_r2": 0.925,
+      "cm_mae": 0.0191,
+      "cm_rmse": 0.0192,
+      "cm_r2": 0.3043,
+      "mean_relative_error_pct": 29.33,
+      "physics_violation_count": 0,
+      "monotonicity_violations": 0,
+      "symmetry_violations": 0,
+      "drag_violations": 0
+    },
+    "val_metrics": {
+      "split_name": "val",
+      "sample_count": 144,
+      "geometry_count": 1,
+      "cl_mae": 0.0195,
+      "cl_rmse": 0.0231,
+      "cl_r2": 0.9987,
+      "cd_mae": 0.00115,
+      "cd_rmse": 0.00142,
+      "cd_r2": 0.9994,
+      "cm_mae": 0.0005,
+      "cm_rmse": 0.0006,
+      "cm_r2": 0.9994,
+      "mean_relative_error_pct": 2.81,
+      "physics_violation_count": 0,
+      "monotonicity_violations": 0,
+      "symmetry_violations": 0,
+      "drag_violations": 0
+    },
+    "train_metrics": {
+      "split_name": "train",
+      "sample_count": 432,
+      "geometry_count": 3,
+      "cl_mae": 0.0043,
+      "cl_rmse": 0.0054,
+      "cl_r2": 0.9999,
+      "cd_mae": 0.00069,
+      "cd_rmse": 0.00083,
+      "cd_r2": 0.9998,
+      "cm_mae": 0.0005,
+      "cm_rmse": 0.0006,
+      "cm_r2": 0.9998,
+      "mean_relative_error_pct": 0.77,
+      "physics_violation_count": 0,
+      "monotonicity_violations": 0,
+      "symmetry_violations": 0,
+      "drag_violations": 0
+    },
+    "ood_metrics": {
+      "split_name": "ood_geometry",
+      "sample_count": 90,
+      "geometry_count": 1,
+      "cl_mae": 0.0151,
+      "cl_rmse": 0.0174,
+      "cl_r2": 0.9991,
+      "cd_mae": 0.00073,
+      "cd_rmse": 0.00092,
+      "cd_r2": 0.9433,
+      "cm_mae": 0.0232,
+      "cm_rmse": 0.0232,
+      "cm_r2": -3.0842,
+      "mean_relative_error_pct": 3.76,
+      "physics_violation_count": 0,
+      "monotonicity_violations": 0,
+      "symmetry_violations": 0,
+      "drag_violations": 0
+    },
+    "epochs": 150,
+    "parameters": 20467
+  }
+}

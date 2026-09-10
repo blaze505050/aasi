@@ -1,0 +1,30 @@
+{
+  "split_version": "GEOMETRY_LEVEL_V1",
+  "seed": 42,
+  "train_geometries": [
+    "Clark Y",
+    "NACA 0006",
+    "NACA 0009"
+  ],
+  "val_geometries": [
+    "NACA 0012"
+  ],
+  "test_geometries": [
+    "NACA 2412",
+    "NACA 4412"
+  ],
+  "ood_geometries": [
+    "RAE 2822"
+  ],
+  "geometry_leakage_percentage": 0.0,
+  "counts": {
+    "train": 432,
+    "val": 144,
+    "test": 180,
+    "ood_geometry": 90,
+    "ood_condition": 108,
+    "ood_combined": 54,
+    "total": 1008
+  },
+  "split_checksum": "7eeec01120fb08870d50e19232ac3bea9b6b179ed81f5376f09ac5bb22c30128"
+}

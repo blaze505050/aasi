@@ -1,0 +1,8 @@
+{
+  "total_points_evaluated": 180,
+  "drag_positivity_rate": 1.0,
+  "cl_bounds_satisfaction_rate": 1.0,
+  "symmetry_points_tested": 0,
+  "symmetry_points_passed": 0,
+  "all_drag_positive": true
+}

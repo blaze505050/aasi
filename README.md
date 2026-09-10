@@ -23,10 +23,10 @@
 > Large Language Models are used for natural language understanding, intent recognition, parameter extraction, and explanatory synthesis. Verified open-source engineering libraries (`Astropy`, `RocketPy`, `SymPy`, `Scipy`) execute all actual mathematical computations. AASI never allows the language model to invent or fabricate calculations.
 
 ---
----
-## Current Status: Phase 5 — Aerospace Knowledge Federation + Dataset Factory + Physics-AI Foundation
 
-AASI has completed **Phase 5**, implementing a comprehensive **Tri-Layer Architecture** combining federated knowledge across 15 disciplines, an open physics dataset factory with zero-leakage geometry-level partitioning, a PhysicsNeMo training foundation, and a standalone user-executed CFD deck generator with artifact ingestion:
+## Current Status: Phase 6 — Real Physics AI & Aerodynamic Surrogate
+
+AASI has completed **Phase 6**, achieving genuine, measurable, and scientifically validated **Physics Intelligence** through `AeroSurrogateV1`:
 
 ```
                             ┌─────────────────────────────────────────┐
@@ -37,21 +37,18 @@ AASI has completed **Phase 5**, implementing a comprehensive **Tri-Layer Archite
           ┌──────────────────────────────────────┼──────────────────────────────────────┐
           ▼                                      ▼                                      ▼
 ┌──────────────────────────────┐       ┌──────────────────────────────┐       ┌──────────────────────────────┐
-│  LAYER A: KNOWLEDGE & SOURCES│       │  LAYER B: PHYSICS AI & DATA  │       │  LAYER C: SIMULATION & COMP  │
+│  LAYER A: KNOWLEDGE & SOURCES│       │  LAYER B: REAL PHYSICS AI    │       │  LAYER C: SIMULATION & COMP  │
 │ ──────────────────────────── │       │ ──────────────────────────── │       │ ──────────────────────────── │
-│ • 15 Scientific Disciplines  │       │ • Open Dataset Factory       │       │ • Multi-Backend Dispatch     │
-│ • NASA NTRS & NACA Connectors│       │   (AirfRANS, CRM, Abbott)    │       │   (Local, Remote, User, Cache│
-│ • ISRO / ESA Public Registrie│       │ • Leakage-Free Geometry Split│       │ • Standalone aasi_case/ Deck │
-│ • Strict SpaceX Claim Refusal│       │ • PhysicsNeMo Recipe Foundatn│       │ • 14-Section Execution Guide │
-│ • Dynamic Current Events     │       │ • PhysicsModelRegistry       │       │ • Artifact Ingestion Service │
-│   (ISO Temporal Separation)  │       │ • Monotonicity & Symm Audits │       │ • OpenFOAM / SU2 / XFOIL     │
-│ • 16-Entity Knowledge Graph  │       │ • Active Learning Loop       │       │ • SHA-256 Provenance Manifest│
+│ • 15 Scientific Disciplines  │       │ • AeroSurrogateV1 (Trained)  │       │ • ASME V&V 20 GCI Engine     │
+│ • NASA NTRS & NACA Connectors│       │   (CL, CD, CM with bounds)   │       │ • Richardson Extrapolation   │
+│ • ISRO / ESA Public Registrie│       │ • Epistemic Uncertainty OOD  │       │ • Multi-Backend Dispatch     │
+│ • Strict SpaceX Claim Refusal│       │ • Leakage-Free Geometry Split│       │ • Standalone aasi_case/ Deck │
+│ • Dynamic Current Events     │       │ • Dataset Authenticity Audit │       │ • Artifact Ingestion Service │
+│ • 16-Entity Knowledge Graph  │       │ • Physics Sanity Invariants  │       │ • SHA-256 Checksum Integrity │
+│ • Scientific Resolution L0-L7│       │ • Interactive SVG Polars     │       │ • OpenFOAM / SU2 Solvers     │
 └──────────────────────────────┘       └──────────────────────────────┘       └──────────────────────────────┘
 ```
 
-### Phase 5 Key Capabilities
-- **Layer A (Scientific Knowledge Federation & Current Events):**
-  - Federated catalog spanning 15 aerospace engineering disciplines.
   - Authentic public registries: NASA NTRS, NACA, ISRO public releases, ESA open archive.
   - Strict corporate guardrail: Rejection of proprietary claims regarding SpaceX or commercial databases.
   - Dynamic temporal separation: `CURRENT_INFORMATION` (launches, mission updates, space weather) tagged with ISO timestamps.
@@ -74,15 +71,16 @@ AASI has completed **Phase 5**, implementing a comprehensive **Tri-Layer Archite
 ## Architecture Documentation
 
 For in-depth architectural and mathematical specifications, see:
+- [docs/phase6/README.md](docs/phase6/README.md) — Phase 6 Real Physics-AI Architecture & Validation
+- [docs/model-cards/aero_surrogate_v1.md](docs/model-cards/aero_surrogate_v1.md) — AeroSurrogateV1 Standardized Model Card
 - [docs/architecture.md](docs/architecture.md) — System Architecture & Tri-Layer Framework
 - [docs/knowledge-federation.md](docs/knowledge-federation.md) — 15 Disciplines, Authentic Sources & Current Events
 - [docs/dataset-factory.md](docs/dataset-factory.md) — Open Physics Datasets & Leakage-Free Geometry Splitting
 - [docs/physics-ai-training.md](docs/physics-ai-training.md) — PhysicsNeMo Foundation, Registry & Active Learning
 - [docs/user-executed-cfd.md](docs/user-executed-cfd.md) — Standalone Case Deck Generation & Artifact Ingestion
-- [docs/phase5-validation.md](docs/phase5-validation.md) — Phase 5 Acceptance Criteria & Test Results
 - [docs/scientific-resolution.md](docs/scientific-resolution.md) — Deterministic Resolution Hierarchy & Epistemic Tags
 - [docs/validation.md](docs/validation.md) — Test Suite & Physical Validation Benchmarks
-- [docs/phase4-validation.md](docs/phase4-validation.md) — Phase 4 Acceptance Criteria Checklist
+
 
 ---
 

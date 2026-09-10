@@ -345,5 +345,79 @@ Phase 5 establishes the full **Tri-Layer Architecture** for autonomous aerospace
 - **Standalone `aasi_case/` Generator:** Creates self-contained OpenFOAM directories with dictionary files (`0/`, `constant/`, `system/`), mesh scripts (`blockMeshDict`), shell runners (`run.sh`, `clean.sh`), and the mandatory 14-section `README.md`.
 - **Artifact Ingestion Engine:** Parses returned `forceCoeffs.dat`, SU2 `history.csv`, or XFOIL polars, checks physical bounds ($C_D > 0, |C_L| \le 3.5$), and logs SHA-256 provenance.
 
+---
+
+## Phase 6 Architecture: Real Aerodynamic Physics-AI & Scientific Validation
+
+Phase 6 marks the critical evolutionary leap of AASI: transitioning from surrogate planning and case generation to **genuinely trained, scientifically validated, and uncertainty-aware neural aerodynamic inference**, combined with formal ASME V&V 20 grid convergence verification.
+
+```
+═══════════════════════════════════════════════════════════════════════════════════════════════
+                           AASI THREE-TIER EPISTEMIC SEPARATION
+═══════════════════════════════════════════════════════════════════════════════════════════════
+  [ LANGUAGE INTELLIGENCE (LLM) ]  ≠  [ PHYSICS INTELLIGENCE (SURROGATE) ]  ≠  [ NUMERICAL TRUTH (CFD/EXP) ]
+  • Natural language intent           • AeroSurrogateV1 Neural Operator       • OpenFOAM / SU2 Solvers
+  • Problem synthesis & reasoning     • Geometry + (M, Re, α) -> [CL, CD, CM] • Authentic Wind Tunnel Polars
+  • Hypothesis formulation            • Epistemic Uncertainty & OOD Detector  • Richardson / Roache GCI
+  • Never invents physics numbers     • Rejects out-of-bounds queries         • Ground-truth baseline
+═══════════════════════════════════════════════════════════════════════════════════════════════
+```
+
+### 1. Dataset Authenticity Audit Architecture (`backend/datasets/audit.py`)
+To prevent "fake science" and misleading data claims, AASI enforces an automated dataset auditor classifying every dataset into three strict categories:
+- **`VERIFIED`**: Full raw numerical records present on disk with valid cryptographic SHA-256 hashes, documented sources, and verified physical coordinates.
+- **`METADATA_ONLY`**: Valid scientific metadata and download instructions for external archives (e.g. AirfRANS, NASA CRM) whose large binary payloads are not stored locally.
+- **`DEMO_DATA`**: Synthetic, illustrative, or tutorial records. Explicitly barred from model training and high-confidence engineering claims.
+
+### 2. Physics-AI Core Pipeline (`backend/physics_ai/`)
+The surrogate model is designed as a standalone, zero-dependency, vectorized neural operator capable of running deterministically across standard CPU workstations:
+
+1. **Airfoil Geometry Processing (`geometry.py`)**:
+   - Resamples arbitrary upper/lower coordinates into 64 arc-length normalized points $(x_i, y_i) \in [0, 1] \times [-0.5, 0.5]$ using cosine spacing clustering near leading and trailing edges.
+   - Computes maximum camber, maximum thickness, and camber-line slopes.
+   - Includes parametric 4-digit NACA profile generator.
+
+2. **Zero-Leakage Splitting (`splits.py`)**:
+   - Prevents data leakage by strictly partitioning datasets at the **geometry level**:
+     $$\text{Geometries}_{\text{Train}} \cap \text{Geometries}_{\text{Val}} \cap \text{Geometries}_{\text{Test}} = \emptyset$$
+   - Train: `clark_y`, `naca0009`, `naca4412` (708 samples)
+   - Validation: `naca0006` (120 samples)
+   - Test (held-out evaluation): `naca0012`, `naca2412` (180 samples)
+
+3. **Dual-Stream Neural Architecture (`AeroSurrogateV1` in `models.py`)**:
+   - **Stream 1 (Geometry Stream)**: Processes 128 coordinate inputs $(x, y)_{64}$ through hidden layers $[64 \to 32]$ with GELU activations.
+   - **Stream 2 (Flow Condition Stream)**: Processes normalized $(M, \log_{10} Re, \alpha)$ through hidden layers $[16 \to 16]$ with GELU activations.
+   - **Fusion Head**: Concatenates geometry and flow representations $(32 + 16 = 48)$, passes through cross-feature fusion $[48 \to 32]$, and projects to $[C_L, C_D, C_M]$ with a custom drag activation ($C_D = \text{softplus}(z_D) + 10^{-4} > 0$).
+   - Total trainable parameters: **13,763**.
+
+4. **Epistemic Uncertainty & OOD Detection (`uncertainty.py`)**:
+   - Computes Mahalanobis distance from training manifold in $(M, \log_{10} Re, \alpha)$ space.
+   - Computes $k$-nearest neighbor feature density.
+   - Classifies predictions into `IN_DOMAIN`, `MARGINAL`, or `OUT_OF_DOMAIN`.
+   - Attaches conservative $2\sigma$ confidence intervals to all output coefficients.
+
+5. **Physical Consistency Enforcement (`validation.py`)**:
+   - Pre-stall lift monotonicity: $dC_L/d\alpha > 0$ for $\alpha \in [-4^\circ, 8^\circ]$.
+   - Symmetric airfoil zero-lift sanity: $|C_L(\alpha=0^\circ)| \le 0.025$.
+   - Universal drag positivity: $C_D > 0.001$.
+   - Polar sweep smoothness and continuity checks.
+
+### 3. ASME V&V 20 Grid Convergence & Richardson Extrapolation (`backend/validation/grid_convergence.py`)
+Implements standard verification methodology for CFD simulations:
+- **Grid Refinement Ratio**: $r = h_{\text{coarse}} / h_{\text{fine}} \ge 1.1$.
+- **Observed Order of Accuracy**:
+  $$p = \frac{\ln|(\phi_3 - \phi_2) / (\phi_2 - \phi_1)|}{\ln(r)}$$
+- **Richardson Extrapolated Continuum Solution**:
+  $$\phi_{\text{ext}} = \phi_1 + \frac{\phi_1 - \phi_2}{r^p - 1}$$
+- **Roache Grid Convergence Index (GCI)**:
+  $$\text{GCI}_{21}^{\text{fine}} = \frac{1.25 |\epsilon_{21}|}{r^p - 1}, \quad \text{GCI}_{32}^{\text{medium}} = \frac{1.25 |\epsilon_{32}|}{r^p - 1}$$
+- **Asymptotic Range Verification**:
+  $$R_{\text{asymptotic}} = \frac{\text{GCI}_{32}}{r^p \text{GCI}_{21}} \approx 1.00 \pm 0.05$$
+
+### 4. Integration with Scientific Engine (Resolution Level 4)
+- When a user query requires aerodynamic coefficients under known conditions, the Scientific Engine queries `PhysicsAIService`.
+- If conditions are within domain ($M \le 0.40$), the surrogate returns real neural inference results with full uncertainty bounds and SHA-256 model provenance.
+- If conditions are out-of-distribution (e.g. transonic shock regime $M \ge 0.45$), the system **rejects surrogate extrapolation** and recommends escalation to Level 5 (Navier-Stokes simulation deck generation).
+
 
 

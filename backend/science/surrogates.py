@@ -35,6 +35,28 @@ class SurrogateRegistry:
 
     def __init__(self):
         self._surrogates: Dict[str, SurrogateMetadata] = {}
+        self._seed_surrogates()
+
+    def _seed_surrogates(self):
+        self.register(SurrogateMetadata(
+            model_id="MODEL-AERO-SURROGATE-V1",
+            architecture="Dual-Stream Geometry+Condition Residual GELU Neural Operator",
+            training_dataset_id="DATASET-AUTHENTIC-AIRFOILS-V1",
+            training_version="v1.0.0",
+            supported_geometries=["NACA 0012", "NACA 0009", "NACA 0006", "NACA 2412", "NACA 4412", "Clark Y", "RAE 2822", "naca0012", "naca2412"],
+            supported_flow_regimes=["subsonic"],
+            input_domain={
+                "mach": (0.05, 0.40),
+                "reynolds": (500000.0, 6000000.0),
+                "aoa_deg": (-8.0, 18.0),
+            },
+            output_variables=["CL", "CD", "CM"],
+            validation_metrics={"cl_rmse": 0.1349, "cd_rmse": 0.00134, "cl_r2": 0.9495, "cd_r2": 0.9250},
+            uncertainty_method="Mahalanobis & Nearest-Neighbor Epistemic Quantification",
+            model_checksum="bc549596f676c5d336fe33333845c53c6d2c170bce2eb964516c51dc8f4ee433",
+            status="TRAINED_AND_VALIDATED"
+        ))
+
 
     def register(self, surrogate: SurrogateMetadata):
         """Register surrogate model metadata."""

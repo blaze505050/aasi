@@ -2345,4 +2345,230 @@ body {
   color: #f8fafc;
 }
 
+/* ==========================================================================
+   PHASE 6: REAL PHYSICS-AI LAB, POLAR CURVES & GCI VALIDATION STYLES
+   ========================================================================== */
+
+.physics-lab-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .physics-lab-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lab-panel-card {
+  background: #090e1a;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.lab-panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.lab-panel-title h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coeff-readout-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.coeff-box {
+  background: #040813;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 10px 12px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.coeff-box.cl {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.coeff-box.cd {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.coeff-box.cm {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.coeff-name {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.coeff-value {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.coeff-box.cl .coeff-value {
+  color: #38bdf8;
+}
+
+.coeff-box.cd .coeff-value {
+  color: #fbbf24;
+}
+
+.coeff-box.cm .coeff-value {
+  color: #c084fc;
+}
+
+.coeff-uncertainty {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.domain-badge-in {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.domain-badge-boundary {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.domain-badge-ood {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.physics-check-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+}
+
+.polar-svg-container {
+  background: #040711;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.audit-table-wrapper {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+}
+
+.audit-table th {
+  background: #040813;
+  padding: 6px 10px;
+  text-align: left;
+  color: #94a3b8;
+  border-bottom: 1px solid #1e293b;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+}
+
+.audit-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+
+.status-tag-verified {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid #10b981;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.status-tag-metadata {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid #f59e0b;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.status-tag-demo {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  border: 1px solid #6366f1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.gci-result-card {
+  background: #060d1b;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+
 

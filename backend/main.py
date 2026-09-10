@@ -525,6 +525,105 @@ async def active_learning_recommendations(req: ActiveLearningRequest):
     return {"geometry": req.geometry, "candidates": [c.model_dump() for c in candidates]}
 
 
+# --- Phase 6: Physics-AI Inference, Audit & Grid Convergence Endpoints ---
+
+class AerodynamicPredictRequest(BaseModel):
+    geometry: str = Field("naca0012", description="Airfoil designation or name")
+    mach: float = Field(0.2, ge=0.01, le=1.0, description="Mach number")
+    reynolds: float = Field(2.0e6, ge=1e4, le=5e7, description="Reynolds number")
+    aoa_deg: float = Field(4.0, ge=-20.0, le=25.0, description="Angle of attack in degrees")
+
+
+class AerodynamicPolarRequest(BaseModel):
+    geometry: str = Field("naca0012", description="Airfoil designation or name")
+    mach: float = Field(0.2, ge=0.01, le=1.0, description="Mach number")
+    reynolds: float = Field(2.0e6, ge=1e4, le=5e7, description="Reynolds number")
+    aoa_start: float = Field(-4.0, ge=-20.0, le=20.0)
+    aoa_end: float = Field(14.0, ge=-20.0, le=25.0)
+    aoa_step: float = Field(1.0, ge=0.1, le=5.0)
+
+
+class GCIRequest(BaseModel):
+    f1: float = Field(..., description="Fine grid solution value")
+    f2: float = Field(..., description="Medium grid solution value")
+    f3: float = Field(..., description="Coarse grid solution value")
+    r21: float = Field(1.4142, gt=1.0, description="Grid refinement ratio h2/h1")
+    r32: float = Field(1.4142, gt=1.0, description="Grid refinement ratio h3/h2")
+    safety_factor: float = Field(1.25, ge=1.0, le=3.0)
+    metric_name: str = Field("aerodynamic_coefficient", description="Name of the evaluated metric")
+
+
+@app.post("/api/physics/aerodynamics/predict", summary="Predict Aerodynamic Coefficients with Epistemic Uncertainty")
+async def predict_aerodynamics(req: AerodynamicPredictRequest):
+    """Executes AeroSurrogateV1 point inference with epistemic uncertainty and domain classification."""
+    from backend.physics_ai.service import PhysicsAIService
+    service = PhysicsAIService.get_instance()
+    pred = service.predict(
+        geometry=req.geometry,
+        mach=req.mach,
+        reynolds=req.reynolds,
+        aoa_deg=req.aoa_deg
+    )
+    return pred.model_dump()
+
+
+@app.post("/api/physics/aerodynamics/polar", summary="Compute Aerodynamic Polar Sweep")
+async def polar_sweep_aerodynamics(req: AerodynamicPolarRequest):
+    """Computes polar curves (CL vs AoA, CD vs AoA) and verifies monotonicity and drag positivity."""
+    from backend.physics_ai.service import PhysicsAIService
+    service = PhysicsAIService.get_instance()
+    res = service.polar_sweep(
+        geometry=req.geometry,
+        mach=req.mach,
+        reynolds=req.reynolds,
+        aoa_start=req.aoa_start,
+        aoa_end=req.aoa_end,
+        aoa_step=req.aoa_step
+    )
+    return res
+
+
+@app.get("/api/physics/aerodynamics/model-status", summary="Get AeroSurrogate Model Status")
+async def get_surrogate_model_status():
+    """Returns architecture, weights checksum, parameter count, and operational validity envelope."""
+    from backend.physics_ai.service import PhysicsAIService
+    service = PhysicsAIService.get_instance()
+    return service.get_model_status()
+
+
+@app.get("/api/physics/audit/datasets", summary="Dataset Authenticity Audit")
+async def audit_datasets():
+    """Audits all datasets on disk, classifying VERIFIED vs METADATA_ONLY with zero fake science."""
+    from backend.datasets.audit import DatasetAuditService
+    summary = DatasetAuditService().audit_all()
+    return summary.model_dump()
+
+
+
+@app.post("/api/validation/grid-convergence", summary="Compute Grid Convergence Index (ASME V&V 20)")
+async def compute_grid_convergence(req: GCIRequest):
+    """Calculates apparent order p, Richardson extrapolation, and GCI fine/medium."""
+    from backend.validation.grid_convergence import GridConvergenceService
+    result = GridConvergenceService.compute_gci(
+        f1=req.f1,
+        f2=req.f2,
+        f3=req.f3,
+        r21=req.r21,
+        r32=req.r32,
+        safety_factor=req.safety_factor,
+        metric_name=req.metric_name
+    )
+    return result.model_dump()
+
+
+@app.get("/api/validation/grid-convergence/benchmarks", summary="Get CFD Mesh Convergence Benchmarks")
+async def get_grid_convergence_benchmarks():
+    """Returns reference multi-grid CFD mesh convergence benchmarks."""
+    from backend.validation.grid_convergence import GridConvergenceService
+    return GridConvergenceService.get_benchmark_grid_studies()
+
+
+
 # --- Knowledge Graph Endpoints ---
 
 @app.get("/api/graph/entities", summary="Search Scientific Knowledge Graph Entities")
