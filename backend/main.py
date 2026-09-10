@@ -348,6 +348,7 @@ async def get_simulation_manifest(case_id: str):
     return json.loads(case_path.read_text(encoding="utf-8"))
 
 
+
 @app.get("/api/science/results/{result_id}", summary="Get Scientific Result and Provenance")
 async def get_scientific_result(result_id: str):
     """Inspects detailed scientific result and cryptographic provenance."""
@@ -360,6 +361,186 @@ async def get_scientific_result(result_id: str):
         if result_id in rec.case_id:
             return rec.model_dump()
     raise HTTPException(status_code=404, detail=f"Scientific result '{result_id}' not found.")
+
+
+# ============================================================================
+# PHASE 5 REST ENDPOINTS
+# ============================================================================
+
+# Singletons for Phase 5 subsystems
+from backend.sources.catalog import ScientificSourceCatalog
+from backend.sources.current_info import CurrentInformationService
+from backend.datasets.catalog import DatasetCatalog
+from backend.datasets.download import DownloadManager
+from backend.compute.registry import ComputeBackendRegistry
+from backend.compute.models import ComputeRequest, UploadedArtifactPayload
+from backend.physics.model_registry import PhysicsModelRegistry
+from backend.physics.active_learning import ActiveLearningEngine
+from backend.graph.service import KnowledgeGraphService
+
+source_catalog = ScientificSourceCatalog()
+current_info_service = CurrentInformationService()
+dataset_catalog = DatasetCatalog()
+download_manager = DownloadManager()
+compute_registry = ComputeBackendRegistry()
+physics_model_registry = PhysicsModelRegistry()
+knowledge_graph_service = KnowledgeGraphService()
+
+
+# --- Sources & Federation Endpoints ---
+
+@app.get("/api/sources", summary="List Federated Scientific Sources")
+async def list_sources(category: Optional[str] = None, active_only: bool = False):
+    """Returns federated sources across 15 scientific disciplines."""
+    sources = source_catalog.list_sources(category=category, active_only=active_only)
+    return {"sources": [s.model_dump() for s in sources]}
+
+
+@app.get("/api/sources/{source_id}", summary="Get Specific Source Metadata")
+async def get_source(source_id: str):
+    """Retrieves detailed provenance and access metadata for a scientific source."""
+    s = source_catalog.get_source(source_id)
+    if not s:
+        raise HTTPException(status_code=404, detail=f"Source '{source_id}' not found.")
+    return s.model_dump()
+
+
+@app.get("/api/sources/nasa/search", summary="Search NASA NTRS Records")
+async def search_nasa(q: str):
+    """Queries authentic public NASA technical reports."""
+    results = source_catalog.nasa_adapter.search(q)
+    return {"query": q, "results": results}
+
+
+@app.get("/api/sources/isro/search", summary="Search ISRO Public Registry")
+async def search_isro(q: str):
+    """Queries verified public ISRO mission and dataset archives."""
+    results = source_catalog.isro_adapter.search(q)
+    return {"query": q, "results": results}
+
+
+@app.get("/api/sources/esa/search", summary="Search ESA Public Registry")
+async def search_esa(q: str):
+    """Queries verified public ESA scientific publications and technical reports."""
+    results = source_catalog.esa_adapter.search(q)
+    return {"query": q, "results": results}
+
+
+@app.get("/api/sources/spacex/search", summary="Search Public Commercial Releases")
+async def search_spacex(q: str):
+    """Queries officially public SpaceX presentations and regulatory documents."""
+    is_pub, warning = source_catalog.spacex_adapter.verify_request_is_public(q)
+    results = source_catalog.spacex_adapter.search(q)
+    return {"query": q, "results": results, "is_public_domain": is_pub, "warning": warning}
+
+
+# --- Current Events & Spaceflight News Endpoints ---
+
+@app.get("/api/current-info", summary="Get Current Spaceflight Information")
+async def get_current_info(limit: int = 10):
+    """Returns recent spaceflight events and agency updates labeled CURRENT_INFORMATION."""
+    events = current_info_service.get_latest_events(limit=limit)
+    return {"events": [e.model_dump() for e in events]}
+
+
+@app.get("/api/current-info/search", summary="Search Current Spaceflight Events")
+async def search_current_info(q: str):
+    """Searches current spaceflight events by keywords."""
+    events = current_info_service.search_events(q)
+    return {"query": q, "events": [e.model_dump() for e in events]}
+
+
+# --- Dataset Factory Endpoints ---
+
+@app.get("/api/datasets/catalog", summary="List Open Physics Dataset Manifests")
+async def list_dataset_catalog():
+    """Lists high-value open physics datasets with verified manifests."""
+    manifests = dataset_catalog.list_manifests()
+    return {"datasets": [m.model_dump() for m in manifests]}
+
+
+@app.get("/api/datasets/manifest/{dataset_id}", summary="Get Dataset Manifest")
+async def get_dataset_manifest(dataset_id: str):
+    """Returns cryptographic manifest for an open physics dataset."""
+    m = dataset_catalog.get_manifest(dataset_id)
+    if not m:
+        raise HTTPException(status_code=404, detail=f"Dataset manifest '{dataset_id}' not found.")
+    return m.model_dump()
+
+
+@app.post("/api/datasets/download", summary="Trigger Download-on-Demand")
+async def download_dataset(dataset_id: str):
+    """Executes on-demand download check and verification."""
+    m = dataset_catalog.get_manifest(dataset_id)
+    if not m:
+        raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found.")
+    res = download_manager.download_dataset(m)
+    return res
+
+
+# --- Compute & User-Executed CFD Endpoints ---
+
+@app.post("/api/compute/generate-case", summary="Generate Standalone aasi_case/ Deck")
+async def generate_user_case(req: ComputeRequest):
+    """Generates standalone CFD directory with 14-section execution guide."""
+    res = compute_registry.dispatch(req)
+    return res
+
+
+@app.post("/api/compute/upload-artifact", summary="Ingest User-Executed Simulation Artifact")
+async def upload_artifact(payload: UploadedArtifactPayload):
+    """Ingests and validates uploaded simulation logs or polars from external runs."""
+    res = compute_registry.artifact_service.ingest_artifact(payload)
+    return res.model_dump()
+
+
+# --- Physics AI Models & Active Learning Endpoints ---
+
+@app.get("/api/physics/models", summary="List Registered Physics AI Models")
+async def list_physics_models():
+    """Lists registered neural operators and surrogates (AeroGraphNet, FNO, etc.)."""
+    models = physics_model_registry.list_models()
+    return {"models": [m.model_dump() for m in models]}
+
+
+class ActiveLearningRequest(BaseModel):
+    geometry: str = "NACA 0012"
+    reynolds: float = 3.0e6
+
+
+@app.post("/api/physics/active-learning", summary="Generate Active Learning Simulation Candidates")
+async def active_learning_recommendations(req: ActiveLearningRequest):
+    """Identifies high-uncertainty regions and recommends targeted CFD simulation cases."""
+    # Seed with basic NACA 0012 known points
+    known = [
+        {"mach": 0.15, "aoa": 0.0},
+        {"mach": 0.15, "aoa": 4.0},
+        {"mach": 0.30, "aoa": 8.0}
+    ]
+    candidates = ActiveLearningEngine.identify_sampling_candidates(
+        geometry=req.geometry,
+        existing_training_points=known,
+        reynolds=req.reynolds
+    )
+    return {"geometry": req.geometry, "candidates": [c.model_dump() for c in candidates]}
+
+
+# --- Knowledge Graph Endpoints ---
+
+@app.get("/api/graph/entities", summary="Search Scientific Knowledge Graph Entities")
+async def search_graph_entities(q: str = ""):
+    """Searches knowledge graph entities across 16 scientific entity types."""
+    results = knowledge_graph_service.search_entities(q)
+    return {"entities": [e.model_dump() for e in results]}
+
+
+@app.get("/api/graph/neighbors/{entity_id}", summary="Get Knowledge Graph Entity Neighbors")
+async def get_graph_neighbors(entity_id: str):
+    """Returns connected relations and neighboring entities."""
+    neighbors = knowledge_graph_service.get_neighbors(entity_id)
+    return {"entity_id": entity_id, "neighbors": neighbors}
+
+
 
 
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")

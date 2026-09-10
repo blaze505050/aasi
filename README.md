@@ -23,81 +23,64 @@
 > Large Language Models are used for natural language understanding, intent recognition, parameter extraction, and explanatory synthesis. Verified open-source engineering libraries (`Astropy`, `RocketPy`, `SymPy`, `Scipy`) execute all actual mathematical computations. AASI never allows the language model to invent or fabricate calculations.
 
 ---
-## Current Status: Phase 4 — Scientific Result Resolution + Simulation Fabric
+---
+## Current Status: Phase 5 — Aerospace Knowledge Federation + Dataset Factory + Physics-AI Foundation
 
-AASI has established a deterministic **8-level scientific result resolution hierarchy** and a secure **simulation execution fabric** (Phase 4), building upon its Phase 2 engineering tools and Phase 3 knowledge & dataset foundation:
-
-### Core Architecture Principle: LLM $\neq$ CFD Solver $\neq$ Numerical Truth
-AASI is **not** an LLM that fabricates numerical engineering quantities when no dataset exists. It is an orchestrating scientific assistant that enforces strict epistemic classification and deterministic resolution:
+AASI has completed **Phase 5**, implementing a comprehensive **Tri-Layer Architecture** combining federated knowledge across 15 disciplines, an open physics dataset factory with zero-leakage geometry-level partitioning, a PhysicsNeMo training foundation, and a standalone user-executed CFD deck generator with artifact ingestion:
 
 ```
-Natural Language Engineering Query
-               │
-               ▼
-Level 0: Query Normalization & Completeness Audit (Mach, Re, AoA, flow regime, geometry)
-               │
-               ▼
-Level 1: Scientific Dataset Registry Query
-               │
-               ▼
-Level 2: Official Experimental Database (NASA TN-D-628 wind-tunnel polars)
-               │
-               ▼
-Level 3: Validated CFD Benchmark Database (OpenFOAM RANS, y+ < 1, residual convergence)
-               │
-               ▼
-Level 4: Validated Physics AI Surrogate Models (AeroGraphNet within declared envelope)
-               │
-               ▼
-Level 5: Analytical / Numerical Engineering Solvers (Astropy, RocketPy, SymPy)
-               │
-               ▼
-Level 6: Simulation Execution Fabric (OpenFOAM simpleFoam case generator, dry-run mode)
-               │
-               ▼
-Level 7: Parameter Clarification Request (Never fabricates numbers; prompts for missing conditions)
+                            ┌─────────────────────────────────────────┐
+                            │          AASI Scientific Agent          │
+                            │      (LLM Context & Orchestrator)       │
+                            └────────────────────┬────────────────────┘
+                                                 │
+          ┌──────────────────────────────────────┼──────────────────────────────────────┐
+          ▼                                      ▼                                      ▼
+┌──────────────────────────────┐       ┌──────────────────────────────┐       ┌──────────────────────────────┐
+│  LAYER A: KNOWLEDGE & SOURCES│       │  LAYER B: PHYSICS AI & DATA  │       │  LAYER C: SIMULATION & COMP  │
+│ ──────────────────────────── │       │ ──────────────────────────── │       │ ──────────────────────────── │
+│ • 15 Scientific Disciplines  │       │ • Open Dataset Factory       │       │ • Multi-Backend Dispatch     │
+│ • NASA NTRS & NACA Connectors│       │   (AirfRANS, CRM, Abbott)    │       │   (Local, Remote, User, Cache│
+│ • ISRO / ESA Public Registrie│       │ • Leakage-Free Geometry Split│       │ • Standalone aasi_case/ Deck │
+│ • Strict SpaceX Claim Refusal│       │ • PhysicsNeMo Recipe Foundatn│       │ • 14-Section Execution Guide │
+│ • Dynamic Current Events     │       │ • PhysicsModelRegistry       │       │ • Artifact Ingestion Service │
+│   (ISO Temporal Separation)  │       │ • Monotonicity & Symm Audits │       │ • OpenFOAM / SU2 / XFOIL     │
+│ • 16-Entity Knowledge Graph  │       │ • Active Learning Loop       │       │ • SHA-256 Provenance Manifest│
+└──────────────────────────────┘       └──────────────────────────────┘       └──────────────────────────────┘
 ```
 
-### Phase 4 Capabilities
-- **Deterministic 8-Level Resolution Hierarchy**:
-  - All quantitative questions pass through `ScientificResolutionEngine` before LLM synthesis.
-  - Normalized flow conditions: Mach, Reynolds, AoA, flow regime, Pint-based unit conversions, and geometry canonicalization.
-- **Epistemic Classification System**:
-  - Explicit tags on every result: `OFFICIAL_EXPERIMENT`, `VALIDATED_CFD`, `SURROGATE_PREDICTION`, `ANALYTICAL_RESULT`, `LOCAL_CFD`, `DEMO_DATA`, `NO_RESULT`.
-- **Multi-Source Conflict Resolution & Physical Reconciliation**:
-  - Detects differences between experimental and computational data points.
-  - Automatically reconciles discrepancies through physical aerodynamic phenomena (boundary layer tripping, wind tunnel wall blockage, eddy-viscosity damping).
-- **Physics AI Surrogate Registry & Domain Envelope Enforcement**:
-  - `SurrogateRegistry` evaluates physics models strictly within declared valid parameter envelopes.
-  - Rejects out-of-domain queries with `SURROGATE_OUT_OF_DOMAIN`.
-- **Simulation Execution Fabric & Security Sandbox**:
-  - Probes host and WSL2 for OpenFOAM, SU2, XFOIL, XFLR5 without pretending uninstalled solvers are available.
-  - Secure sandbox: executable allowlisting (`simpleFoam`, `blockMesh`, `SU2_CFD`, `xfoil`), working-directory isolation under `data/simulations/{case_id}/`, timeouts, and path traversal protection.
-  - `DRY_RUN` mode generates authenticated case decks (`0/`, `constant/`, `system/`), validates boundary conditions, and outputs cryptographically signed manifests `EXP-{case_id}.manifest.json`.
-- **Reproducible Artifact Manifests**:
-  - SHA-256 hashes of all input files, mesh dictionaries, commands, and outputs.
+### Phase 5 Key Capabilities
+- **Layer A (Scientific Knowledge Federation & Current Events):**
+  - Federated catalog spanning 15 aerospace engineering disciplines.
+  - Authentic public registries: NASA NTRS, NACA, ISRO public releases, ESA open archive.
+  - Strict corporate guardrail: Rejection of proprietary claims regarding SpaceX or commercial databases.
+  - Dynamic temporal separation: `CURRENT_INFORMATION` (launches, mission updates, space weather) tagged with ISO timestamps.
+  - Semantic Knowledge Graph: 16 scientific entity types linked by 10 directed relations.
+- **Layer B (Physics AI & Dataset Factory):**
+  - Curated open dataset factory (AirfRANS, NASA CRM, Abbott & von Doenhoff polars) with 2 GB quota.
+  - `GeometryLevelSplitter`: Guarantees **0% geometry leakage** by strictly partitioning at the airfoil profile level.
+  - `OODSplitter`: Generates out-of-domain evaluation splits (high AoA stall, transonic shock).
+  - PhysicsNeMo exportable GPU recipes for AeroGraphNet (GNN) and 2D Fourier Neural Operator (FNO-2D).
+  - `PhysicsModelRegistry`: Versioned surrogates with validity envelopes and SHA-256 weight hashes.
+  - Physical monotonicity gates: Rejects surrogates violating pre-stall lift monotonicity ($dC_L/d\alpha > 0$) or symmetry.
+  - Active learning engine: Sweeps parameter space and ranks simulation candidates in high-uncertainty regimes.
+- **Layer C (Deterministic Engineering & Standalone User CFD):**
+  - Standalone `aasi_case/` generator: Writes complete OpenFOAM dictionary decks (`0/`, `constant/`, `system/`), mesh files (`blockMeshDict`), shell runners (`run.sh`, `clean.sh`), and the mandatory 14-section `README.md`.
+  - Artifact ingestion service: Parses OpenFOAM `forceCoeffs.dat`, SU2 CSV, or XFOIL polars, verifies physical bounds ($C_D > 0, |C_L| \le 3.5$), and records SHA-256 provenance hashes.
+  - 8-level deterministic scientific resolution hierarchy with strict epistemic classification.
 
 ---
 
-## Architecture Overview
+## Architecture Documentation
 
-```
-User ──► Next.js Frontend ──► FastAPI ──► AASI Agent ──► 8-Level Scientific Resolution Engine
-                                                            ├── Level 0: Query Normalization
-                                                            ├── Level 1: Dataset Registry
-                                                            ├── Level 2: Official Experiments (NASA TN-D-628)
-                                                            ├── Level 3: Validated CFD (OpenFOAM RANS)
-                                                            ├── Level 4: Surrogate Registry (AeroGraphNet)
-                                                            ├── Level 5: Analytical Solvers (Astropy, RocketPy)
-                                                            ├── Level 6: Simulation Fabric (Sandboxed OpenFOAM)
-                                                            └── Level 7: Parameter Clarification
-```
-
-For complete architectural details, see:
-- [docs/architecture.md](docs/architecture.md) — System Architecture & Data Flow
-- [docs/scientific-resolution.md](docs/scientific-resolution.md) — Resolution Hierarchy & Epistemic Tags
-- [docs/simulation-architecture.md](docs/simulation-architecture.md) — Simulation Execution Fabric & Sandbox
-- [docs/solver-adapters.md](docs/solver-adapters.md) — OpenFOAM, SU2, XFOIL, XFLR5 Adapters
+For in-depth architectural and mathematical specifications, see:
+- [docs/architecture.md](docs/architecture.md) — System Architecture & Tri-Layer Framework
+- [docs/knowledge-federation.md](docs/knowledge-federation.md) — 15 Disciplines, Authentic Sources & Current Events
+- [docs/dataset-factory.md](docs/dataset-factory.md) — Open Physics Datasets & Leakage-Free Geometry Splitting
+- [docs/physics-ai-training.md](docs/physics-ai-training.md) — PhysicsNeMo Foundation, Registry & Active Learning
+- [docs/user-executed-cfd.md](docs/user-executed-cfd.md) — Standalone Case Deck Generation & Artifact Ingestion
+- [docs/phase5-validation.md](docs/phase5-validation.md) — Phase 5 Acceptance Criteria & Test Results
+- [docs/scientific-resolution.md](docs/scientific-resolution.md) — Deterministic Resolution Hierarchy & Epistemic Tags
 - [docs/validation.md](docs/validation.md) — Test Suite & Physical Validation Benchmarks
 - [docs/phase4-validation.md](docs/phase4-validation.md) — Phase 4 Acceptance Criteria Checklist
 

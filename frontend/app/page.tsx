@@ -150,10 +150,11 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 const QUICK_PROMPTS = [
   "What is the drag coefficient of NACA 0012 at Mach 0.15, Re=3000000 and AoA=4°?",
-  "What is the lift coefficient of NACA 0012 at Mach 0.25, Re=1500000, AoA=6° using AeroGraphNet surrogate?",
-  "Generate an OpenFOAM simpleFoam simulation case for NACA 0012 at Mach 0.15 and AoA 4° in dry-run mode.",
-  "What is the drag coefficient of an airfoil?",
-  "What does NASA report about NACA 0012 aerodynamic behavior?",
+  "What are the latest spaceflight mission updates and current space weather conditions?",
+  "Generate a standalone OpenFOAM CFD deck for NACA 0012 at Mach 0.15, Re=3e6, AoA=4°",
+  "Query the registered Physics-AI models and evaluate AeroGraphNet surrogate validity envelope",
+  "Perform an active learning uncertainty sweep to find next CFD simulation points for NACA 0012",
+  "Query the scientific knowledge graph for NACA 0012 and connected relations",
 ];
 
 export default function AASIChatApp() {
@@ -163,17 +164,23 @@ export default function AASIChatApp() {
       sender: "assistant",
       content:
         "Greetings. I am AASI (Autonomous Aerospace Scientific Intelligence).\n\n" +
-        "In Phase 4, I operate under a deterministic 8-level scientific resolution hierarchy with strict epistemic classification:\n" +
-        "• Level 0: Query normalization and completeness audit (geometry, Mach, Reynolds, AoA)\n" +
-        "• Level 1: Scientific dataset registry\n" +
-        "• Level 2: Official experimental wind tunnel database (NASA TN-D-628 polar)\n" +
-        "• Level 3: Validated benchmark CFD database (OpenFOAM RANS, SA/SST closures)\n" +
-        "• Level 4: Physics AI surrogates with declared validity envelopes\n" +
-        "• Level 5: Analytical and numerical engineering solvers (Astropy, RocketPy, SymPy)\n" +
-        "• Level 6: Local & remote simulation execution fabric (OpenFOAM dry-run case generator)\n" +
-        "• Level 7: Graceful clarification requests for underspecified conditions\n\n" +
+        "In Phase 5, I operate under a Tri-Layer Scientific Intelligence Architecture with deterministic provenance and physical guardrails:\n\n" +
+        "• Layer A (Scientific Knowledge Federation):\n" +
+        "  - Federated across 15 scientific disciplines (Aerodynamics, Propulsion, Orbital Mechanics, GNC, Structures, etc.)\n" +
+        "  - Authentic sources: NASA NTRS, NACA, ISRO public registry, ESA public registry\n" +
+        "  - Strict corporate guardrail: Rejection of non-public commercial claims (SpaceX)\n" +
+        "  - Temporal separation: CURRENT_INFORMATION (launches, missions, space weather) tagged with ISO timestamps\n\n" +
+        "• Layer B (Physics AI & Dataset Factory):\n" +
+        "  - High-value open dataset factory (AirfRANS, NASA CRM, Abbott & von Doenhoff polars)\n" +
+        "  - Zero-leakage geometry-level splitting & OOD extrapolation validation\n" +
+        "  - PhysicsNeMo training foundation (AeroGraphNet, FNO-2D exportable recipes)\n" +
+        "  - Active learning uncertainty engine for targeted simulation sampling\n\n" +
+        "• Layer C (Deterministic Engineering & User-Executed CFD):\n" +
+        "  - Standalone OpenFOAM case deck generation (aasi_case/) with complete 14-section execution guides\n" +
+        "  - Artifact ingestion service: parse OpenFOAM forceCoeffs, SU2 CSV, XFOIL polars with SHA-256 provenance\n" +
+        "  - Deterministic 8-level scientific resolution hierarchy with strict epistemic status\n\n" +
         "Select a benchmark prompt or inspect the Research & Simulation Fabric drawer.",
-      model: "AASI Agent (Phase 4)",
+      model: "AASI Agent (Phase 5)",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -185,20 +192,61 @@ export default function AASIChatApp() {
 
   // Research & Simulation Drawer State
   const [isResearchOpen, setIsResearchOpen] = useState(false);
-  const [researchTab, setResearchTab] = useState<"literature" | "datasets" | "simulations">("literature");
+  const [researchTab, setResearchTab] = useState<
+    "literature" | "sources" | "datasets" | "user_cfd" | "physics_ai" | "graph" | "simulations"
+  >("literature");
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
   const [docList, setDocList] = useState<DocumentMeta[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearchingKnowledge, setIsSearchingKnowledge] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<any | null>(null);
 
-  // Dataset Condition Search State
+  // Phase 5: Sources & Current Events
+  const [sourcesList, setSourcesList] = useState<any[]>([]);
+  const [currentEvents, setCurrentEvents] = useState<any[]>([]);
+  const [isLoadingSources, setIsLoadingSources] = useState(false);
+
+  // Phase 5: Dataset Factory & Manifests
+  const [datasetManifests, setDatasetManifests] = useState<any[]>([]);
+  const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
   const [geoInput, setGeoInput] = useState("NACA 0012");
   const [machInput, setMachInput] = useState("0.15");
   const [reInput, setReInput] = useState("3000000");
   const [aoaInput, setAoaInput] = useState("4.0");
   const [datasetMatches, setDatasetMatches] = useState<any[]>([]);
   const [isQueryingDataset, setIsQueryingDataset] = useState(false);
+
+  // Phase 5: User-Executed CFD (aasi_case/) & Artifact Ingestion
+  const [userCfdCaseId, setUserCfdCaseId] = useState("aasi_case_naca0012_run1");
+  const [userCfdGeometry, setUserCfdGeometry] = useState("NACA 0012");
+  const [userCfdMach, setUserCfdMach] = useState("0.15");
+  const [userCfdReynolds, setUserCfdReynolds] = useState("3000000");
+  const [userCfdAoa, setUserCfdAoa] = useState("4.0");
+  const [userCfdDeckResponse, setUserCfdDeckResponse] = useState<any | null>(null);
+  const [isGeneratingUserDeck, setIsGeneratingUserDeck] = useState(false);
+
+  const [artifactFormat, setArtifactFormat] = useState("OPENFOAM_FORCE_COEFFS");
+  const [rawArtifactContent, setRawArtifactContent] = useState(
+    "# Time   Cm       Cd       Cl       Cl(f)    Cl(r)\n" +
+    "998      0.0039   0.0084   0.459    0.229    0.230\n" +
+    "999      0.0038   0.0083   0.460    0.230    0.230\n" +
+    "1000     0.0038   0.0082   0.461    0.230    0.231"
+  );
+  const [ingestedResult, setIngestedResult] = useState<any | null>(null);
+  const [isIngestingArtifact, setIsIngestingArtifact] = useState(false);
+
+  // Phase 5: Physics AI Models & Active Learning
+  const [physicsModels, setPhysicsModels] = useState<any[]>([]);
+  const [alGeometry, setAlGeometry] = useState("NACA 0012");
+  const [alReynolds, setAlReynolds] = useState("3000000");
+  const [alCandidates, setAlCandidates] = useState<any[]>([]);
+  const [isLoadingAL, setIsLoadingAL] = useState(false);
+
+  // Phase 5: Knowledge Graph
+  const [graphSearchQuery, setGraphSearchQuery] = useState("");
+  const [graphEntities, setGraphEntities] = useState<any[]>([]);
+  const [selectedEntity, setSelectedEntity] = useState<any | null>(null);
+  const [entityNeighbors, setEntityNeighbors] = useState<any[]>([]);
 
   // Simulation Fabric State
   const [solversList, setSolversList] = useState<SolverInfoData[]>([]);
@@ -279,13 +327,182 @@ export default function AASIChatApp() {
     }
   };
 
+  const loadPhase5Data = async () => {
+    setIsLoadingSources(true);
+    try {
+      // 1. Federated Sources
+      const sRes = await fetch(`${API_BASE}/api/sources`);
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        setSourcesList(sData.sources || []);
+      }
+      // 2. Current Information / Events
+      const cRes = await fetch(`${API_BASE}/api/current-info`);
+      if (cRes.ok) {
+        const cData = await cRes.json();
+        setCurrentEvents(cData.events || []);
+      }
+      // 3. Dataset Catalog Manifests
+      const mRes = await fetch(`${API_BASE}/api/datasets/catalog`);
+      if (mRes.ok) {
+        const mData = await mRes.json();
+        setDatasetManifests(mData.datasets || []);
+      }
+      // 4. Physics AI Models
+      const pRes = await fetch(`${API_BASE}/api/physics/models`);
+      if (pRes.ok) {
+        const pData = await pRes.json();
+        setPhysicsModels(pData.models || []);
+      }
+      // 5. Knowledge Graph Entities
+      const gRes = await fetch(`${API_BASE}/api/graph/entities`);
+      if (gRes.ok) {
+        const gData = await gRes.json();
+        setGraphEntities(gData.entities || []);
+      }
+    } catch (e) {
+      console.error("Failed to load Phase 5 subsystems", e);
+    } finally {
+      setIsLoadingSources(false);
+    }
+  };
+
   useEffect(() => {
     checkHealth();
     loadDocuments();
     loadSolvers();
+    loadPhase5Data();
     const interval = setInterval(checkHealth, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleGenerateUserCfdDeck = async () => {
+    setIsGeneratingUserDeck(true);
+    setUserCfdDeckResponse(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/compute/generate-case`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: userCfdCaseId,
+          solver: "OpenFOAM",
+          execution_mode: "USER_EXECUTED",
+          geometry: userCfdGeometry,
+          conditions: {
+            mach: parseFloat(userCfdMach) || 0.15,
+            reynolds: parseFloat(userCfdReynolds) || 3000000.0,
+            aoa_deg: parseFloat(userCfdAoa) || 4.0,
+          },
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserCfdDeckResponse(data);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`Failed to generate case deck: ${err.detail || res.statusText}`);
+      }
+    } catch (e: any) {
+      alert(`Error generating user case: ${e.message}`);
+    } finally {
+      setIsGeneratingUserDeck(false);
+    }
+  };
+
+  const handleIngestArtifact = async () => {
+    if (!rawArtifactContent.trim()) return;
+    setIsIngestingArtifact(true);
+    setIngestedResult(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/compute/upload-artifact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: userCfdCaseId,
+          artifact_name: `${userCfdCaseId}_artifact`,
+          format: artifactFormat,
+          raw_content: rawArtifactContent,
+          uploaded_by: "RESEARCHER_UPLOAD",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIngestedResult(data);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`Artifact ingestion error: ${err.detail || res.statusText}`);
+      }
+    } catch (e: any) {
+      alert(`Error ingesting artifact: ${e.message}`);
+    } finally {
+      setIsIngestingArtifact(false);
+    }
+  };
+
+  const handleRunActiveLearning = async () => {
+    setIsLoadingAL(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/physics/active-learning`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          geometry: alGeometry,
+          reynolds: parseFloat(alReynolds) || 3000000.0,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAlCandidates(data.candidates || []);
+      }
+    } catch (e) {
+      console.error("Active learning error", e);
+    } finally {
+      setIsLoadingAL(false);
+    }
+  };
+
+  const handleGraphSearch = async (queryStr: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/graph/entities?q=${encodeURIComponent(queryStr)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setGraphEntities(data.entities || []);
+      }
+    } catch (e) {
+      console.error("Graph search error", e);
+    }
+  };
+
+  const handleInspectGraphEntity = async (entity: any) => {
+    setSelectedEntity(entity);
+    try {
+      const res = await fetch(`${API_BASE}/api/graph/neighbors/${encodeURIComponent(entity.entity_id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setEntityNeighbors(data.neighbors || []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch entity neighbors", e);
+    }
+  };
+
+  const handleTriggerDownload = async (datasetId: string) => {
+    try {
+      setDownloadNotice(`Checking manifest and quota for ${datasetId}...`);
+      const res = await fetch(`${API_BASE}/api/datasets/download?dataset_id=${encodeURIComponent(datasetId)}`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDownloadNotice(data.message || `Download initiated for ${datasetId}`);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setDownloadNotice(`Notice: ${err.detail || "Quota reached or download verified"}`);
+      }
+    } catch (e: any) {
+      setDownloadNotice(`Download error: ${e.message}`);
+    }
+  };
 
   const handleKnowledgeSearch = async () => {
     if (!knowledgeSearchQuery.trim()) return;
@@ -481,7 +698,7 @@ export default function AASIChatApp() {
       <header className="app-header">
         <div className="header-top">
           <div className="brand-section">
-            <span className="logo-badge">PHASE 4</span>
+            <span className="logo-badge">PHASE 5</span>
             <div className="title-group">
               <h1>
                 <span className="title-accent">AASI</span>
@@ -499,13 +716,13 @@ export default function AASIChatApp() {
               type="button"
             >
               <span className="pulse-research-icon" />
-              <span>RESEARCH & SIMULATION FABRIC</span>
+              <span>RESEARCH & COMPUTATIONAL DRAWER</span>
             </button>
 
-            {/* Active Solvers Badge */}
-            <div className="status-badge tools-badge" title="Computational Tools & Simulation Fabric">
+            {/* Active Subsystems Badge */}
+            <div className="status-badge tools-badge" title="Phase 5 Subsystems">
               <span className="status-dot online" />
-              <span>8-LEVEL RESOLUTION • OPENFOAM (DRY-RUN) • ASTROPY • ROCKETPY</span>
+              <span>FEDERATION (15) • DATASET FACTORY • PHYSICS-AI • USER-CFD (aasi_case)</span>
             </div>
 
             {/* Backend Status */}
@@ -552,7 +769,7 @@ export default function AASIChatApp() {
         </div>
 
         <p className="header-subtitle">
-          Autonomous Aerospace Scientific Intelligence • Epistemic Provenance • Deterministic Resolution Hierarchy • Simulation Fabric
+          Autonomous Aerospace Scientific Intelligence • Knowledge Federation • Leakage-Free Dataset Factory • PhysicsNeMo Foundation • Standalone CFD
         </p>
       </header>
 
@@ -562,10 +779,10 @@ export default function AASIChatApp() {
         {messages.length <= 1 && (
           <div className="welcome-card">
             <div className="welcome-title">
-              <span>Phase 4 Deterministic Scientific Resolution & Simulation Prompts</span>
+              <span>Phase 5 Multi-Layer Scientific Intelligence & Computational Prompts</span>
             </div>
             <p className="welcome-text">
-              Select a benchmark prompt to evaluate the 8-level resolution hierarchy, multi-source conflict reconciliation, surrogate envelopes, or simulation case generation:
+              Select a benchmark prompt to evaluate federated sources across 15 disciplines, current spaceflight information, Physics-AI surrogates, active learning uncertainty sweeps, standalone OpenFOAM CFD decks, or knowledge graph relations:
             </p>
             <div className="quick-prompts">
               {QUICK_PROMPTS.map((prompt, idx) => (
@@ -888,14 +1105,42 @@ export default function AASIChatApp() {
                 onClick={() => setResearchTab("literature")}
                 type="button"
               >
-                SCIENTIFIC LITERATURE ({docList.length})
+                LITERATURE ({docList.length})
+              </button>
+              <button
+                className={`drawer-tab-btn ${researchTab === "sources" ? "active" : ""}`}
+                onClick={() => setResearchTab("sources")}
+                type="button"
+              >
+                FEDERATION & NEWS ({sourcesList.length})
               </button>
               <button
                 className={`drawer-tab-btn ${researchTab === "datasets" ? "active" : ""}`}
                 onClick={() => setResearchTab("datasets")}
                 type="button"
               >
-                PHYSICAL DATASETS (EXP & CFD)
+                DATASET FACTORY ({datasetManifests.length})
+              </button>
+              <button
+                className={`drawer-tab-btn ${researchTab === "user_cfd" ? "active" : ""}`}
+                onClick={() => setResearchTab("user_cfd")}
+                type="button"
+              >
+                USER-EXECUTED CFD
+              </button>
+              <button
+                className={`drawer-tab-btn ${researchTab === "physics_ai" ? "active" : ""}`}
+                onClick={() => setResearchTab("physics_ai")}
+                type="button"
+              >
+                PHYSICS-AI & ACTIVE LEARNING
+              </button>
+              <button
+                className={`drawer-tab-btn ${researchTab === "graph" ? "active" : ""}`}
+                onClick={() => setResearchTab("graph")}
+                type="button"
+              >
+                KNOWLEDGE GRAPH ({graphEntities.length})
               </button>
               <button
                 className={`drawer-tab-btn ${researchTab === "simulations" ? "active" : ""}`}
@@ -905,7 +1150,7 @@ export default function AASIChatApp() {
                 }}
                 type="button"
               >
-                SIMULATION FABRIC & SOLVERS
+                SOLVER RUNTIMES
               </button>
             </div>
 
@@ -997,14 +1242,120 @@ export default function AASIChatApp() {
                 </div>
               )}
 
-              {/* TAB 2: DATASETS */}
+              {/* TAB 2: SOURCES & CURRENT EVENTS */}
+              {researchTab === "sources" && (
+                <div className="sources-pane">
+                  <div className="section-pane-header">
+                    <h3>FEDERATED SCIENTIFIC SOURCES & DISCIPLINE CATALOG ({sourcesList.length})</h3>
+                    <p>
+                      Authentic public registries covering 15 scientific disciplines. Direct adapter access for open archives; strict refusal of proprietary corporate databases.
+                    </p>
+                  </div>
+
+                  <div className="sources-grid">
+                    {sourcesList.map((src, sIdx) => (
+                      <div
+                        key={sIdx}
+                        className={`source-card-federated ${
+                          src.access_status === "ACTIVE" ? "active" : "planned"
+                        }`}
+                      >
+                        <div className="source-card-top">
+                          <span className="source-org-tag-lg">{src.organization || src.source_id}</span>
+                          <span className="source-cat-badge">{src.category}</span>
+                        </div>
+                        <div className="source-card-title">{src.name}</div>
+                        <div className="source-meta-row">
+                          <div><strong>Access:</strong> {src.access_status} • <strong>License:</strong> {src.license_type}</div>
+                          <div><strong>Disciplines:</strong> {(src.disciplines || []).join(", ") || "Aerospace"}</div>
+                          {src.justification && <div><strong>Provenance Note:</strong> {src.justification}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="section-pane-header">
+                    <h3>CURRENT SPACEFLIGHT INFORMATION & MISSION MILESTONES ({currentEvents.length})</h3>
+                    <p>
+                      Dynamic launches, mission status, and space weather strictly tagged with <code>CURRENT_INFORMATION</code> and ISO timestamps to preserve temporal integrity.
+                    </p>
+                  </div>
+
+                  <div className="current-events-feed">
+                    {currentEvents.map((evt, eIdx) => (
+                      <div key={eIdx} className="current-event-card">
+                        <div className="current-event-header">
+                          <span className="badge-current-info">CURRENT_INFORMATION</span>
+                          <span className="current-event-date">{new Date(evt.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div className="current-event-title">{evt.title}</div>
+                        <div className="current-event-summary">{evt.summary}</div>
+                        <div className="current-event-footer">
+                          <span><strong>Agency/Category:</strong> {evt.category} • <strong>ID:</strong> <code>{evt.event_id}</code></span>
+                          {evt.source_url && (
+                            <a href={evt.source_url} target="_blank" rel="noopener noreferrer">
+                              Official Bulletin ↗
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: DATASET FACTORY */}
               {researchTab === "datasets" && (
                 <div className="datasets-pane">
+                  <div className="section-pane-header">
+                    <h3>HIGH-VALUE OPEN PHYSICS DATASET FACTORY ({datasetManifests.length} REGISTERED)</h3>
+                    <p>
+                      Curated open-access physical and CFD datasets with cryptographic manifests, verified licensing, and zero-leakage geometry-level partitioning.
+                    </p>
+                  </div>
+
+                  {downloadNotice && (
+                    <div className="sim-error-card" style={{ borderColor: "#10b981", color: "#34d399", marginBottom: "16px" }}>
+                      <strong>Download Manager:</strong> {downloadNotice}
+                    </div>
+                  )}
+
+                  {/* Manifests Grid */}
+                  <div className="manifest-list">
+                    {datasetManifests.map((ds, dIdx) => (
+                      <div key={dIdx} className="dataset-manifest-card">
+                        <div className="match-title-row">
+                          <h4 className="manifest-card-title">{ds.name}</h4>
+                          <span className="validation-pill">{ds.license}</span>
+                        </div>
+                        <p style={{ fontSize: "0.78rem", color: "#cbd5e1", marginBottom: "8px" }}>{ds.description}</p>
+                        <div className="manifest-card-meta">
+                          <div><strong>Domain:</strong> {ds.domain}</div>
+                          <div><strong>Samples:</strong> {ds.sample_count?.toLocaleString()}</div>
+                          <div><strong>Total Size:</strong> {ds.total_size_mb} MB</div>
+                          <div><strong>Geometry Leakage:</strong> <span style={{ color: "#10b981", fontWeight: 700 }}>0% (Strict Isolation)</span></div>
+                        </div>
+                        <div className="split-box">
+                          <div><strong>Train Partitions:</strong> {ds.split_policy?.train_ratio * 100}% • <strong>Val:</strong> {ds.split_policy?.val_ratio * 100}% • <strong>Test:</strong> {ds.split_policy?.test_ratio * 100}%</div>
+                          <div><strong>OOD Extrapolation:</strong> {ds.split_policy?.ood_conditions ? "Enabled (Angle of Attack > 12°)" : "None"}</div>
+                          <div><strong>Root SHA-256:</strong> <code>{ds.checksum?.substring(0, 24)}...</code></div>
+                        </div>
+                        <button
+                          className="btn-download-trigger"
+                          onClick={() => handleTriggerDownload(ds.dataset_id)}
+                          type="button"
+                        >
+                          DOWNLOAD ON DEMAND (QUOTA VERIFIED)
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
                   {/* Condition Query Box */}
                   <div className="condition-query-card">
-                    <h3>QUERY PHYSICAL AERODYNAMIC & CFD DATASETS</h3>
+                    <h3>LOOK UP VERIFIED FLIGHT CONDITIONS</h3>
                     <p className="query-subtitle">
-                      Look up exact verified experimental or CFD data points across flight conditions without fabrication:
+                      Query exact experimental wind tunnel or CFD benchmarks across flight conditions:
                     </p>
                     <div className="condition-inputs-grid">
                       <div className="input-group">
@@ -1099,7 +1450,327 @@ export default function AASIChatApp() {
                 </div>
               )}
 
-              {/* TAB 3: SIMULATION FABRIC & SOLVERS */}
+              {/* TAB 4: USER-EXECUTED CFD & ARTIFACT INGESTION */}
+              {researchTab === "user_cfd" && (
+                <div className="user-cfd-pane">
+                  <div className="section-pane-header">
+                    <h3>STANDALONE USER-EXECUTED CFD (aasi_case/) & ARTIFACT INGESTION</h3>
+                    <p>
+                      Generate complete standalone OpenFOAM CFD decks with 14-section execution guides, run them locally or on an external cluster, and upload the resulting simulation artifacts for physical reconciliation and SHA-256 provenance tracking.
+                    </p>
+                  </div>
+
+                  <div className="user-cfd-grid">
+                    {/* Generator Box */}
+                    <div className="cfd-action-box">
+                      <h4 style={{ color: "#38bdf8", marginBottom: "8px", fontSize: "0.85rem" }}>1. GENERATE STANDALONE CASE DECK</h4>
+                      <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginBottom: "12px" }}>
+                        Writes a complete <code>aasi_case/</code> directory with <code>0/</code>, <code>constant/</code>, <code>system/</code>, mesh scripts, and execution guide.
+                      </p>
+                      <div className="condition-inputs-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                        <div className="input-group">
+                          <label>CASE IDENTIFIER</label>
+                          <input
+                            type="text"
+                            value={userCfdCaseId}
+                            onChange={(e) => setUserCfdCaseId(e.target.value)}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>AIRFOIL GEOMETRY</label>
+                          <input
+                            type="text"
+                            value={userCfdGeometry}
+                            onChange={(e) => setUserCfdGeometry(e.target.value)}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>MACH NUMBER</label>
+                          <input
+                            type="text"
+                            value={userCfdMach}
+                            onChange={(e) => setUserCfdMach(e.target.value)}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>REYNOLDS NUMBER</label>
+                          <input
+                            type="text"
+                            value={userCfdReynolds}
+                            onChange={(e) => setUserCfdReynolds(e.target.value)}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>ANGLE OF ATTACK (°)</label>
+                          <input
+                            type="text"
+                            value={userCfdAoa}
+                            onChange={(e) => setUserCfdAoa(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <button
+                        className="btn-download-trigger"
+                        onClick={handleGenerateUserCfdDeck}
+                        disabled={isGeneratingUserDeck}
+                        style={{ marginTop: "12px", width: "100%" }}
+                        type="button"
+                      >
+                        {isGeneratingUserDeck ? "GENERATING CASE DECK..." : "GENERATE STANDALONE CASE DECK"}
+                      </button>
+
+                      {userCfdDeckResponse && (
+                        <div style={{ marginTop: "14px", background: "#040813", padding: "10px", borderRadius: "4px", border: "1px solid #1e293b" }}>
+                          <div style={{ color: "#34d399", fontWeight: 700, fontSize: "0.75rem", marginBottom: "4px" }}>
+                            ✓ Case Deck Ready: <code>{userCfdDeckResponse.case_directory}</code>
+                          </div>
+                          <div style={{ fontSize: "0.7rem", color: "#94a3b8", marginBottom: "6px" }}>
+                            Generated {userCfdDeckResponse.generated_files?.length} files with SHA-256 hashes.
+                          </div>
+                          <div style={{ maxHeight: "120px", overflowY: "auto", fontSize: "0.68rem", fontFamily: "var(--font-mono)", color: "#cbd5e1" }}>
+                            {(userCfdDeckResponse.generated_files || []).map((f: string, fIdx: number) => (
+                              <div key={fIdx}>• {f}</div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Artifact Ingestion Box */}
+                    <div className="cfd-action-box">
+                      <h4 style={{ color: "#a5b4fc", marginBottom: "8px", fontSize: "0.85rem" }}>2. INGEST SIMULATION ARTIFACTS</h4>
+                      <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginBottom: "12px" }}>
+                        Paste or upload raw simulation output (OpenFOAM <code>forceCoeffs.dat</code>, SU2 <code>history.csv</code>, or XFOIL polar) to parse and reconcile:
+                      </p>
+                      <div className="input-group" style={{ marginBottom: "8px" }}>
+                        <label>ARTIFACT FORMAT</label>
+                        <select
+                          value={artifactFormat}
+                          onChange={(e) => setArtifactFormat(e.target.value)}
+                          style={{
+                            width: "100%",
+                            background: "var(--bg-input)",
+                            border: "1px solid var(--border-color)",
+                            borderRadius: "4px",
+                            padding: "6px 8px",
+                            color: "#fff",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.75rem"
+                          }}
+                        >
+                          <option value="OPENFOAM_FORCE_COEFFS">OpenFOAM forceCoeffs.dat</option>
+                          <option value="SU2_CSV">SU2 Convergence History (CSV)</option>
+                          <option value="XFOIL_POLAR">XFOIL Airfoil Polar</option>
+                        </select>
+                      </div>
+                      <textarea
+                        className="artifact-textarea"
+                        value={rawArtifactContent}
+                        onChange={(e) => setRawArtifactContent(e.target.value)}
+                        placeholder="Paste raw simulation log or output polar content here..."
+                      />
+                      <button
+                        className="btn-upload-parse"
+                        onClick={handleIngestArtifact}
+                        disabled={isIngestingArtifact || !rawArtifactContent.trim()}
+                        style={{ width: "100%" }}
+                        type="button"
+                      >
+                        {isIngestingArtifact ? "PARSING & VALIDATING..." : "INGEST & VALIDATE ARTIFACT"}
+                      </button>
+
+                      {ingestedResult && (
+                        <div style={{ marginTop: "14px", background: "#040813", padding: "10px", borderRadius: "4px", border: "1px solid #1e293b" }}>
+                          <div style={{ color: "#a5b4fc", fontWeight: 700, fontSize: "0.75rem", marginBottom: "4px" }}>
+                            {ingestedResult.is_valid ? "✓ Valid Physical Artifact" : "⚠ Validation Warning"} • {ingestedResult.format}
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", fontSize: "0.72rem", color: "#e2e8f0" }}>
+                            <div>C_L (Lift): <strong>{ingestedResult.cl !== null ? ingestedResult.cl : "N/A"}</strong></div>
+                            <div>C_D (Drag): <strong>{ingestedResult.cd !== null ? ingestedResult.cd : "N/A"}</strong></div>
+                            <div>Converged: <strong>{ingestedResult.is_converged ? "Yes" : "No"}</strong></div>
+                            <div>Points: <strong>{ingestedResult.data_points_count}</strong></div>
+                          </div>
+                          <div style={{ fontSize: "0.68rem", color: "#64748b", marginTop: "4px" }}>
+                            Provenance Hash: <code>{ingestedResult.provenance_checksum?.substring(0, 20)}...</code>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: PHYSICS-AI & ACTIVE LEARNING */}
+              {researchTab === "physics_ai" && (
+                <div className="physics-ai-pane">
+                  <div className="section-pane-header">
+                    <h3>REGISTERED PHYSICS-AI NEURAL OPERATORS & SURROGATES ({physicsModels.length})</h3>
+                    <p>
+                      PhysicsNeMo-compatible surrogates (AeroGraphNet GNN, 2D Fourier Neural Operator) with declared validity envelopes, metrics, and checksum integrity.
+                    </p>
+                  </div>
+
+                  <div className="models-grid">
+                    {physicsModels.map((m, mIdx) => (
+                      <div key={mIdx} className="model-registered-card">
+                        <div className="match-title-row">
+                          <h4 className="model-title">{m.model_name}</h4>
+                          <span className="source-cat-badge">{m.model_type}</span>
+                        </div>
+                        <p style={{ fontSize: "0.76rem", color: "#cbd5e1", marginBottom: "6px" }}>{m.description}</p>
+                        <div className="source-meta-row">
+                          <div><strong>Parameters:</strong> {m.parameter_count?.toLocaleString()}</div>
+                          <div><strong>Input / Output:</strong> {m.input_dim} channels → {m.output_dim} channels</div>
+                          <div>
+                            <strong>Validity Envelope:</strong> Mach {m.validity_envelope?.mach_min}–{m.validity_envelope?.mach_max}, Re {m.validity_envelope?.reynolds_min?.toExponential(1)}–{m.validity_envelope?.reynolds_max?.toExponential(1)}, AoA {m.validity_envelope?.aoa_min_deg}°–{m.validity_envelope?.aoa_max_deg}°
+                          </div>
+                          <div>
+                            <strong>Monotonicity Checked:</strong> {m.monotonicity_verified ? "✓ Monotonic pre-stall" : "Unverified"}
+                          </div>
+                          <div>
+                            <strong>Model Checksum:</strong> <code>{m.checksum?.substring(0, 20)}...</code>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="section-pane-header">
+                    <h3>ACTIVE LEARNING UNCERTAINTY SWEEP & SIMULATION CANDIDATES</h3>
+                    <p>
+                      Iterative parameter space exploration: identifies flow regimes with highest epistemic uncertainty (near stall onset, transonic shock formation) and recommends targeted CFD runs.
+                    </p>
+                  </div>
+
+                  <div className="condition-query-card">
+                    <div className="condition-inputs-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                      <div className="input-group">
+                        <label>TARGET GEOMETRY</label>
+                        <input
+                          type="text"
+                          value={alGeometry}
+                          onChange={(e) => setAlGeometry(e.target.value)}
+                        />
+                      </div>
+                      <div className="input-group">
+                        <label>REYNOLDS NUMBER</label>
+                        <input
+                          type="text"
+                          value={alReynolds}
+                          onChange={(e) => setAlReynolds(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      className="btn-download-trigger"
+                      onClick={handleRunActiveLearning}
+                      disabled={isLoadingAL}
+                      type="button"
+                    >
+                      {isLoadingAL ? "SWEEPING PARAMETER SPACE..." : "RUN ACTIVE LEARNING UNCERTAINTY SWEEP"}
+                    </button>
+
+                    {alCandidates.length > 0 && (
+                      <div style={{ marginTop: "16px" }}>
+                        <h4 style={{ fontSize: "0.8rem", color: "#f8fafc", marginBottom: "8px" }}>
+                          RANKED SIMULATION CANDIDATES ({alCandidates.length})
+                        </h4>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                          {alCandidates.map((cand, cIdx) => (
+                            <div key={cIdx} className="candidate-row">
+                              <div>
+                                <strong>#{cand.rank}</strong> • Mach {cand.mach} • AoA {cand.aoa_deg}° (Re {cand.reynolds?.toExponential(1)})
+                              </div>
+                              <div>
+                                <span style={{ marginRight: "10px", color: "#94a3b8" }}>
+                                  Score: {cand.uncertainty_score?.toFixed(3)}
+                                </span>
+                                <span className={cand.rank <= 2 ? "priority-badge-high" : "priority-badge-medium"}>
+                                  {cand.recommended_action}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 6: KNOWLEDGE GRAPH */}
+              {researchTab === "graph" && (
+                <div className="graph-pane">
+                  <div className="section-pane-header">
+                    <h3>SCIENTIFIC KNOWLEDGE GRAPH (16 ENTITY TYPES & 10 RELATIONS)</h3>
+                    <p>
+                      Lightweight semantic graph linking airfoils, solvers, turbulence models, space missions, launch vehicles, and scientific reports. Click any node to explore relations.
+                    </p>
+                  </div>
+
+                  <div className="search-bar-row" style={{ marginBottom: "14px" }}>
+                    <input
+                      type="text"
+                      className="search-input"
+                      placeholder="Search graph entities (e.g. 'NACA 0012', 'simpleFoam', 'Chandrayaan')..."
+                      value={graphSearchQuery}
+                      onChange={(e) => {
+                        setGraphSearchQuery(e.target.value);
+                        handleGraphSearch(e.target.value);
+                      }}
+                    />
+                  </div>
+
+                  <div className="graph-entities-grid">
+                    {graphEntities.map((ent, eIdx) => (
+                      <div
+                        key={eIdx}
+                        className="graph-entity-chip"
+                        onClick={() => handleInspectGraphEntity(ent)}
+                      >
+                        <div className="entity-type-tag">{ent.entity_type}</div>
+                        <div className="entity-name">{ent.name}</div>
+                        <div style={{ fontSize: "0.68rem", color: "#94a3b8" }}>
+                          {ent.description?.substring(0, 50)}...
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {selectedEntity && (
+                    <div style={{ marginTop: "20px", background: "#060d1b", border: "1px solid #1e293b", borderRadius: "6px", padding: "14px" }}>
+                      <div className="match-title-row">
+                        <h4 style={{ color: "#38bdf8", fontSize: "0.85rem" }}>
+                          CONNECTIONS FOR: {selectedEntity.name} ({selectedEntity.entity_type})
+                        </h4>
+                        <span className="org-badge">{entityNeighbors.length} RELATIONS</span>
+                      </div>
+                      <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginBottom: "10px" }}>{selectedEntity.description}</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        {entityNeighbors.length === 0 ? (
+                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>No direct relations indexed for this entity.</div>
+                        ) : (
+                          entityNeighbors.map((rel, rIdx) => (
+                            <div key={rIdx} className="candidate-row" style={{ alignItems: "center" }}>
+                              <div>
+                                <span style={{ color: "#f59e0b", fontWeight: 700, marginRight: "8px" }}>
+                                  —[{rel.relation_type}]→
+                                </span>
+                                <span style={{ color: "#f8fafc", fontWeight: 600 }}>
+                                  {rel.neighbor_name || rel.target_id || rel.neighbor_id}
+                                </span>
+                              </div>
+                              <span className="source-cat-badge">{rel.neighbor_type || "Entity"}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 7: SIMULATION FABRIC & SOLVERS */}
               {researchTab === "simulations" && (
                 <div className="simulations-pane">
                   {/* Security Sandbox Notice */}

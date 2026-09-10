@@ -78,5 +78,5 @@ Thumbs.db
 scratch/
 *.docx
 
-# Simulation run artifacts
-data/simulations/
+# Simulation & Dataset run artifacts
+data/

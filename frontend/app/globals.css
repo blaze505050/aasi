@@ -1973,3 +1973,376 @@ body {
   max-height: 160px;
 }
 
+/* ==========================================================================
+   PHASE 5: KNOWLEDGE FEDERATION, DATASET FACTORY, USER CFD, PHYSICS-AI, GRAPH
+   ========================================================================== */
+
+/* Sub-nav Drawer Tabs */
+.drawer-tabs {
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  background: #060b14;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.drawer-tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.drawer-tab-btn:hover {
+  color: #e2e8f0;
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.drawer-tab-btn.active {
+  background: rgba(0, 210, 255, 0.15);
+  color: var(--accent-cyan);
+  border-color: rgba(0, 210, 255, 0.4);
+}
+
+/* Common Section Headers */
+.section-pane-header {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.section-pane-header h3 {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: 4px;
+}
+
+.section-pane-header p {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Sources Grid */
+.sources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.source-card-federated {
+  background: #091222;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.source-card-federated.active {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.source-card-federated.planned {
+  border-color: rgba(148, 163, 184, 0.2);
+  opacity: 0.8;
+}
+
+.source-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.source-org-tag-lg {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.source-cat-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #94a3b8;
+  background: #1e293b;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.source-card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.source-meta-row {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.source-meta-row strong {
+  color: #94a3b8;
+}
+
+/* Current Events Feed */
+.current-events-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.current-event-card {
+  background: #0a1426;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.current-event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.badge-current-info {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.current-event-date {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.current-event-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.current-event-summary {
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.current-event-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.current-event-footer a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+/* Dataset Factory & Splits */
+.manifest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dataset-manifest-card {
+  background: #091325;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.manifest-card-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #34d399;
+  margin-bottom: 4px;
+}
+
+.manifest-card-meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #94a3b8;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.split-box {
+  background: #040813;
+  border: 1px dashed rgba(56, 189, 248, 0.3);
+  border-radius: 4px;
+  padding: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}
+
+.btn-download-trigger {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #34d399;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* User-Executed CFD */
+.user-cfd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.cfd-action-box {
+  background: #091325;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.artifact-textarea {
+  width: 100%;
+  background: #030712;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #a5b4fc;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 8px;
+  min-height: 120px;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.btn-upload-parse {
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid #6366f1;
+  color: #a5b4fc;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Physics AI & Active Learning */
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.model-registered-card {
+  background: #0a1120;
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.model-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #818cf8;
+  margin-bottom: 4px;
+}
+
+.candidate-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #1e293b;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.priority-badge-high {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.priority-badge-medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+/* Knowledge Graph */
+.graph-entities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.graph-entity-chip {
+  background: #0c182d;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.graph-entity-chip:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 210, 255, 0.1);
+}
+
+.entity-type-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.entity-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+

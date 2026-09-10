@@ -299,35 +299,51 @@ Status: OFFICIAL_EXPERIMENT       Status: VALIDATED_CFD            Status: SURRO
 
 ---
 
-## Future Architecture (Upcoming Phases)
+## Phase 5 Architecture: Tri-Layer Scientific Intelligence
+
+Phase 5 establishes the full **Tri-Layer Architecture** for autonomous aerospace scientific intelligence:
 
 ```
-                          ┌───────────────────────────┐
-                          │   AASI Scientific Agent   │
-                          └─────────────┬─────────────┘
-                                        │
-           ┌────────────────────────────┼────────────────────────────┐
-           ▼                            ▼                            ▼
-┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
-│  Scientific Tools   │      │   Knowledge & RAG   │      │ Physics AI & Sim    │
-│ ─────────────────── │      │ ─────────────────── │      │ ─────────────────── │
-│ • Orbital Mechanics │      │ • NASA NTRS & NACA  │      │ • OpenFOAM / SU2    │
-│ • RocketPy Engine   │      │ • Hybrid Retriever  │      │ • XFOIL Integration │
-│ • Symbolic Math     │      │ • Wind Tunnel Polars│      │ • Case Generator    │
-│ • Pint Units        │      │ • Epistemic Audit   │      │ • Manifest Hashing  │
-└─────────────────────┘      └─────────────────────┘      └─────────────────────┘
-           │                            │                            │
-           └────────────────────────────┼────────────────────────────┘
-                                        ▼
-                          ┌───────────────────────────┐
-                          │ Autonomous Research Loops │
-                          │ • Multi-fidelity sweeps   │
-                          │ • Mesh convergence tests  │
-                          │ • Scientific publication  │
-                          └───────────────────────────┘
+                            ┌─────────────────────────────────────────┐
+                            │          AASI Scientific Agent          │
+                            │      (LLM Context & Orchestrator)       │
+                            └────────────────────┬────────────────────┘
+                                                 │
+          ┌──────────────────────────────────────┼──────────────────────────────────────┐
+          ▼                                      ▼                                      ▼
+┌──────────────────────────────┐       ┌──────────────────────────────┐       ┌──────────────────────────────┐
+│  LAYER A: KNOWLEDGE & SOURCES│       │  LAYER B: PHYSICS AI & DATA  │       │  LAYER C: SIMULATION & COMP  │
+│ ──────────────────────────── │       │ ──────────────────────────── │       │ ──────────────────────────── │
+│ • 15 Scientific Disciplines  │       │ • Open Dataset Factory       │       │ • Multi-Backend Dispatch     │
+│ • NASA NTRS & NACA Connectors│       │   (AirfRANS, CRM, Abbott)    │       │   (Local, Remote, User, Cache│
+│ • ISRO / ESA Public Registrie│       │ • Leakage-Free Geometry Split│       │ • Standalone aasi_case/ Deck │
+│ • Strict SpaceX Claim Refusal│       │ • PhysicsNeMo Recipe Foundatn│       │ • 14-Section Execution Guide │
+│ • Dynamic Current Events     │       │ • PhysicsModelRegistry       │       │ • Artifact Ingestion Service │
+│   (ISO Temporal Separation)  │       │ • Monotonicity & Symm Audits │       │ • OpenFOAM / SU2 / XFOIL     │
+│ • 16-Entity Knowledge Graph  │       │ • Active Learning Loop       │       │ • SHA-256 Provenance Manifest│
+└──────────────────────────────┘       └──────────────────────────────┘       └──────────────────────────────┘
 ```
 
-- **Phase 5**: Multi-Fidelity Grid Convergence & Autonomous Research Sweeps (adaptive mesh refinement, Richardson extrapolation, automated parametric sweeps).
-- **Phase 6**: Autonomous Scientific Research Loops (hypothesis generation, experimental design, publication synthesis).
+### 1. Layer A: Knowledge Federation & Dynamic Temporal Separation
+- **15 Aerospace Disciplines:** Comprehensive taxonomy from aerodynamics, propulsion, and orbital mechanics to EDL, space weather, and life support.
+- **Authentic Registries:** Real public connectors for NASA NTRS, NACA, ISRO, and ESA without simulated or fabricated private APIs.
+- **Strict Commercial Guardrail:** Rejects claims of access to internal SpaceX or proprietary corporate design files (`CitationGuardrail`).
+- **Dynamic Current Events:** Events (`CurrentInformationService`) are timestamped with ISO-8601 UTC and separated from immutable physical citations (`CURRENT_INFORMATION` vs `SCIENTIFIC_REFERENCE`).
+- **Semantic Knowledge Graph:** In-memory graph linking 16 entity types via 10 directed relation types (`USES`, `SIMULATED_BY`, `MEASURED_BY`, etc.).
+
+### 2. Layer B: Physics AI & Dataset Factory
+- **High-Value Open Datasets:** Manifests for AirfRANS (1,000 RANS simulations), NASA CRM, and Abbott & von Doenhoff wind tunnel polars.
+- **Hardware-Aware Download-on-Demand:** Enforces a 2 GB local storage ceiling to protect developer laptops.
+- **Zero Geometry Leakage:** `GeometryLevelSplitter` strictly isolates airfoil geometries between partitions ($\text{Geometries}_{\text{Train}} \cap \text{Geometries}_{\text{Test}} = \emptyset$).
+- **PhysicsNeMo Exportable Recipes:** Standalone GPU training scripts for AeroGraphNet (GNN) and 2D Fourier Neural Operator (FNO-2D) in `training/physicsnemo/`.
+- **Model Registry & Integrity:** Versioned surrogates with validity envelopes, parameter counts, and SHA-256 weight checksums.
+- **Physical Monotonicity Gates:** Rejects surrogates violating pre-stall lift monotonicity ($dC_L/d\alpha > 0$) or symmetric airfoil zero-lift sanity ($C_L(0) \approx 0$).
+- **Active Learning Engine:** Exploits epistemic uncertainty in stall and transonic shock onset to rank candidate simulation points.
+
+### 3. Layer C: Deterministic Engineering Agent & User-Executed CFD
+- **Multi-Backend Compute Fabric:** Flexible dispatch across `LOCAL`, `REMOTE`, `USER_EXECUTED`, and `CACHED` modes.
+- **Standalone `aasi_case/` Generator:** Creates self-contained OpenFOAM directories with dictionary files (`0/`, `constant/`, `system/`), mesh scripts (`blockMeshDict`), shell runners (`run.sh`, `clean.sh`), and the mandatory 14-section `README.md`.
+- **Artifact Ingestion Engine:** Parses returned `forceCoeffs.dat`, SU2 `history.csv`, or XFOIL polars, checks physical bounds ($C_D > 0, |C_L| \le 3.5$), and logs SHA-256 provenance.
+
 
 

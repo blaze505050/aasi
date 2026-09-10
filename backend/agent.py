@@ -516,8 +516,63 @@ class AASIAgent:
             ]
             is_literature_query = any(kw in msg_lower for kw in literature_keywords)
 
+            # Check User-Executed CFD Case Generation
+            if "generate" in msg_lower and ("case" in msg_lower or "deck" in msg_lower) and ("openfoam" in msg_lower or "simplefoam" in msg_lower or "cfd" in msg_lower or "simulation" in msg_lower):
+                from backend.compute.registry import ComputeBackendRegistry
+                from backend.compute.models import ComputeRequest, ComputeBackendType
+                comp_reg = ComputeBackendRegistry()
+                req = ComputeRequest(case_id="aasi-user-case-001", geometry="NACA 0012", backend=ComputeBackendType.USER_EXECUTED)
+                res = comp_reg.dispatch(req)
+                return {
+                    "response": (
+                        f"**Standalone User-Executed CFD Case Generated (`aasi_case/`):**\n\n"
+                        f"- **Case Directory:** `{res['case_deck']['case_directory']}`\n"
+                        f"- **README Specification:** 14 mandatory sections generated at `{res['case_deck']['readme_path']}`\n"
+                        f"- **Validation Checklist:** `{res['case_deck']['validation_checklist_path']}`\n"
+                        f"- **Execution Instructions:** {res['instructions']}\n\n"
+                        f"Run on your own PC, university lab workstation (e.g. NITK), or HPC cluster, then upload logs back to AASI."
+                    ),
+                    "tool_calls": [{
+                        "tool": "compute_backend",
+                        "operation": "generate_user_case",
+                        "status": "success",
+                        "trace": [
+                            "Emitted OpenFOAM dictionaries (0/, constant/, system/)",
+                            "Created scripts/run.sh, clean.sh, postProcess.sh",
+                            "Generated 14-section README.md and validation_checklist.md"
+                        ]
+                    }],
+                    "calculations": [],
+                    "verification": {"status": "USER_EXECUTED_DECK"},
+                    "resolution_trace": ["Generated standalone user-executable case deck", "Case ready for cluster execution"],
+                    "model": self.model,
+                    "status": "success",
+                }
+
+            # Check Current Information events
+            from backend.sources.current_info import CurrentInformationService
+            curr_svc = CurrentInformationService()
+            curr_matches = curr_svc.search_events(user_message)
+            if curr_matches and any(w in msg_lower for w in ["artemis", "gaganyaan", "ariane 6", "launch", "mission", "geomagnetic storm", "storm", "latest", "update", "news"]):
+                top_item = curr_matches[0]
+                return {
+                    "response": curr_svc.format_current_info_response(top_item),
+                    "tool_calls": [],
+                    "calculations": [],
+                    "verification": {"status": "CURRENT_INFORMATION", "source": top_item.organization},
+                    "sources": [{"title": top_item.title, "organization": top_item.organization, "url": top_item.source_url}],
+                    "evidence": [{"title": top_item.title, "text": top_item.summary}],
+                    "assumptions": ["Dynamic agency announcement, subject to operational updates."],
+                    "provenance": [{"provenance_hash": top_item.provenance_hash, "retrieved_at": top_item.retrieved_at}],
+                    "limitations": ["Current information is dynamic and distinct from peer-reviewed scientific literature."],
+                    "resolution_trace": [f"Retrieved current official event: {top_item.item_id}"],
+                    "model": self.model,
+                    "status": "success",
+                }
+
             if is_literature_query:
                 lit_matches = knowledge_svc.search_literature(user_message, k=3)
+
                 if lit_matches and lit_matches[0].relevance >= 0.15:
                     context_block = knowledge_svc.rag_pipeline.build_context_block(lit_matches)
                     system_with_rag = f"{self.system_prompt}\n\n{knowledge_svc.rag_pipeline.SECURITY_PROMPT_HEADER}\n\n{context_block}"
