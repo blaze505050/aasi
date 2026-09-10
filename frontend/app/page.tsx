@@ -1189,9 +1189,26 @@ export default function AASIChatApp() {
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="error-banner" role="alert">
-            <strong>System Telemetry Notice</strong>
-            <span>{errorMessage}</span>
+          <div className="error-banner" role="alert" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <strong>System Telemetry Notice</strong>
+              <span style={{ marginLeft: '8px' }}>{errorMessage}</span>
+            </div>
+            <button
+              onClick={() => setErrorMessage(null)}
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: 'inherit',
+                borderRadius: '4px',
+                padding: '2px 8px',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+              }}
+              title="Dismiss notification"
+            >
+              Dismiss
+            </button>
           </div>
         )}
 
