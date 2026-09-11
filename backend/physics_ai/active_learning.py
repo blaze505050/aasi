@@ -34,10 +34,14 @@ class CandidateStatus(str, Enum):
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
     GENERATED = "GENERATED"
+    GENERATED_DECK = "GENERATED_DECK"
     EXECUTED = "EXECUTED"
     INGESTED = "INGESTED"
     VALIDATED = "VALIDATED"
+    ADDED_TO_DATASET = "ADDED_TO_DATASET"
+    RETRAIN_TRIGGERED = "RETRAIN_TRIGGERED"
     FAILED = "FAILED"
+    FAILED_SOLVER = "FAILED_SOLVER"
 
 
 class CandidateAuditEntry(BaseModel):
@@ -283,18 +287,42 @@ class ActiveLearningCandidateRegistry:
             results = [c for c in results if c.priority.upper() == priority.upper()]
         return results
 
+    VALID_TRANSITIONS: Dict[CandidateStatus, set[CandidateStatus]] = {
+        CandidateStatus.PROPOSED: {CandidateStatus.APPROVED, CandidateStatus.REJECTED, CandidateStatus.FAILED, CandidateStatus.FAILED_SOLVER},
+        CandidateStatus.APPROVED: {CandidateStatus.GENERATED, CandidateStatus.GENERATED_DECK, CandidateStatus.REJECTED, CandidateStatus.FAILED, CandidateStatus.FAILED_SOLVER},
+        CandidateStatus.GENERATED: {CandidateStatus.EXECUTED, CandidateStatus.FAILED, CandidateStatus.FAILED_SOLVER},
+        CandidateStatus.GENERATED_DECK: {CandidateStatus.EXECUTED, CandidateStatus.FAILED, CandidateStatus.FAILED_SOLVER},
+        CandidateStatus.EXECUTED: {CandidateStatus.INGESTED, CandidateStatus.FAILED, CandidateStatus.FAILED_SOLVER},
+        CandidateStatus.INGESTED: {CandidateStatus.VALIDATED, CandidateStatus.FAILED, CandidateStatus.FAILED_SOLVER},
+        CandidateStatus.VALIDATED: {CandidateStatus.ADDED_TO_DATASET, CandidateStatus.FAILED},
+        CandidateStatus.ADDED_TO_DATASET: {CandidateStatus.RETRAIN_TRIGGERED, CandidateStatus.FAILED},
+        CandidateStatus.RETRAIN_TRIGGERED: {CandidateStatus.VALIDATED, CandidateStatus.FAILED},
+        CandidateStatus.REJECTED: {CandidateStatus.PROPOSED},
+        CandidateStatus.FAILED: {CandidateStatus.PROPOSED},
+        CandidateStatus.FAILED_SOLVER: {CandidateStatus.PROPOSED},
+    }
+
     def update_status(
         self,
         candidate_id: str,
         new_status: CandidateStatus,
         rationale: str = "",
-        actor: str = "AASI User / Researcher"
+        actor: str = "AASI User / Researcher",
+        validate_transition: bool = False
     ) -> Optional[ActiveLearningCandidateRecord]:
         candidate = self._candidates.get(candidate_id)
         if not candidate:
             return None
         
         old_status = candidate.status
+        if validate_transition:
+            allowed = self.VALID_TRANSITIONS.get(old_status, set())
+            if new_status not in allowed:
+                raise ValueError(
+                    f"Illegal candidate transition from {old_status} to {new_status}. "
+                    f"Candidates cannot bypass solver generation, execution, and validation."
+                )
+
         candidate.status = new_status
         candidate.audit_trail.append(
             CandidateAuditEntry(
@@ -305,6 +333,21 @@ class ActiveLearningCandidateRegistry:
             )
         )
         return candidate
+
+    def record_failed_solver(
+        self,
+        candidate_id: str,
+        error_message: str,
+        actor: str = "AASI Solver Monitor"
+    ) -> Optional[ActiveLearningCandidateRecord]:
+        """Marks candidate as FAILED_SOLVER, logging the failure without adding corrupted data to training."""
+        return self.update_status(
+            candidate_id=candidate_id,
+            new_status=CandidateStatus.FAILED_SOLVER,
+            rationale=f"Solver execution or convergence failure: {error_message}",
+            actor=actor,
+            validate_transition=False
+        )
 
     def save(self) -> None:
         os.makedirs(os.path.dirname(self.persistence_path), exist_ok=True)

@@ -84,6 +84,7 @@ data/*
 !data/checkpoints/
 !data/checkpoints/**
 !data/datasets/
+data/datasets/cache/
 !data/datasets/authentic_airfoils/
 !data/datasets/authentic_airfoils/**
 !data/training_runs/

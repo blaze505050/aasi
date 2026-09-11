@@ -11,8 +11,11 @@ import os
 import json
 import hashlib
 import shutil
+import re
 from typing import Dict, Any, List
 from backend.compute.models import ComputeRequest, GeneratedCaseDeck
+
+SAFE_IDENTIFIER_REGEX = re.compile(r"^[a-zA-Z0-9_\-\. ]+$")
 
 
 class UserProvidedCaseGenerator:
@@ -32,7 +35,17 @@ class UserProvidedCaseGenerator:
         - manifest.json
         - validation_checklist.md
         """
-        case_dir = os.path.join(self.base_output_dir, request.case_id)
+        # Strict input sanitation to prevent directory traversal and injection attacks
+        if not request.case_id or not SAFE_IDENTIFIER_REGEX.match(request.case_id) or ".." in request.case_id:
+            raise ValueError(f"Insecure or invalid case_id: {request.case_id!r}. Must contain only alphanumeric, dash, underscore, space, or dot characters.")
+        if not request.geometry or not SAFE_IDENTIFIER_REGEX.match(request.geometry) or ".." in request.geometry:
+            raise ValueError(f"Insecure or invalid geometry identifier: {request.geometry!r}. Must contain only alphanumeric, dash, underscore, space, or dot characters.")
+
+        base_abs = os.path.abspath(self.base_output_dir)
+        case_dir = os.path.abspath(os.path.join(base_abs, request.case_id))
+        if os.path.commonpath([base_abs, case_dir]) != base_abs:
+            raise ValueError(f"Directory traversal detected for case_id: {request.case_id!r}")
+
         if os.path.exists(case_dir):
             shutil.rmtree(case_dir)
         os.makedirs(case_dir, exist_ok=True)

@@ -21,6 +21,8 @@ from backend.datasets.authentic_parsers import (
     AirfoilGeometryFeatures,
     NASATMRBenchmarkCase,
 )
+from backend.datasets.pipeline import DatasetPipelineOrchestrator
+
 
 __all__ = [
     "DatasetLifecycle",
@@ -39,4 +41,5 @@ __all__ = [
     "NASATMRParser",
     "AirfoilGeometryFeatures",
     "NASATMRBenchmarkCase",
+    "DatasetPipelineOrchestrator",
 ]

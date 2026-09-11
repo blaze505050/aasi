@@ -79,3 +79,59 @@ class ResearchExperiment(BaseModel):
     findings_summary: str = ""
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class ResearchRunStatus(str, Enum):
+    INITIALIZED = "INITIALIZED"
+    RETRIEVING_EVIDENCE = "RETRIEVING_EVIDENCE"
+    INGESTING_DATA = "INGESTING_DATA"
+    EXECUTING_COMPUTATION = "EXECUTING_COMPUTATION"
+    VALIDATING_RESULTS = "VALIDATING_RESULTS"
+    GENERATING_CONCLUSION = "GENERATING_CONCLUSION"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+
+
+class ResearchStage(str, Enum):
+    QUESTION = "QUESTION"
+    EVIDENCE = "EVIDENCE"
+    DATA = "DATA"
+    COMPUTATION = "COMPUTATION"
+    VALIDATION = "VALIDATION"
+    PROVENANCE = "PROVENANCE"
+    CONCLUSION = "CONCLUSION"
+
+
+class ResearchRunStep(BaseModel):
+    step_id: str
+    stage: ResearchStage
+    name: str
+    status: str = "PENDING"  # SUCCESS, WARNING, FAILED, PENDING, USER_EXECUTED_REQUIRED
+    started_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    completed_at: Optional[str] = None
+    summary: str = ""
+    details: Dict[str, Any] = Field(default_factory=dict)
+    artifacts: List[Dict[str, Any]] = Field(default_factory=list)
+    provenance_hashes: Dict[str, str] = Field(default_factory=dict)
+
+
+class ResearchRun(BaseModel):
+    """
+    Unified end-to-end research execution run.
+    Integrates Question -> Evidence -> Data -> Computation -> Validation -> Provenance -> Conclusion.
+    """
+    run_id: str
+    title: str
+    research_question: str
+    hypothesis: str
+    target_geometry: str = "NACA 0012"
+    flow_conditions: Dict[str, Any] = Field(default_factory=dict)
+    status: ResearchRunStatus = ResearchRunStatus.INITIALIZED
+    steps: List[ResearchRunStep] = Field(default_factory=list)
+    scientific_conclusion: Optional[Dict[str, Any]] = None
+    provenance_trail: Dict[str, Any] = Field(default_factory=dict)
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    completed_at: Optional[str] = None
+    is_flagship: bool = False
+

@@ -13,6 +13,10 @@ from backend.research.models import (
     ResearchNotebook,
     NotebookCell,
     NotebookCellType,
+    ResearchRun,
+    ResearchRunStatus,
+    ResearchStage,
+    ResearchRunStep,
 )
 from backend.research.simulation_planner import SimulationPlanner, CampaignPlan
 from backend.research.benchmarks import FixedBenchmarkSuite, BenchmarkEvaluationResult
@@ -20,7 +24,7 @@ from backend.research.comparison import ModelComparisonEngine, ModelComparisonRe
 from backend.research.promotion import ModelPromotionPipeline, ModelPromotionAudit, PromotionTier
 from backend.research.retraining import RetrainingOrchestrator, RetrainingSummary
 from backend.research.report_generator import ScientificReportGenerator
-from backend.research.service import ResearchLoopService, research_loop_service
+from backend.research.service import ResearchLoopService, research_loop_service, ResearchRunOrchestrator
 
 __all__ = [
     "ResearchObjective",
@@ -44,4 +48,9 @@ __all__ = [
     "ScientificReportGenerator",
     "ResearchLoopService",
     "research_loop_service",
+    "ResearchRun",
+    "ResearchRunStatus",
+    "ResearchStage",
+    "ResearchRunStep",
+    "ResearchRunOrchestrator",
 ]

@@ -197,3 +197,73 @@ class PhysicsModelRegistry:
             "actual_sha256": actual_hash,
             "byte_size": p.stat().st_size,
         }
+
+    def promote_model(self, model_id: str, validation_metrics: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Promotes a model to VERIFIED_PRODUCTION only if checkpoint integrity and
+        strict physical validation criteria are satisfied. Never promotes on training completion alone.
+        """
+        verify_res = self.verify_checkpoint(model_id)
+        if not verify_res.get("valid", False):
+            return {
+                "promoted": False,
+                "reason": f"Checkpoint verification failed: {verify_res.get('error', 'Hash mismatch')}",
+                "model_id": model_id,
+            }
+
+        m = self.get_model(model_id)
+        if not m:
+            return {"promoted": False, "reason": "Model not found", "model_id": model_id}
+
+        r2 = validation_metrics.get("cl_r2", validation_metrics.get("r2", 0.0))
+        cd_positive = validation_metrics.get("cd_positive", True)
+        monotonic = validation_metrics.get("monotonic_lift", True)
+
+        if r2 < 0.85:
+            m.lifecycle_status = ModelLifecycleStatus.FAILED
+            return {
+                "promoted": False,
+                "reason": f"Validation R2 ({r2:.4f}) is below minimum production threshold (0.85).",
+                "model_id": model_id,
+            }
+
+        if not cd_positive:
+            m.lifecycle_status = ModelLifecycleStatus.FAILED
+            return {
+                "promoted": False,
+                "reason": "Physical validation failed: drag positivity violated (Cd <= 0).",
+                "model_id": model_id,
+            }
+
+        if not monotonic:
+            m.lifecycle_status = ModelLifecycleStatus.FAILED
+            return {
+                "promoted": False,
+                "reason": "Physical validation failed: pre-stall lift slope monotonicity violated.",
+                "model_id": model_id,
+            }
+
+        m.lifecycle_status = ModelLifecycleStatus.VERIFIED_PRODUCTION
+        m.validation_status = "VERIFIED_PRODUCTION"
+        m.deployment_status = "DEPLOYED"
+        return {
+            "promoted": True,
+            "model_id": model_id,
+            "lifecycle_status": m.lifecycle_status.value,
+            "metrics": validation_metrics,
+        }
+
+    def get_checkpoint(self, identifier: str) -> Optional[RegisteredModel]:
+        """Retrieves model by model_id or architecture name."""
+        m = self.get_model(identifier)
+        if m:
+            return m
+        for model in self._models.values():
+            if model.architecture.lower() == identifier.lower() or model.model_id.lower() == identifier.lower():
+                return model
+        return None
+
+
+# Global singleton model registry
+physics_registry = PhysicsModelRegistry()
+

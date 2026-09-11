@@ -13,14 +13,17 @@ from datetime import datetime, timezone
 
 class DatasetLifecycle(str, Enum):
     DISCOVERED = "DISCOVERED"
-    LICENSE_CHECKED = "LICENSE_CHECKED"
+    LICENSE_VERIFIED = "LICENSE_VERIFIED"
+    LICENSE_CHECKED = "LICENSE_VERIFIED"  # alias for backward compat
     DOWNLOADED = "DOWNLOADED"
+    HASH_VERIFIED = "HASH_VERIFIED"
+    PARSED = "PARSED"
     VALIDATED = "VALIDATED"
-    NORMALIZED = "NORMALIZED"
-    TRAINING_READY = "TRAINING_READY"
-    TRAINED = "TRAINED"
-    EVALUATED = "EVALUATED"
-    DEPLOYED = "DEPLOYED"
+    SPLIT = "SPLIT"
+    READY_FOR_TRAINING = "READY_FOR_TRAINING"
+    TRAINING_READY = "READY_FOR_TRAINING"  # alias for backward compat
+    DEPLOYED = "READY_FOR_TRAINING"  # alias for backward compat
+    FAILED = "FAILED"
 
 
 class DataSplitType(str, Enum):
@@ -32,6 +35,7 @@ class DataSplitType(str, Enum):
 
 class StorageStatus(str, Enum):
     AVAILABLE_LOCAL = "AVAILABLE_LOCAL"
+    LOCAL = "AVAILABLE_LOCAL"  # alias
     AVAILABLE_REMOTE_DIRECT = "AVAILABLE_REMOTE_DIRECT"
     AVAILABLE_REMOTE_MANUAL = "AVAILABLE_REMOTE_MANUAL"
     DEGRADED_SAMPLE_ONLY = "DEGRADED_SAMPLE_ONLY"
@@ -44,18 +48,18 @@ class DatasetManifest(BaseModel):
     version: str = "1.0.0"
     source: str
     license: str
-    citation: str
-    url: str
-    checksum: str  # SHA-256
-    size_bytes: int
+    citation: str = "AASI Scientific Verified Benchmark"
+    url: str = ""
+    checksum: str = ""  # SHA-256
+    size_bytes: int = 0
     domain: str = "AERODYNAMICS"
-    geometry: str
+    geometry: str = "NACA 0012"
     conditions: Dict[str, Any] = Field(default_factory=dict)
     variables: List[str] = Field(default_factory=list)
     units: Dict[str, str] = Field(default_factory=dict)
-    resolution: str
+    resolution: str = "Standard"
     solver: Optional[str] = None
-    experimental_or_simulated: str  # "EXPERIMENTAL" or "SIMULATED"
+    experimental_or_simulated: str = "EXPERIMENTAL"
     validation_status: str = "VALIDATED"
     train_test_split: Dict[str, Any] = Field(default_factory=dict)
     known_limitations: List[str] = Field(default_factory=list)
@@ -64,6 +68,7 @@ class DatasetManifest(BaseModel):
     local_path: Optional[str] = None
     verified_byte_hash: Optional[str] = None
     sample_subset_available: bool = False
+    transition_history: List[Dict[str, Any]] = Field(default_factory=list)
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 

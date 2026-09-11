@@ -20,14 +20,23 @@ class ArtifactIngestionService:
     def __init__(self):
         pass
 
+    MAX_PAYLOAD_BYTES: int = 10 * 1024 * 1024  # 10 MB payload limit
+
     def ingest_artifact(self, payload: UploadedArtifactPayload) -> IngestionResult:
         """
         Parses uploaded file content, computes SHA-256 hash, extracts aerodynamic
         coefficients and residuals, and runs validation checks.
         """
         content = payload.file_content
-        file_name = payload.file_name.lower()
         content_bytes = content.encode("utf-8")
+        if len(content_bytes) > self.MAX_PAYLOAD_BYTES:
+            raise ValueError(f"Uploaded artifact size ({len(content_bytes)} bytes) exceeds the maximum limit of {self.MAX_PAYLOAD_BYTES} bytes (10 MB).")
+
+        # Sanitize file name
+        raw_name = payload.file_name.strip()
+        if ".." in raw_name or "/" in raw_name or "\\" in raw_name:
+            raise ValueError(f"Insecure file name: {payload.file_name!r}")
+        file_name = raw_name.lower()
         provenance_hash = hashlib.sha256(content_bytes).hexdigest()
 
         solver = payload.solver.lower()
@@ -284,6 +293,7 @@ class ArtifactIngestionService:
         metric: str = "cl",
         r21: float = 1.4142,
         r32: float = 1.4142,
+        grid_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Calculates ASME V&V 20 GCI across 3 user-executed simulation runs."""
         from backend.validation.grid_convergence import GridConvergenceService
@@ -294,12 +304,21 @@ class ArtifactIngestionService:
         if f1 is None or f2 is None or f3 is None:
             return {
                 "valid": False,
-                "error": f"Metric '{metric}' not found in all three simulation results."
+                "error": f"Metric '{metric}' not found in all three simulation results.",
+                "cfd_validation_status": "UNVERIFIED",
             }
 
         gci = GridConvergenceService.compute_gci(
             f1=f1, f2=f2, f3=f3, r21=r21, r32=r32, metric_name=metric
         )
+
+        if gci.is_in_asymptotic_range and gci.gci_fine_pct < 5.0:
+            cfd_status = "VALIDATED_CFD"
+        elif gci.gci_fine_pct < 10.0:
+            cfd_status = "CAUTION_MARGINAL"
+        else:
+            cfd_status = "UNCONVERGED_GRID"
+
         return {
             "valid": True,
             "metric": metric,
@@ -307,5 +326,13 @@ class ArtifactIngestionService:
             "medium_case_id": medium_result.case_id,
             "coarse_case_id": coarse_result.case_id,
             "gci_result": gci.model_dump(),
+            "cfd_validation_status": cfd_status,
+            "mesh_record": grid_metadata or {
+                "fine": {"case_id": fine_result.case_id, "iterations": fine_result.iterations, "hash": fine_result.provenance_hash},
+                "medium": {"case_id": medium_result.case_id, "iterations": medium_result.iterations, "hash": medium_result.provenance_hash},
+                "coarse": {"case_id": coarse_result.case_id, "iterations": coarse_result.iterations, "hash": coarse_result.provenance_hash},
+                "solver": fine_result.solver,
+            },
         }
+
 

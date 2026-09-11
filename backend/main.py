@@ -1023,6 +1023,47 @@ async def get_research_report(objective_id: str, format: str = "markdown"):
     return {"objective_id": objective_id, "format": format, "content": content}
 
 
+class ResearchRunCreateRequest(BaseModel):
+    question: str
+    hypothesis: str = ""
+    geometry: str = "NACA 0012"
+    flow_conditions: Dict[str, Any] = Field(default_factory=dict)
+
+
+@app.post("/api/research/runs/execute-flagship", summary="Execute Flagship NACA 0012 Subsonic Research Pipeline")
+async def execute_flagship_research_run():
+    from backend.research.service import research_loop_service
+    run = research_loop_service.execute_flagship_naca0012_run()
+    return run.model_dump()
+
+
+@app.get("/api/research/runs", summary="List All Scientific Research Runs")
+async def list_research_runs():
+    from backend.research.service import research_loop_service
+    return {"runs": [r.model_dump() for r in research_loop_service.list_runs()]}
+
+
+@app.get("/api/research/runs/{run_id}", summary="Get Details of Specific Research Run")
+async def get_research_run(run_id: str):
+    from backend.research.service import research_loop_service
+    run = research_loop_service.get_run(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Research run not found")
+    return run.model_dump()
+
+
+@app.post("/api/research/runs", summary="Create and Execute Custom Research Run")
+async def create_research_run(req: ResearchRunCreateRequest):
+    from backend.research.service import research_loop_service
+    run = research_loop_service.create_and_execute_run(
+        question=req.question,
+        hypothesis=req.hypothesis,
+        geometry=req.geometry,
+        flow_conditions=req.flow_conditions
+    )
+    return run.model_dump()
+
+
 @app.post("/api/physics/aerodynamics/surface-cp", summary="Predict Chordwise Surface Cp Distribution")
 async def predict_surface_cp(req: SurfaceCpRequest):
     from backend.physics_ai.field.surrogate import SurfaceCpSurrogate
