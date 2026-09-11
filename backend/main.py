@@ -556,6 +556,39 @@ async def upload_artifact(payload: UploadedArtifactPayload):
     return res.model_dump()
 
 
+class RouteComputeTaskRequest(BaseModel):
+    task_type: str = Field(..., description="e.g. CFD_2D, CFD_3D, SURROGATE_INFERENCE, SURROGATE_TRAINING")
+    mesh_cells: int = 0
+    dimension: str = "2D"
+    solver: str = "openfoam"
+    model_type: str = "surrogate"
+    sample_count: int = 1000
+
+
+@app.post("/api/compute/route-request", summary="Evaluate and Route Computational Task Fail-Closed")
+async def route_compute_task(req: RouteComputeTaskRequest):
+    """Evaluates hardware safety constraints and routes task to LOCAL, USER_EXECUTED, or REMOTE backends."""
+    from backend.compute.hardware_matrix import hardware_matrix_manager
+    decision = hardware_matrix_manager.route_task(
+        task_type=req.task_type,
+        mesh_cells=req.mesh_cells,
+        dimension=req.dimension,
+        solver=req.solver,
+        model_type=req.model_type,
+        sample_count=req.sample_count,
+    )
+    return decision.model_dump()
+
+
+@app.get("/api/system/capabilities", summary="Inspect Host Hardware Capabilities & Safe Computational Regimes")
+async def get_system_capabilities():
+    """Returns non-fabricated hardware capabilities, memory safety thresholds, and supported solvers."""
+    from backend.compute.hardware_matrix import hardware_matrix_manager
+    profile = hardware_matrix_manager.detect_hardware()
+    return profile.model_dump()
+
+
+
 # --- Physics AI Models & Active Learning Endpoints ---
 
 @app.get("/api/physics/models", summary="List Registered Physics AI Models")
@@ -1100,5 +1133,6 @@ async def root():
         "experimental_datasets_url": "/api/datasets/experimental",
         "cfd_datasets_url": "/api/datasets/cfd",
         "surrogates_url": "/api/surrogates",
+        "system_capabilities_url": "/api/system/capabilities",
     }
 
