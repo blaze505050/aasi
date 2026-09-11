@@ -10,6 +10,7 @@ from .models import Dataset, Document, RetrievalResult
 from .rag import ScientificRAGPipeline
 from .resolution import ResultResolutionDispatcher
 from .retriever import HybridRetriever
+from .reranker import ScientificReranker
 from .seed_corpus import build_and_index_seed_corpus
 from .source_registry import SourceMetadata, SourceRegistry
 from .vector_store import FAISSVectorIndex, VectorIndex
@@ -34,6 +35,7 @@ class KnowledgeService:
         self.source_registry = SourceRegistry()
         self.dataset_registry = DatasetRegistry()
         self.rag_pipeline = ScientificRAGPipeline()
+        self.reranker = ScientificReranker()
         self.resolution_dispatcher = ResultResolutionDispatcher(
             dataset_registry=self.dataset_registry,
             retriever=self.retriever,
@@ -71,16 +73,17 @@ class KnowledgeService:
         year_min: Optional[int] = None,
         year_max: Optional[int] = None,
     ) -> List[RetrievalResult]:
-        """Hybrid search across ingested documents and chunks."""
+        """Two-stage hybrid dense/lexical retrieval + scientific authority reranking."""
         self.initialize()
-        return self.retriever.search(
+        candidates = self.retriever.search(
             query=query,
-            k=k,
+            k=max(k * 3, 15),
             source_filter=source_filter,
             discipline_filter=discipline_filter,
             year_min=year_min,
             year_max=year_max,
         )
+        return self.reranker.rerank(query=query, candidates=candidates, top_k=k)
 
     def get_document(self, document_id: str) -> Optional[Document]:
         self.initialize()

@@ -1,7 +1,7 @@
 """AASI Scientific Knowledge & Dataset Subsystem.
 
 Provides provenance-tracked document ingestion, scientific object modeling,
-vector storage, hybrid retrieval, and dataset registries.
+vector storage, hybrid retrieval, two-stage reranking, and dataset registries.
 """
 
 from .models import (
@@ -16,6 +16,8 @@ from .models import (
     Citation,
     RetrievalResult,
 )
+from .reranker import ScientificReranker, format_scientific_citation
+from .service import KnowledgeService
 
 __all__ = [
     "ScientificObjectType",
@@ -28,4 +30,7 @@ __all__ = [
     "Dataset",
     "Citation",
     "RetrievalResult",
+    "ScientificReranker",
+    "format_scientific_citation",
+    "KnowledgeService",
 ]
