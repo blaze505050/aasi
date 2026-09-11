@@ -92,7 +92,8 @@ class SurrogateTrainer:
     def run_training(
         self,
         data_dir: str = "data/datasets/authentic_airfoils",
-        output_dir: str = "data/training_runs"
+        output_dir: str = "data/training_runs",
+        export_to_shared: bool = False
     ) -> Dict[str, Any]:
         """Loads data, partitions via geometry-level split, trains AeroSurrogateV1, evaluates all splits."""
         # 1. Load authentic dataset
@@ -260,15 +261,16 @@ class SurrogateTrainer:
             filename="aero_surrogate_v1.npz"
         )
 
-        # Also save to shared production checkpoint directory
-        shared_ckpt_mgr = CheckpointManager(checkpoints_dir="data/checkpoints")
-        shared_ckpt_mgr.save_checkpoint(
-            model=model,
-            condition_normalizer=dataset.condition_normalizer,
-            target_scaler=dataset.target_scaler,
-            training_metadata=metadata,
-            filename="aero_surrogate_v1.npz"
-        )
+        # Also save to shared production checkpoint directory if explicitly requested
+        if export_to_shared:
+            shared_ckpt_mgr = CheckpointManager(checkpoints_dir="data/checkpoints")
+            shared_ckpt_mgr.save_checkpoint(
+                model=model,
+                condition_normalizer=dataset.condition_normalizer,
+                target_scaler=dataset.target_scaler,
+                training_metadata=metadata,
+                filename="aero_surrogate_v1.npz"
+            )
 
         # Write artifacts
         (run_dir / "config.json").write_text(json.dumps(self.config.model_dump(), indent=2), encoding="utf-8")

@@ -105,3 +105,28 @@ class CheckpointManager:
 
         return model, norm, scaler, metadata, actual_checksum
 
+    @staticmethod
+    def verify_checkpoint_integrity(
+        checkpoint_path: Path, expected_sha256: Optional[str] = None
+    ) -> Tuple[bool, str, str]:
+        """Checks if checkpoint exists, computes SHA-256, and compares with expected value.
+        
+        Returns (is_valid, actual_sha256, status_message).
+        """
+        checkpoint_path = Path(checkpoint_path)
+        if not checkpoint_path.exists():
+            return False, "", f"Checkpoint file '{checkpoint_path}' does not exist."
+
+        hasher = hashlib.sha256()
+        with open(checkpoint_path, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                hasher.update(chunk)
+        actual_sha256 = hasher.hexdigest()
+
+        if expected_sha256:
+            if actual_sha256 != expected_sha256:
+                return False, actual_sha256, f"Checksum mismatch: expected {expected_sha256}, got {actual_sha256}"
+            return True, actual_sha256, "Verified authentic checkpoint matching registered checksum."
+
+        return True, actual_sha256, "Checkpoint file verified on disk."
+

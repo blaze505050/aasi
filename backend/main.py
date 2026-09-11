@@ -560,9 +560,35 @@ async def upload_artifact(payload: UploadedArtifactPayload):
 
 @app.get("/api/physics/models", summary="List Registered Physics AI Models")
 async def list_physics_models():
-    """Lists registered neural operators and surrogates (AeroGraphNet, FNO, etc.)."""
+    """Lists registered neural operators and surrogates with verified lifecycle status."""
     models = physics_model_registry.list_models()
     return {"models": [m.model_dump() for m in models]}
+
+
+@app.get("/api/physics/models/{model_id}/status", summary="Get Physics AI Model Lifecycle & Checkpoint Status")
+async def get_model_status(model_id: str):
+    """Retrieves lifecycle status, cryptographic checkpoint integrity, and training provenance."""
+    model = physics_model_registry.get_model(model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail=f"Model '{model_id}' not found.")
+    verification = physics_model_registry.verify_checkpoint(model_id)
+    return {
+        "model_id": model_id,
+        "lifecycle_status": model.lifecycle_status.value,
+        "architecture": model.architecture,
+        "verification": verification,
+        "training_provenance": model.training_provenance.model_dump() if model.training_provenance else None,
+    }
+
+
+@app.post("/api/physics/models/verify-checkpoints", summary="Verify All Model Checkpoints")
+async def verify_all_checkpoints():
+    """Performs cryptographic verification across all registered physics models."""
+    results = {}
+    for m in physics_model_registry.list_models():
+        results[m.model_id] = physics_model_registry.verify_checkpoint(m.model_id)
+    return {"verifications": results}
+
 
 
 class ActiveLearningRequest(BaseModel):

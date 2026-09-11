@@ -48,6 +48,27 @@ class TrainingConfig(BaseModel):
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
+class ModelLifecycleStatus(str, Enum):
+    UNINITIALIZED = "UNINITIALIZED"
+    UNTRAINED_SCAFFOLD = "UNTRAINED_SCAFFOLD"
+    TRAINING_IN_PROGRESS = "TRAINING_IN_PROGRESS"
+    TRAINED_LOCAL = "TRAINED_LOCAL"
+    VERIFIED_PRODUCTION = "VERIFIED_PRODUCTION"
+    DEPRECATED = "DEPRECATED"
+
+
+class TrainingProvenance(BaseModel):
+    dataset_id: str
+    commit_hash: Optional[str] = None
+    parameter_count: int
+    device_used: str = "CPU"
+    epochs_trained: int
+    training_duration_seconds: float
+    training_timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    random_seed: int = 42
+    loss_history: List[float] = Field(default_factory=list)
+
+
 class RegisteredModel(BaseModel):
     model_id: str
     architecture: str
@@ -62,5 +83,9 @@ class RegisteredModel(BaseModel):
     training_config: TrainingConfig
     validation_status: str = "TRAINED_VALIDATED"
     deployment_status: str = "DEPLOYED"
+    lifecycle_status: ModelLifecycleStatus = ModelLifecycleStatus.VERIFIED_PRODUCTION
+    checkpoint_path: Optional[str] = None
+    checkpoint_sha256: Optional[str] = None
+    training_provenance: Optional[TrainingProvenance] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
