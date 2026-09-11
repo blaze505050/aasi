@@ -323,6 +323,7 @@ export default function AASIChatApp() {
   const [campaignPlan, setCampaignPlan] = useState<any | null>(null);
   const [isPlanningCampaign, setIsPlanningCampaign] = useState(false);
   const [datasetVersions, setDatasetVersions] = useState<any[]>([]);
+  const [systemCaps, setSystemCaps] = useState<any>(null);
 
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -437,11 +438,24 @@ export default function AASIChatApp() {
   };
 
 
+  const loadSystemCapabilities = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/system/capabilities`);
+      if (res.ok) {
+        const data = await res.json();
+        setSystemCaps(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch system capabilities", e);
+    }
+  };
+
   useEffect(() => {
     checkHealth();
     loadDocuments();
     loadSolvers();
     loadPhase5Data();
+    loadSystemCapabilities();
     const interval = setInterval(checkHealth, 15000);
     return () => clearInterval(interval);
   }, []);
@@ -1093,23 +1107,41 @@ export default function AASIChatApp() {
   };
 
   const renderEpistemicBadge = (status: string) => {
-    switch (status) {
-      case "OFFICIAL_EXPERIMENT":
-        return <span className="epistemic-badge exp">OFFICIAL EXPERIMENT</span>;
-      case "VALIDATED_CFD":
-        return <span className="epistemic-badge cfd">VALIDATED BENCHMARK CFD</span>;
-      case "SURROGATE_PREDICTION":
-        return <span className="epistemic-badge surrogate">SURROGATE PREDICTION</span>;
-      case "ANALYTICAL_RESULT":
-        return <span className="epistemic-badge analytical">ANALYTICAL RESULT</span>;
-      case "LOCAL_CFD":
-        return <span className="epistemic-badge local">LOCAL SIMULATION</span>;
-      case "DEMO_DATA":
-        return <span className="epistemic-badge demo">DEMO DATA</span>;
-      case "NO_RESULT":
-      default:
-        return <span className="epistemic-badge no-result">NO VALIDATED RESULT</span>;
+    const s = (status || "").toUpperCase();
+    if (s.includes("EXPERIMENTAL") || s === "OFFICIAL_EXPERIMENT" || s === "TIER_1_EXPERIMENTAL") {
+      return <span className="status-tag-experimental">EXPERIMENTAL</span>;
     }
+    if (s.includes("CALCULATED") || s === "ANALYTICAL_RESULT" || s === "EXACT_ANALYTICAL") {
+      return <span className="status-tag-calculated">CALCULATED</span>;
+    }
+    if (s.includes("VALIDATED_CFD") || s === "VALIDATED BENCHMARK CFD" || s.includes("ASME")) {
+      return <span className="status-tag-validated-cfd">VALIDATED CFD</span>;
+    }
+    if (s.includes("SURROGATE")) {
+      return <span className="status-tag-surrogate">SURROGATE</span>;
+    }
+    if (s.includes("USER_CFD") || s.includes("USER_EXECUTED") || s === "LOCAL_CFD") {
+      return <span className="status-tag-user-cfd">USER CFD</span>;
+    }
+    if (s.includes("CURRENT_INFORMATION") || s === "LIVE_API") {
+      return <span className="status-tag-current-info">CURRENT INFORMATION</span>;
+    }
+    if (s.includes("STALE")) {
+      return <span className="status-tag-stale">STALE</span>;
+    }
+    if (s.includes("MODEL_UNAVAILABLE")) {
+      return <span className="status-tag-model-unavailable">MODEL UNAVAILABLE</span>;
+    }
+    if (s.includes("SOURCE_UNAVAILABLE")) {
+      return <span className="status-tag-source-unavailable">SOURCE UNAVAILABLE</span>;
+    }
+    if (s.includes("OUT_OF_DOMAIN")) {
+      return <span className="status-tag-out-of-domain">OUT OF DOMAIN</span>;
+    }
+    if (s.includes("VERIFIED")) {
+      return <span className="status-tag-verified">VERIFIED</span>;
+    }
+    return <span className="epistemic-badge no-result">{status || "UNVERIFIED"}</span>;
   };
 
   return (
@@ -1140,6 +1172,13 @@ export default function AASIChatApp() {
 
           {/* Telemetry Status Indicators */}
           <div className="telemetry-bar">
+            {/* Host Hardware Capability & Execution Routing Badge */}
+            <div className="hardware-caps-badge" title="Host Workstation Hardware Profile & Execution Routing">
+              <span className="status-dot online" />
+              <span>⚙️ HOST: {systemCaps ? `${systemCaps.cpu_cores_logical}C • ${systemCaps.ram_total_gb}GB RAM • ${systemCaps.operating_regime}` : "4C • 8GB RAM • EDGE CPU"}</span>
+              <span style={{ color: "#38bdf8", marginLeft: "4px" }}>• OpenFOAM USER-EXECUTED</span>
+            </div>
+
             {/* Active Subsystems Badge */}
             <div className="status-badge tools-badge" title="Phase 6 Subsystems">
               <span className="status-dot online" />
