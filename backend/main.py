@@ -396,6 +396,24 @@ async def list_sources(category: Optional[str] = None, active_only: bool = False
     return {"sources": [s.model_dump() for s in sources]}
 
 
+@app.get("/api/sources/diagnostics", summary="Get Runtime Diagnostics for Source Connectors")
+async def get_source_diagnostics():
+    """Returns runtime operational diagnostics, query counts, and connectivity status."""
+    return source_catalog.get_diagnostics()
+
+
+@app.get("/api/sources/arxiv/search", summary="Search arXiv Fluid Dynamics & Aerodynamics Preprints")
+async def search_arxiv(q: str, limit: int = 10):
+    """Queries live arXiv preprints with explicit UNVERIFIED_PREPRINT epistemic classification."""
+    docs = source_catalog.arxiv_connector.search_documents(q, limit=limit)
+    return {
+        "query": q,
+        "results": [d.model_dump() for d in docs],
+        "epistemic_notice": "UNVERIFIED_PREPRINT: Preprints are non-peer-reviewed scholarly manuscripts.",
+        "diagnostics": source_catalog.arxiv_connector.get_diagnostics()
+    }
+
+
 @app.get("/api/sources/{source_id}", summary="Get Specific Source Metadata")
 async def get_source(source_id: str):
     """Retrieves detailed provenance and access metadata for a scientific source."""

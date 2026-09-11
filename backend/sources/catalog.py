@@ -5,12 +5,22 @@ Central registry managing connectors and metadata for aerospace & scientific
 repositories across 15 scientific disciplines.
 """
 
-from typing import Dict, Any, List, Optional
-from backend.sources.models import SourceMetadata, KnowledgeType, AccessMethod, SourceStatus
+from typing import Dict, Any, List, Optional, Union
+from backend.sources.models import (
+    SourceMetadata,
+    KnowledgeType,
+    AccessMethod,
+    SourceStatus,
+    SourceDocument,
+    DocumentFragment,
+    ProvenanceVerificationLevel,
+)
+from backend.sources.base_connector import BaseSourceConnector
 from backend.sources.nasa import NASASourceAdapter
 from backend.sources.isro import ISROSourceAdapter
 from backend.sources.esa import ESASourceAdapter
 from backend.sources.spacex import SpaceXPublicSourceAdapter
+from backend.sources.arxiv_connector import ArxivSourceConnector
 
 
 class ScientificSourceCatalog:
@@ -25,10 +35,19 @@ class ScientificSourceCatalog:
 
     def __init__(self):
         self.sources: Dict[str, SourceMetadata] = {}
+        self.connectors: Dict[str, BaseSourceConnector] = {}
+
+        # Primary operational adapters
         self.nasa_adapter = NASASourceAdapter()
         self.isro_adapter = ISROSourceAdapter()
         self.esa_adapter = ESASourceAdapter()
         self.spacex_adapter = SpaceXPublicSourceAdapter()
+        self.arxiv_connector = ArxivSourceConnector()
+
+        self.connectors["NASA_NTRS"] = self.nasa_adapter
+        self.connectors["SPACEX_PUBLIC"] = self.spacex_adapter
+        self.connectors["ARXIV_AERO"] = self.arxiv_connector
+
         self._register_default_sources()
 
     def _register_default_sources(self):
@@ -55,20 +74,7 @@ class ScientificSourceCatalog:
         )
 
         # 3. arXiv (Physics / CFD / Aero)
-        self.sources["ARXIV_AERO"] = SourceMetadata(
-            source_id="ARXIV_AERO",
-            organization="arXiv / Cornell University",
-            name="arXiv Physics.Flu-Dyn and Aerodynamics Preprints",
-            category="CFD",
-            base_url="https://export.arxiv.org/api",
-            access_method=AccessMethod.DIRECT_API,
-            license="arXiv Non-exclusive Distribution / CC-BY",
-            update_frequency="Daily",
-            public_access=True,
-            citation_policy="Cite arXiv identifier and author preprint",
-            content_types=[KnowledgeType.PAPER, KnowledgeType.DOCUMENT],
-            status=SourceStatus.ACTIVE
-        )
+        self.sources["ARXIV_AERO"] = self.arxiv_connector.metadata
 
         # 4. Open CFD Benchmarks
         self.sources["OPEN_CFD"] = SourceMetadata(
@@ -128,3 +134,27 @@ class ScientificSourceCatalog:
     def get_source(self, source_id: str) -> Optional[SourceMetadata]:
         """Looks up source by ID."""
         return self.sources.get(source_id)
+
+    def get_connector(self, source_id: str) -> Optional[BaseSourceConnector]:
+        """Retrieves active executable connector by ID."""
+        return self.connectors.get(source_id)
+
+    def get_diagnostics(self) -> Dict[str, Any]:
+        """Collects runtime operational diagnostics across all registered connectors."""
+        diag = {
+            "total_registered_sources": len(self.sources),
+            "active_operational_connectors": len(self.connectors),
+            "connectors": {}
+        }
+        for cid, conn in self.connectors.items():
+            diag["connectors"][cid] = conn.get_diagnostics()
+        return diag
+
+    def verify_provenance(
+        self, target: Union[SourceDocument, DocumentFragment, Dict[str, Any]]
+    ) -> ProvenanceVerificationLevel:
+        """Central provenance verification utility."""
+        if isinstance(target, SourceDocument) and target.source_id in self.connectors:
+            return self.connectors[target.source_id].verify_provenance(target)
+        # Fallback to base connector verification
+        return self.nasa_adapter.verify_provenance(target)

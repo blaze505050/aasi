@@ -9,10 +9,21 @@ Strictly flags restricted/registered material as non-public.
 import hashlib
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from backend.sources.models import SourceMetadata, KnowledgeType, AccessMethod, SourceStatus
+
+from backend.sources.base_connector import BaseSourceConnector
+from backend.sources.models import (
+    SourceMetadata,
+    KnowledgeType,
+    AccessMethod,
+    SourceStatus,
+    EpistemicClassification,
+    SourceDocument,
+    ProvenanceChain,
+    ProvenanceVerificationLevel,
+)
 
 
-class NASASourceAdapter:
+class NASASourceAdapter(BaseSourceConnector):
     """Connector for NASA NTRS and NASA Open Data."""
 
     METADATA = SourceMetadata(
@@ -73,8 +84,25 @@ class NASASourceAdapter:
         }
     }
 
-    def search(self, query: str, max_results: int = 10) -> List[Dict[str, Any]]:
+    def __init__(self):
+        super().__init__(
+            source_id="NASA_NTRS",
+            name="NASA Technical Reports Server",
+            organization="NASA",
+            category="AEROSPACE",
+            base_url="https://ntrs.nasa.gov/api/citations",
+            access_method=AccessMethod.STATIC_SEED,
+            epistemic_classification=EpistemicClassification.AGENCY_TECHNICAL_REPORT,
+            license="Public Domain (NASA Technical Report)",
+            citation_policy="Free public domain distribution; cite NASA Report Number",
+            content_types=[KnowledgeType.TECHNICAL_REPORT, KnowledgeType.DOCUMENT, KnowledgeType.DATASET],
+            status=SourceStatus.ACTIVE,
+            notes="Curated offline seed index of authentic historical NASA reports. Not connected to live NTRS network API.",
+        )
+
+    def search(self, query: str, limit: int = 10, **kwargs) -> List[Dict[str, Any]]:
         """Queries the NASA NTRS curated seed index. Strictly excludes non-public records."""
+        self.total_queries += 1
         q = query.lower()
         results = []
         for rep_id, doc in self.AUTHENTIC_RECORDS.items():
@@ -87,9 +115,16 @@ class NASASourceAdapter:
                 res["provenance_type"] = "METADATA_DESCRIPTOR_SHA256"
                 res["checksum"] = hashlib.sha256(f"{rep_id}:{doc['title']}".encode()).hexdigest()
                 results.append(res)
-                if len(results) >= max_results:
+                if len(results) >= limit:
                     break
         return results
+
+    def fetch(self, document_id: str) -> Optional[SourceDocument]:
+        """Fetches verified SourceDocument representation by report ID."""
+        doc = self.AUTHENTIC_RECORDS.get(document_id)
+        if not doc or doc.get("access") != "PUBLIC":
+            return None
+        return self._dict_to_source_document(doc)
 
     def get_document_metadata(self, report_id: str) -> Optional[Dict[str, Any]]:
         """Retrieves verified metadata for a specific NASA report."""
