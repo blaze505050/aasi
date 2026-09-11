@@ -104,39 +104,53 @@ class ArtifactIngestionService:
         )
 
     def _parse_openfoam_force_coeffs(self, text: str) -> Dict[str, float]:
-        """Parses OpenFOAM postProcessing/forceCoeffs or log coefficient lines."""
+        """Parses OpenFOAM postProcessing forceCoeffs.dat or labeled force coefficient text."""
         results: Dict[str, float] = {}
-        # Match lines like: 1000  0.00762  0.4412  -0.0123
-        # Or: Cl = 0.4412, Cd = 0.00762, Cm = -0.0123
+        header_map: Dict[str, int] = {}
+
+        # Scan for header line
+        for line in text.splitlines():
+            line_str = line.strip()
+            if line_str.startswith("#"):
+                clean = line_str.replace("#", "").lower()
+                tokens = clean.split()
+                if "cd" in tokens or "cl" in tokens or "cm" in tokens:
+                    for idx, t in enumerate(tokens):
+                        if t in ("cd", "cl", "cm"):
+                            header_map[t] = idx
+                    break
+
         lines = [line.strip() for line in text.splitlines() if line.strip() and not line.startswith("#")]
         for line in reversed(lines):
             # Try labeled format
             cl_m = re.search(r"Cl\s*=\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)", line, re.IGNORECASE)
             cd_m = re.search(r"Cd\s*=\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)", line, re.IGNORECASE)
             cm_m = re.search(r"Cm\s*=\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)", line, re.IGNORECASE)
-            if cd_m:
-                results["cd"] = float(cd_m.group(1))
-            if cl_m:
-                results["cl"] = float(cl_m.group(1))
-            if cm_m:
-                results["cm"] = float(cm_m.group(1))
-            if results:
+            if cd_m or cl_m or cm_m:
+                if cd_m: results["cd"] = float(cd_m.group(1))
+                if cl_m: results["cl"] = float(cl_m.group(1))
+                if cm_m: results["cm"] = float(cm_m.group(1))
                 return results
 
-            # Try space/tab delimited tabular: Time  Cd  Cl  Cm
+            # Tabular space/tab delimited
             parts = line.split()
-            if len(parts) >= 3:
-                try:
-                    vals = [float(p) for p in parts]
-                    if len(vals) >= 3:
-                        # Assuming Time, Cd, Cl, (Cm)
-                        results["cd"] = vals[1]
-                        results["cl"] = vals[2]
-                        if len(vals) >= 4:
-                            results["cm"] = vals[3]
+            try:
+                vals = [float(p) for p in parts]
+                if header_map:
+                    for k, col_idx in header_map.items():
+                        if col_idx < len(vals):
+                            results[k] = vals[col_idx]
+                    if results:
                         return results
-                except ValueError:
-                    continue
+                elif len(vals) >= 3:
+                    # Default: Time, Cd, Cl, (Cm)
+                    results["cd"] = vals[1]
+                    results["cl"] = vals[2]
+                    if len(vals) >= 4:
+                        results["cm"] = vals[3]
+                    return results
+            except ValueError:
+                continue
         return results
 
     def _parse_openfoam_log_residuals(self, text: str) -> tuple[Dict[str, float], int, bool]:
@@ -158,10 +172,8 @@ class ArtifactIngestionService:
                 val = float(m_res.group(2))
                 residuals[var] = val
 
-            if "SIMPLE solution converged" in line or "End" in line:
-                converged = True
-
-        if max_iter >= 500 and residuals.get("p", 1.0) < 1e-4:
+        # Steady-state convergence indicator
+        if "SIMPLE solution converged" in text or "End" in text:
             converged = True
 
         return residuals, max_iter, converged
@@ -179,20 +191,26 @@ class ArtifactIngestionService:
 
         header = [h.strip('"').strip() for h in lines[0].split(",")]
         if len(lines) > 1:
-            last_line = lines[-1].split(",")
+            last_line = [l.strip() for l in lines[-1].split(",")]
             if len(last_line) == len(header):
-                row = dict(zip(header, last_line))
+                row_upper = {k.strip().upper(): v for k, v in zip(header, last_line)}
                 try:
-                    if "Inner_Iter" in row:
-                        max_iter = int(row["Inner_Iter"])
-                    if "CD" in row or "Total_CD" in row:
-                        coeffs["cd"] = float(row.get("CD", row.get("Total_CD", 0)))
-                    if "CL" in row or "Total_CL" in row:
-                        coeffs["cl"] = float(row.get("CL", row.get("Total_CL", 0)))
-                    if "CSF" in row or "Total_CMz" in row:
-                        coeffs["cm"] = float(row.get("Total_CMz", 0))
-                    if "rms[Rho]" in row:
-                        res["rho"] = float(row["rms[Rho]"])
+                    if "INNER_ITER" in row_upper:
+                        max_iter = int(row_upper["INNER_ITER"])
+                    for cd_key in ["CD", "TOTAL_CD", "DRAG"]:
+                        if cd_key in row_upper:
+                            coeffs["cd"] = float(row_upper[cd_key])
+                            break
+                    for cl_key in ["CL", "TOTAL_CL", "LIFT"]:
+                        if cl_key in row_upper:
+                            coeffs["cl"] = float(row_upper[cl_key])
+                            break
+                    for cm_key in ["CM", "CSF", "TOTAL_CMZ", "MOMENT"]:
+                        if cm_key in row_upper:
+                            coeffs["cm"] = float(row_upper[cm_key])
+                            break
+                    if "RMS[RHO]" in row_upper:
+                        res["rho"] = float(row_upper["RMS[RHO]"])
                     converged = True
                 except ValueError:
                     pass
@@ -257,3 +275,37 @@ class ArtifactIngestionService:
                         except ValueError:
                             pass
         return coeffs
+
+    def evaluate_mesh_convergence_study(
+        self,
+        fine_result: IngestionResult,
+        medium_result: IngestionResult,
+        coarse_result: IngestionResult,
+        metric: str = "cl",
+        r21: float = 1.4142,
+        r32: float = 1.4142,
+    ) -> Dict[str, Any]:
+        """Calculates ASME V&V 20 GCI across 3 user-executed simulation runs."""
+        from backend.validation.grid_convergence import GridConvergenceService
+        f1 = fine_result.coefficients.get(metric.lower())
+        f2 = medium_result.coefficients.get(metric.lower())
+        f3 = coarse_result.coefficients.get(metric.lower())
+
+        if f1 is None or f2 is None or f3 is None:
+            return {
+                "valid": False,
+                "error": f"Metric '{metric}' not found in all three simulation results."
+            }
+
+        gci = GridConvergenceService.compute_gci(
+            f1=f1, f2=f2, f3=f3, r21=r21, r32=r32, metric_name=metric
+        )
+        return {
+            "valid": True,
+            "metric": metric,
+            "fine_case_id": fine_result.case_id,
+            "medium_case_id": medium_result.case_id,
+            "coarse_case_id": coarse_result.case_id,
+            "gci_result": gci.model_dump(),
+        }
+

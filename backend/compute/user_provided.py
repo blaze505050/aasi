@@ -398,6 +398,28 @@ echo "Extracting final aerodynamic metrics..."
 tail -n 25 log.simpleFoam
 """)
 
+        # Root-level execution runners for Linux/WSL and Windows
+        allrun_path = os.path.join(case_dir, "Allrun")
+        with open(allrun_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write("""#!/usr/bin/env bash
+cd "${0%/*}" || exit 1
+chmod +x scripts/*.sh 2>/dev/null || true
+./scripts/run.sh
+""")
+        try:
+            os.chmod(allrun_path, 0o755)
+        except Exception:
+            pass
+
+        allrun_bat_path = os.path.join(case_dir, "Allrun.bat")
+        with open(allrun_bat_path, "w", encoding="utf-8", newline="\r\n") as f:
+            f.write("""@echo off
+echo ==========================================================
+echo AASI User-Executed CFD Case Runner (Windows/WSL2 Launcher)
+echo ==========================================================
+wsl -e bash -c "cd '$(wslpath '%CD%')' && ./Allrun"
+""")
+
         # 4. Write README.md with ALL 14 MANDATORY SECTIONS
         readme_path = os.path.join(case_dir, "README.md")
         with open(readme_path, "w", encoding="utf-8") as f:
