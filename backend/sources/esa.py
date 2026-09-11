@@ -21,14 +21,14 @@ class ESASourceAdapter:
         name="European Space Agency Public Scientific Archives",
         category="AEROSPACE",
         base_url="https://www.cosmos.esa.int",
-        access_method=AccessMethod.URL_REGISTRY,
+        access_method=AccessMethod.METADATA_ONLY,
         license="ESA Open Access / Creative Commons CC-BY-SA 3.0 IGO",
-        update_frequency="Monthly",
+        update_frequency="Curated Static Index",
         public_access=True,
         citation_policy="Cite ESA, mission archive, and primary instrument PI publication",
         content_types=[KnowledgeType.TECHNICAL_REPORT, KnowledgeType.MISSION, KnowledgeType.DATASET, KnowledgeType.DOCUMENT],
         status=SourceStatus.ACTIVE,
-        notes="Uses public Cosmos/ESAC archives and Copernicus Open Access Hub metadata."
+        notes="Offline curated index of public Cosmos/ESAC mission records."
     )
 
     PUBLIC_ESA_RECORDS = {

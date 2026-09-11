@@ -20,7 +20,7 @@ def test_source_catalog_disciplines_and_registrations():
     nasa = catalog.get_source("NASA_NTRS")
     assert nasa is not None
     assert nasa.organization == "NASA"
-    assert nasa.access_method == AccessMethod.DIRECT_API
+    assert nasa.access_method in (AccessMethod.DIRECT_API, AccessMethod.STATIC_SEED)
 
     isro = catalog.get_source("ISRO_PUBLIC")
     assert isro is not None

@@ -60,12 +60,15 @@ class PhysicsAIService:
     def get_model_status(self) -> Dict[str, Any]:
         """Returns model information and cryptographic checksum."""
         eng = self.engine
+        is_ready = eng.model is not None and eng.weights_status == "VERIFIED_CHECKPOINT"
         return {
-            "model_id": eng.model.model_id,
-            "model_version": eng.model.model_version,
-            "parameters": eng.model.count_parameters(),
+            "model_id": eng.model.model_id if eng.model else "AeroSurrogateV1",
+            "model_version": eng.model.model_version if eng.model else "v1.0-unloaded",
+            "is_ready": is_ready,
+            "weights_status": eng.weights_status,
+            "parameters": eng.model.count_parameters() if eng.model else 0,
             "sha256_checksum": eng.checksum,
             "checkpoint_path": str(eng.checkpoint_path),
             "known_geometries": list(eng.known_geometries.keys()),
-            "validity_envelope": eng.uncertainty_engine.validity_envelope
+            "validity_envelope": eng.uncertainty_engine.validity_envelope if hasattr(eng, "uncertainty_engine") else {}
         }

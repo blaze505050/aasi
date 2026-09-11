@@ -36,6 +36,9 @@ class SimulationRunner:
         manifest = adapter.execute_run(case=case, case_dir=case_dir, run_mode=case.run_mode)
         return manifest
 
+    # Backward-compatible alias
+    run = run_case
+
 
 # Default simulation runner singleton
 simulation_runner = SimulationRunner()

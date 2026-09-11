@@ -438,16 +438,25 @@ async def search_spacex(q: str):
 
 @app.get("/api/current-info", summary="Get Current Spaceflight Information")
 async def get_current_info(limit: int = 10):
-    """Returns recent spaceflight events and agency updates labeled CURRENT_INFORMATION."""
+    """Returns recent spaceflight events and agency updates labeled STATIC_SEED_DATA."""
     events = current_info_service.get_latest_events(limit=limit)
-    return {"events": [e.model_dump() for e in events]}
+    return {
+        "warning": current_info_service.FRESHNESS_NOTICE,
+        "is_live": False,
+        "events": [e.model_dump() for e in events]
+    }
 
 
 @app.get("/api/current-info/search", summary="Search Current Spaceflight Events")
 async def search_current_info(q: str):
     """Searches current spaceflight events by keywords."""
     events = current_info_service.search_events(q)
-    return {"query": q, "events": [e.model_dump() for e in events]}
+    return {
+        "warning": current_info_service.FRESHNESS_NOTICE,
+        "is_live": False,
+        "query": q,
+        "events": [e.model_dump() for e in events]
+    }
 
 
 # --- Dataset Factory Endpoints ---
@@ -557,30 +566,44 @@ class GCIRequest(BaseModel):
 async def predict_aerodynamics(req: AerodynamicPredictRequest):
     """Executes AeroSurrogateV1 point inference with epistemic uncertainty and domain classification."""
     from backend.physics_ai.service import PhysicsAIService
+    from backend.physics_ai.inference import ModelUnavailableError
     service = PhysicsAIService.get_instance()
-    pred = service.predict(
-        geometry=req.geometry,
-        mach=req.mach,
-        reynolds=req.reynolds,
-        aoa_deg=req.aoa_deg
-    )
-    return pred.model_dump()
+    try:
+        pred = service.predict(
+            geometry=req.geometry,
+            mach=req.mach,
+            reynolds=req.reynolds,
+            aoa_deg=req.aoa_deg
+        )
+        return pred.model_dump()
+    except ModelUnavailableError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e)
+        )
 
 
 @app.post("/api/physics/aerodynamics/polar", summary="Compute Aerodynamic Polar Sweep")
 async def polar_sweep_aerodynamics(req: AerodynamicPolarRequest):
     """Computes polar curves (CL vs AoA, CD vs AoA) and verifies monotonicity and drag positivity."""
     from backend.physics_ai.service import PhysicsAIService
+    from backend.physics_ai.inference import ModelUnavailableError
     service = PhysicsAIService.get_instance()
-    res = service.polar_sweep(
-        geometry=req.geometry,
-        mach=req.mach,
-        reynolds=req.reynolds,
-        aoa_start=req.aoa_start,
-        aoa_end=req.aoa_end,
-        aoa_step=req.aoa_step
-    )
-    return res
+    try:
+        res = service.polar_sweep(
+            geometry=req.geometry,
+            mach=req.mach,
+            reynolds=req.reynolds,
+            aoa_start=req.aoa_start,
+            aoa_end=req.aoa_end,
+            aoa_step=req.aoa_step
+        )
+        return res
+    except ModelUnavailableError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e)
+        )
 
 
 @app.get("/api/physics/aerodynamics/model-status", summary="Get AeroSurrogate Model Status")

@@ -199,16 +199,18 @@ class ScientificResolutionEngine:
                     aoa_deg=cond.aoa_deg if cond.aoa_deg is not None else 0.0
                 )
                 
-                # Extract predicted target value
+                # Extract predicted target value with strict validation (no silent fallback to CL)
                 t_key = target_var.lower()
-                val = getattr(pred, t_key, pred.cl)
-                
-                if pred.domain_status.value == "SURROGATE_OUT_OF_DOMAIN":
-                    trace.append(f"⚠ Surrogate epistemic engine flagged OUT_OF_DOMAIN: OOD score={pred.uncertainty.ood_score}")
-                    # Fall through to Level 5 / 6
+                if t_key not in ("cl", "cd", "cm"):
+                    trace.append(f"⚠ Target variable '{target_var}' is not supported by aerodynamic surrogate. Supported: ('CL', 'CD', 'CM').")
                 else:
-                    trace.append(f"✓ Executed AeroSurrogateV1: {target_var} = {val} (confidence={pred.uncertainty.confidence_level})")
-                    surr_result = ScientificResult(
+                    val = getattr(pred, t_key)
+                    if pred.domain_status.value == "SURROGATE_OUT_OF_DOMAIN":
+                        trace.append(f"⚠ Surrogate epistemic engine flagged OUT_OF_DOMAIN: OOD score={pred.uncertainty.ood_score}")
+                        # Fall through to Level 5 / 6
+                    else:
+                        trace.append(f"✓ Executed AeroSurrogateV1: {target_var} = {val} (confidence={pred.uncertainty.confidence_level})")
+                        surr_result = ScientificResult(
                         result_id=f"SURR-REAL-{pred.model_id}",
                         epistemic_status=EpistemicStatus.SURROGATE_PREDICTION,
                         quantity=target_var,

@@ -21,14 +21,14 @@ class ISROSourceAdapter:
         name="Indian Space Research Organisation Public Archives",
         category="AEROSPACE",
         base_url="https://www.isro.gov.in",
-        access_method=AccessMethod.METADATA_INGESTION,
+        access_method=AccessMethod.METADATA_ONLY,
         license="Open Government Data (OGD) India / Public Educational",
-        update_frequency="Monthly / Mission Milestones",
+        update_frequency="Curated Static Index",
         public_access=True,
         citation_policy="Cite ISRO, Government of India, mission/report identifier",
         content_types=[KnowledgeType.TECHNICAL_REPORT, KnowledgeType.MISSION, KnowledgeType.DATASET, KnowledgeType.DOCUMENT],
         status=SourceStatus.ACTIVE,
-        notes="No unified public REST API. Uses metadata ingestion, portal registries (MOSDAC, ISSDC), and manual import."
+        notes="No unified public REST API. Uses offline curated metadata catalog and portal registries (MOSDAC, ISSDC)."
     )
 
     PUBLIC_MISSION_RECORDS = {

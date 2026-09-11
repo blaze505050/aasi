@@ -41,6 +41,11 @@ class AccessMethod(str, Enum):
     METADATA_INGESTION = "METADATA_INGESTION"
     MANUAL_IMPORT = "MANUAL_IMPORT"
     RESTRICTED = "RESTRICTED"
+    STATIC_SEED = "STATIC_SEED"
+    METADATA_ONLY = "METADATA_ONLY"
+    PUBLIC_DOWNLOAD = "PUBLIC_DOWNLOAD"
+    LIVE_API = "LIVE_API"
+    DISABLED = "DISABLED"
 
 
 class SourceStatus(str, Enum):
@@ -89,5 +94,8 @@ class CurrentInfoItem(BaseModel):
     source_url: str
     published_at: str
     retrieved_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    age_days: int = 0
+    freshness_status: str = "STALE_STATIC_SEED"
+    acquisition_method: str = "STATIC_SEED_INDEX"
     label: str = "CURRENT_INFORMATION"
     provenance_hash: str

@@ -44,7 +44,7 @@ class LocalComputeBackend:
             parameters=request.mesh_parameters
         )
 
-        manifest = self.runner.run(sim_case)
+        manifest = self.runner.run_case(sim_case)
         return {
             "status": ExecutionStatus.COMPLETED.value if manifest.result_status == "SUCCESS" else ExecutionStatus.FAILED.value,
             "manifest": manifest.model_dump()

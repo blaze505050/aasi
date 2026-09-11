@@ -21,14 +21,14 @@ class NASASourceAdapter:
         name="NASA Technical Reports Server",
         category="AEROSPACE",
         base_url="https://ntrs.nasa.gov/api/citations",
-        access_method=AccessMethod.DIRECT_API,
+        access_method=AccessMethod.STATIC_SEED,
         license="Public Domain (NASA Technical Report)",
-        update_frequency="Daily",
+        update_frequency="Curated Static Index",
         public_access=True,
         citation_policy="Free public domain distribution; cite NASA Report Number",
         content_types=[KnowledgeType.TECHNICAL_REPORT, KnowledgeType.DOCUMENT, KnowledgeType.DATASET],
         status=SourceStatus.ACTIVE,
-        notes="Restricted/ITAR records are filtered out. Only public domain records indexed."
+        notes="Curated offline seed index of authentic historical NASA reports. Not connected to live NTRS network API."
     )
 
     # Curated seed index of authentic NASA records
@@ -74,7 +74,7 @@ class NASASourceAdapter:
     }
 
     def search(self, query: str, max_results: int = 10) -> List[Dict[str, Any]]:
-        """Queries the NASA NTRS index. Strictly excludes non-public records."""
+        """Queries the NASA NTRS curated seed index. Strictly excludes non-public records."""
         q = query.lower()
         results = []
         for rep_id, doc in self.AUTHENTIC_RECORDS.items():
@@ -83,6 +83,8 @@ class NASASourceAdapter:
             if q in rep_id.lower() or q in doc["title"].lower() or q in doc["abstract"].lower() or any(q in a.lower() for a in doc["authors"]):
                 res = dict(doc)
                 res["source"] = "NASA_NTRS"
+                res["acquisition_method"] = "STATIC_SEED_INDEX"
+                res["provenance_type"] = "METADATA_DESCRIPTOR_SHA256"
                 res["checksum"] = hashlib.sha256(f"{rep_id}:{doc['title']}".encode()).hexdigest()
                 results.append(res)
                 if len(results) >= max_results:
@@ -102,5 +104,7 @@ class NASASourceAdapter:
             }
         res = dict(doc)
         res["source"] = "NASA_NTRS"
+        res["acquisition_method"] = "STATIC_SEED_INDEX"
+        res["provenance_type"] = "METADATA_DESCRIPTOR_SHA256"
         res["checksum"] = hashlib.sha256(f"{report_id}:{doc['title']}".encode()).hexdigest()
         return res

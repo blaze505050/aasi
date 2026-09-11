@@ -30,6 +30,15 @@ from backend.physics_ai.validation import PhysicsAwareValidator
 from backend.physics_ai.checkpoints import CheckpointManager
 
 
+class ModelUnavailableError(RuntimeError):
+    """Raised when an aerodynamic surrogate model checkpoint is missing, corrupted, or unverified.
+    
+    AASI strictly fails closed: scientific predictions are NEVER generated using
+    uninitialized random weights or unverified checkpoints.
+    """
+    pass
+
+
 class AerodynamicInferenceEngine:
     """Production inference engine for AeroSurrogateV1."""
 
@@ -37,11 +46,12 @@ class AerodynamicInferenceEngine:
         self.checkpoint_path = self._resolve_checkpoint_path(checkpoint_path)
         self.geometry_processor = AirfoilGeometryProcessor(target_points=64)
         self.known_geometries: Dict[str, np.ndarray] = {}
+        self.weights_status: str = "UNINITIALIZED"
         self._load_known_geometries()
         self._load_model_and_normalizers()
 
     def _resolve_checkpoint_path(self, path: Optional[str]) -> Path:
-        if path and Path(path).exists():
+        if path:
             return Path(path)
         candidates = [
             Path("data/checkpoints/aero_surrogate_v1.npz"),
@@ -64,17 +74,19 @@ class AerodynamicInferenceEngine:
 
     def _load_model_and_normalizers(self):
         if not self.checkpoint_path.exists():
-            # If checkpoint not found, initialize fresh model
-            self.model = AeroSurrogateV1()
+            # AASI Truth-Preserving Contract: Never instantiate an uninitialized random model
+            self.model = None
             self.condition_normalizer = FlowConditionNormalizer()
             self.target_scaler = AerodynamicTargetScaler()
             self.metadata = {}
-            self.checksum = "UNINITIALIZED"
+            self.checksum = "MISSING"
+            self.weights_status = "MISSING"
         else:
             ckpt_mgr = CheckpointManager()
             self.model, self.condition_normalizer, self.target_scaler, self.metadata, self.checksum = (
                 ckpt_mgr.load_checkpoint(self.checkpoint_path)
             )
+            self.weights_status = "VERIFIED_CHECKPOINT"
 
         # Build uncertainty engine with training conditions manifold
         train_cond_pts = self._build_training_manifold()
@@ -137,6 +149,13 @@ class AerodynamicInferenceEngine:
         fidelity_level: str = "SURROGATE"
     ) -> AerodynamicPrediction:
         """Executes a single aerodynamic point prediction with uncertainty quantification."""
+        if self.model is None or self.weights_status != "VERIFIED_CHECKPOINT":
+            raise ModelUnavailableError(
+                f"MODEL_UNAVAILABLE: Checkpoint required for scientific inference. "
+                f"No verified checkpoint found at '{self.checkpoint_path}' (status: {self.weights_status}). "
+                f"AASI refuses to execute uninitialized or fabricated models."
+            )
+
         geom_coords = self.get_geometry_coordinates(geometry)  # [64, 2]
         geom_batch = geom_coords.reshape(1, 64, 2).astype(np.float32)
 
@@ -195,6 +214,11 @@ class AerodynamicInferenceEngine:
         aoa_step: float = 1.0
     ) -> Dict[str, Any]:
         """Calculates aerodynamic polar sweep over an angle of attack range."""
+        if self.model is None or self.weights_status != "VERIFIED_CHECKPOINT":
+            raise ModelUnavailableError(
+                f"MODEL_UNAVAILABLE: Checkpoint required for scientific inference. "
+                f"No verified checkpoint found at '{self.checkpoint_path}' (status: {self.weights_status})."
+            )
         aoas = np.arange(aoa_start, aoa_end + 0.1 * aoa_step, aoa_step).tolist()
         predictions: List[AerodynamicPrediction] = []
 
