@@ -5,6 +5,7 @@ AASI Scientific Dataset Factory Package.
 from backend.datasets.models import (
     DatasetLifecycle,
     DataSplitType,
+    StorageStatus,
     DatasetManifest,
     DataSplitResult,
 )
@@ -14,10 +15,17 @@ from backend.datasets.download import DownloadManager
 from backend.datasets.validate import DatasetValidator
 from backend.datasets.quality import QualityManager
 from backend.datasets.manifest import ManifestManager
+from backend.datasets.authentic_parsers import (
+    UIUCAirfoilParser,
+    NASATMRParser,
+    AirfoilGeometryFeatures,
+    NASATMRBenchmarkCase,
+)
 
 __all__ = [
     "DatasetLifecycle",
     "DataSplitType",
+    "StorageStatus",
     "DatasetManifest",
     "DataSplitResult",
     "DatasetCatalog",
@@ -27,4 +35,8 @@ __all__ = [
     "DatasetValidator",
     "QualityManager",
     "ManifestManager",
+    "UIUCAirfoilParser",
+    "NASATMRParser",
+    "AirfoilGeometryFeatures",
+    "NASATMRBenchmarkCase",
 ]

@@ -30,6 +30,14 @@ class DataSplitType(str, Enum):
     RANDOM_STRATIFIED = "RANDOM_STRATIFIED"
 
 
+class StorageStatus(str, Enum):
+    AVAILABLE_LOCAL = "AVAILABLE_LOCAL"
+    AVAILABLE_REMOTE_DIRECT = "AVAILABLE_REMOTE_DIRECT"
+    AVAILABLE_REMOTE_MANUAL = "AVAILABLE_REMOTE_MANUAL"
+    DEGRADED_SAMPLE_ONLY = "DEGRADED_SAMPLE_ONLY"
+    MISSING_AUTHENTIC_SOURCE = "MISSING_AUTHENTIC_SOURCE"
+
+
 class DatasetManifest(BaseModel):
     dataset_id: str
     name: str
@@ -52,6 +60,10 @@ class DatasetManifest(BaseModel):
     train_test_split: Dict[str, Any] = Field(default_factory=dict)
     known_limitations: List[str] = Field(default_factory=list)
     lifecycle_stage: DatasetLifecycle = DatasetLifecycle.DISCOVERED
+    storage_status: StorageStatus = StorageStatus.AVAILABLE_REMOTE_DIRECT
+    local_path: Optional[str] = None
+    verified_byte_hash: Optional[str] = None
+    sample_subset_available: bool = False
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 

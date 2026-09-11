@@ -503,7 +503,42 @@ async def download_dataset(dataset_id: str):
         raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found.")
     res = download_manager.download_dataset(m)
     return res
+@app.get("/api/datasets/storage-summary", summary="Get Physical Dataset Storage Summary")
+async def get_dataset_storage_summary():
+    """Reports local vs remote dataset availability, local path, and disk usage."""
+    local = dataset_catalog.get_local_datasets()
+    remote = dataset_catalog.get_remote_datasets()
+    disk = download_manager.check_disk_space(0)
+    return {
+        "local_datasets_count": len(local),
+        "remote_datasets_count": len(remote),
+        "local_datasets": [m.model_dump() for m in local],
+        "cache_directory": download_manager.cache_dir,
+        "disk_info": disk,
+    }
 
+
+@app.get("/api/datasets/tmr-benchmarks", summary="Get NASA TMR 2D Verification Benchmarks")
+async def get_tmr_benchmarks():
+    """Returns official NASA Turbulence Modeling Resource reference benchmark cases."""
+    from backend.datasets.authentic_parsers import NASATMRParser
+    return {"benchmarks": [b.model_dump() for b in NASATMRParser.list_benchmarks()]}
+
+
+class AirfoilParseRequest(BaseModel):
+    raw_coordinates: str = Field(..., description="Selig or Lednicer formatted (x, y) coordinate text")
+    airfoil_name: Optional[str] = None
+
+
+@app.post("/api/datasets/airfoil/parse-geometry", summary="Parse and Validate Airfoil Surface Coordinates")
+async def parse_airfoil_geometry(req: AirfoilParseRequest):
+    """Parses coordinate text, validates chord normalization, and calculates thickness and camber."""
+    from backend.datasets.authentic_parsers import UIUCAirfoilParser
+    try:
+        features = UIUCAirfoilParser.parse_coordinate_text(req.raw_coordinates, req.airfoil_name)
+        return features.model_dump()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # --- Compute & User-Executed CFD Endpoints ---
 
