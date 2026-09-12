@@ -1466,7 +1466,21 @@ export default function AASIChatApp() {
                     <span style={{ color: "#94a3b8", fontSize: "0.75rem", fontFamily: "var(--font-mono)" }}>RUN IDENTIFIER: </span>
                     <span style={{ color: "#38bdf8", fontWeight: "700", fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>{flagshipRun.run_id}</span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                    {flagshipRun.conclusion_level && (
+                      <span style={{
+                        background: "rgba(99, 102, 241, 0.2)",
+                        color: "#a5b4fc",
+                        border: "1px solid #6366f1",
+                        borderRadius: "4px",
+                        padding: "2px 8px",
+                        fontSize: "0.75rem",
+                        fontWeight: "800",
+                        letterSpacing: "0.5px"
+                      }}>
+                        LEVEL: {flagshipRun.conclusion_level}
+                      </span>
+                    )}
                     <span style={{
                       background: flagshipRun.status === "COMPLETED" ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)",
                       color: flagshipRun.status === "COMPLETED" ? "#34d399" : "#f87171",
@@ -1478,6 +1492,27 @@ export default function AASIChatApp() {
                     }}>
                       STATUS: {flagshipRun.status}
                     </span>
+                    <button
+                      onClick={() => window.open(`${API_BASE}/api/research/runs/${flagshipRun.run_id}/export`, "_blank")}
+                      type="button"
+                      style={{
+                        background: "linear-gradient(135deg, #059669, #10b981)",
+                        border: "1px solid #34d399",
+                        color: "#ffffff",
+                        borderRadius: "4px",
+                        padding: "3px 10px",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                      }}
+                    >
+                      <span>📦</span>
+                      DOWNLOAD BUNDLE (.ZIP)
+                    </button>
                     <button
                       onClick={() => setShowProvenanceJson(!showProvenanceJson)}
                       type="button"
@@ -1491,7 +1526,7 @@ export default function AASIChatApp() {
                         cursor: "pointer"
                       }}
                     >
-                      {showProvenanceJson ? "HIDE PROVENANCE JSON" : "INSPECT PROVENANCE JSON"}
+                      {showProvenanceJson ? "HIDE AUDIT TRAIL" : "INSPECT PROVENANCE & LEDGER"}
                     </button>
                   </div>
                 </div>
@@ -1502,7 +1537,7 @@ export default function AASIChatApp() {
                   <div style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "8px", padding: "14px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                       <span style={{ color: "#38bdf8", fontWeight: "700", fontSize: "0.82rem" }}>STAGE 1: QUESTION & HYPOTHESIS</span>
-                      <span style={{ color: "#34d399", fontSize: "0.72rem", fontWeight: "700" }}>✓ SUCCESS</span>
+                      <span style={{ background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", border: "1px solid rgba(56, 189, 248, 0.3)", borderRadius: "3px", padding: "1px 5px", fontSize: "0.68rem", fontWeight: "700" }}>REAL SPECIFICATION</span>
                     </div>
                     <p style={{ color: "#e2e8f0", fontSize: "0.8rem", lineHeight: 1.4, marginBottom: "8px" }}>
                       <strong>Question:</strong> {flagshipRun.research_question}
@@ -1516,7 +1551,7 @@ export default function AASIChatApp() {
                   <div style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "8px", padding: "14px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                       <span style={{ color: "#38bdf8", fontWeight: "700", fontSize: "0.82rem" }}>STAGE 2: LITERATURE & EVIDENCE</span>
-                      <span style={{ color: "#34d399", fontSize: "0.72rem", fontWeight: "700" }}>✓ 3 CITATIONS</span>
+                      <span style={{ background: "rgba(168, 85, 247, 0.15)", color: "#c084fc", border: "1px solid rgba(168, 85, 247, 0.3)", borderRadius: "3px", padding: "1px 5px", fontSize: "0.68rem", fontWeight: "700" }}>REFERENCED SOURCES</span>
                     </div>
                     <ul style={{ margin: 0, paddingLeft: "16px", color: "#cbd5e1", fontSize: "0.75rem", lineHeight: 1.4 }}>
                       <li><strong>Ladson (1988):</strong> NASA TM-4083 Low-Speed Airfoil Polar</li>
@@ -1529,7 +1564,7 @@ export default function AASIChatApp() {
                   <div style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "8px", padding: "14px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                       <span style={{ color: "#38bdf8", fontWeight: "700", fontSize: "0.82rem" }}>STAGE 3: 8-STAGE DATASET PIPELINE</span>
-                      <span style={{ color: "#34d399", fontSize: "0.72rem", fontWeight: "700" }}>READY_FOR_TRAINING</span>
+                      <span style={{ background: "rgba(16, 185, 129, 0.15)", color: "#34d399", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "3px", padding: "1px 5px", fontSize: "0.68rem", fontWeight: "700" }}>REAL (AUTHENTIC DISK)</span>
                     </div>
                     <p style={{ color: "#cbd5e1", fontSize: "0.76rem", marginBottom: "6px" }}>
                       Authentic UIUC coordinates passed all 8 cryptographic stages:
@@ -1543,12 +1578,12 @@ export default function AASIChatApp() {
                   <div style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "8px", padding: "14px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                       <span style={{ color: "#38bdf8", fontWeight: "700", fontSize: "0.82rem" }}>STAGE 4: MULTI-MODAL COMPUTATION</span>
-                      <span style={{ color: "#fbbf24", fontSize: "0.72rem", fontWeight: "700" }}>USER_EXECUTED_REQUIRED</span>
+                      <span style={{ background: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "3px", padding: "1px 5px", fontSize: "0.68rem", fontWeight: "700" }}>USER_EXECUTED_REQUIRED</span>
                     </div>
                     <div style={{ color: "#cbd5e1", fontSize: "0.75rem", lineHeight: 1.4 }}>
-                      <div>• <strong>Analytical:</strong> dCL/dα = 2π/rad = 0.1097/deg</div>
-                      <div>• <strong>AeroSurrogateV1:</strong> Evaluated 11 α points</div>
-                      <div>• <strong>CFD Deck:</strong> Generated OpenFOAM simpleFoam deck in <code>data/cases/</code> (staged for cluster execution)</div>
+                      <div>• <span style={{ color: "#60a5fa", fontWeight: "600" }}>[DERIVED]</span> <strong>Analytical:</strong> dCL/dα = 2π/rad = 0.1097/deg</div>
+                      <div>• <span style={{ color: "#34d399", fontWeight: "600" }}>[SURROGATE]</span> <strong>AeroSurrogateV1:</strong> Evaluated 11 α points</div>
+                      <div>• <span style={{ color: "#fbbf24", fontWeight: "600" }}>[USER_EXECUTED]</span> <strong>CFD Deck:</strong> Generated OpenFOAM simpleFoam deck</div>
                     </div>
                   </div>
 
@@ -1556,7 +1591,7 @@ export default function AASIChatApp() {
                   <div style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "8px", padding: "14px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                       <span style={{ color: "#38bdf8", fontWeight: "700", fontSize: "0.82rem" }}>STAGE 5: AERODYNAMIC VALIDATION</span>
-                      <span style={{ color: "#34d399", fontSize: "0.72rem", fontWeight: "700" }}>CONFIRMED</span>
+                      <span style={{ background: "rgba(16, 185, 129, 0.15)", color: "#34d399", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "3px", padding: "1px 5px", fontSize: "0.68rem", fontWeight: "700" }}>REAL COMPARATIVE</span>
                     </div>
                     {flagshipRun.steps[4]?.details?.metrics && (
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", fontSize: "0.72rem", fontFamily: "var(--font-mono)" }}>
@@ -1583,11 +1618,11 @@ export default function AASIChatApp() {
                   {/* STAGE 6: PROVENANCE */}
                   <div style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "8px", padding: "14px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                      <span style={{ color: "#38bdf8", fontWeight: "700", fontSize: "0.82rem" }}>STAGE 6: PROVENANCE & CUSTODY</span>
-                      <span style={{ color: "#34d399", fontSize: "0.72rem", fontWeight: "700" }}>VERIFIED</span>
+                      <span style={{ color: "#38bdf8", fontWeight: "700", fontSize: "0.82rem" }}>STAGE 6: PROVENANCE & LEDGER</span>
+                      <span style={{ background: "rgba(16, 185, 129, 0.15)", color: "#34d399", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "3px", padding: "1px 5px", fontSize: "0.68rem", fontWeight: "700" }}>MERKLE VERIFIED</span>
                     </div>
                     <div style={{ color: "#94a3b8", fontSize: "0.72rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}>
-                      <div>COMPOSITE FINGERPRINT:</div>
+                      <div>COMPOSITE MERKLE ROOT:</div>
                       <div style={{ color: "#34d399", fontWeight: "700", marginTop: "2px" }}>
                         {flagshipRun.provenance_trail?.composite_fingerprint}
                       </div>
@@ -1608,18 +1643,49 @@ export default function AASIChatApp() {
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <span style={{ fontSize: "1rem" }}>📝</span>
                         <span style={{ color: "#34d399", fontWeight: "700", fontSize: "0.9rem" }}>STAGE 7: FORMAL SCIENTIFIC CONCLUSION</span>
+                        {flagshipRun.conclusion_level && (
+                          <span style={{
+                            background: "rgba(99, 102, 241, 0.2)",
+                            color: "#a5b4fc",
+                            border: "1px solid #6366f1",
+                            borderRadius: "3px",
+                            padding: "1px 6px",
+                            fontSize: "0.72rem",
+                            fontWeight: "800"
+                          }}>
+                            {flagshipRun.conclusion_level}
+                          </span>
+                        )}
                       </div>
-                      <span style={{
-                        background: "rgba(16, 185, 129, 0.2)",
-                        color: "#34d399",
-                        border: "1px solid #10b981",
-                        borderRadius: "4px",
-                        padding: "2px 10px",
-                        fontSize: "0.75rem",
-                        fontWeight: "800"
-                      }}>
-                        {flagshipRun.scientific_conclusion.verdict}
-                      </span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{
+                          background: "rgba(16, 185, 129, 0.2)",
+                          color: "#34d399",
+                          border: "1px solid #10b981",
+                          borderRadius: "4px",
+                          padding: "2px 10px",
+                          fontSize: "0.75rem",
+                          fontWeight: "800"
+                        }}>
+                          {flagshipRun.scientific_conclusion.verdict}
+                        </span>
+                        <button
+                          onClick={() => window.open(`${API_BASE}/api/research/runs/${flagshipRun.run_id}/export`, "_blank")}
+                          type="button"
+                          style={{
+                            background: "linear-gradient(135deg, #059669, #10b981)",
+                            border: "1px solid #34d399",
+                            color: "#ffffff",
+                            borderRadius: "4px",
+                            padding: "3px 8px",
+                            fontSize: "0.72rem",
+                            fontWeight: "700",
+                            cursor: "pointer"
+                          }}
+                        >
+                          DOWNLOAD REPRODUCIBILITY BUNDLE
+                        </button>
+                      </div>
                     </div>
                     <p style={{ color: "#f1f5f9", fontSize: "0.82rem", lineHeight: 1.5, marginBottom: "10px" }}>
                       {flagshipRun.scientific_conclusion.executive_summary}
@@ -1645,12 +1711,12 @@ export default function AASIChatApp() {
                   </div>
                 )}
 
-                {/* Collapsible Provenance JSON */}
+                {/* Collapsible Provenance JSON & Evidence Ledger */}
                 {showProvenanceJson && (
                   <div style={{ marginTop: "14px", background: "#0b1120", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: "8px", padding: "12px" }}>
-                    <div style={{ color: "#94a3b8", fontSize: "0.75rem", fontWeight: "700", marginBottom: "6px" }}>RAW RUN PROVENANCE AUDIT TRAIL</div>
+                    <div style={{ color: "#94a3b8", fontSize: "0.75rem", fontWeight: "700", marginBottom: "6px" }}>CRYPTOGRAPHIC EVIDENCE LEDGER & PROVENANCE GRAPH</div>
                     <pre style={{ color: "#a5f3fc", fontSize: "0.7rem", fontFamily: "var(--font-mono)", maxHeight: "250px", overflowY: "auto", margin: 0 }}>
-                      {JSON.stringify(flagshipRun, null, 2)}
+                      {JSON.stringify(flagshipRun.evidence_ledger || flagshipRun.provenance_trail, null, 2)}
                     </pre>
                   </div>
                 )}

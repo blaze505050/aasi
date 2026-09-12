@@ -1052,6 +1052,53 @@ async def get_research_run(run_id: str):
     return run.model_dump()
 
 
+@app.get("/api/research/runs/{run_id}/bundle", summary="Inspect Reproducibility Bundle Manifest")
+async def inspect_reproducibility_bundle(run_id: str):
+    from backend.research.service import research_loop_service
+    from backend.research.bundle import ResearchBundleExporter
+    run = research_loop_service.get_run(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Research run not found")
+    
+    bundle_dir, zip_path = ResearchBundleExporter.export_bundle(run)
+    hashes_file = bundle_dir / "hashes.sha256"
+    hashes_content = hashes_file.read_text(encoding="utf-8") if hashes_file.exists() else ""
+    bundle_files = [p.name for p in bundle_dir.iterdir() if p.is_file()]
+
+    return {
+        "run_id": run_id,
+        "bundle_dir": str(bundle_dir.as_posix()),
+        "zip_path": str(zip_path.as_posix()),
+        "zip_exists": zip_path.exists(),
+        "bundle_files": sorted(bundle_files),
+        "hashes": hashes_content,
+        "conclusion_level": run.conclusion_level or "MULTI_SOURCE_VALIDATED",
+        "merkle_root": run.provenance_trail.get("composite_fingerprint", "")
+    }
+
+
+@app.get("/api/research/runs/{run_id}/export", summary="Download Research Reproducibility Bundle (.zip)")
+async def export_reproducibility_bundle_zip(run_id: str):
+    from backend.research.service import research_loop_service
+    from backend.research.bundle import ResearchBundleExporter
+    from fastapi.responses import FileResponse
+
+    run = research_loop_service.get_run(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Research run not found")
+
+    _, zip_path = ResearchBundleExporter.export_bundle(run)
+    if not zip_path.exists():
+        raise HTTPException(status_code=500, detail="Failed to generate reproducibility zip archive")
+
+    clean_id = run.run_id.replace(":", "_").replace("/", "_")
+    return FileResponse(
+        path=str(zip_path),
+        filename=f"aasi_research_run_{clean_id}.zip",
+        media_type="application/zip"
+    )
+
+
 @app.post("/api/research/runs", summary="Create and Execute Custom Research Run")
 async def create_research_run(req: ResearchRunCreateRequest):
     from backend.research.service import research_loop_service

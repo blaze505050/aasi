@@ -134,4 +134,7 @@ class ResearchRun(BaseModel):
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     completed_at: Optional[str] = None
     is_flagship: bool = False
+    conclusion_level: Optional[str] = None
+    evidence_ledger: Optional[Dict[str, Any]] = None
+    reproducibility_bundle_available: bool = False
 
