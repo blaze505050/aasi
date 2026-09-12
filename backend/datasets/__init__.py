@@ -22,6 +22,15 @@ from backend.datasets.authentic_parsers import (
     NASATMRBenchmarkCase,
 )
 from backend.datasets.pipeline import DatasetPipelineOrchestrator
+from backend.datasets.adapters.base import (
+    DatasetAdapter,
+    DatasetCase,
+    DatasetField,
+    DatasetStorageState,
+    StorageRequirementReport,
+)
+from backend.datasets.adapters.naca0012 import NACA0012DatasetAdapter
+from backend.datasets.adapters.airfrans import AirfRANSDatasetAdapter
 
 
 __all__ = [
@@ -42,4 +51,11 @@ __all__ = [
     "AirfoilGeometryFeatures",
     "NASATMRBenchmarkCase",
     "DatasetPipelineOrchestrator",
+    "DatasetAdapter",
+    "DatasetCase",
+    "DatasetField",
+    "DatasetStorageState",
+    "StorageRequirementReport",
+    "NACA0012DatasetAdapter",
+    "AirfRANSDatasetAdapter",
 ]

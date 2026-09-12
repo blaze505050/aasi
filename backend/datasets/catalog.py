@@ -9,14 +9,54 @@ multi-gigabyte raw downloads on developer workstation.
 import hashlib
 from typing import Dict, Any, List, Optional
 from backend.datasets.models import DatasetManifest, DatasetLifecycle, StorageStatus
+from backend.datasets.adapters.base import DatasetAdapter
+from backend.datasets.adapters.naca0012 import NACA0012DatasetAdapter
+from backend.datasets.adapters.airfrans import AirfRANSDatasetAdapter
 
 
 class DatasetCatalog:
-    """Registry of authoritative open aerospace datasets."""
+    """Registry of authoritative open aerospace datasets and adapters."""
 
     def __init__(self):
         self.manifests: Dict[str, DatasetManifest] = {}
+        self.adapters: Dict[str, DatasetAdapter] = {}
         self._register_seed_datasets()
+        self._register_adapters()
+
+    def _register_adapters(self):
+        naca_adapter = NACA0012DatasetAdapter()
+        airfrans_adapter = AirfRANSDatasetAdapter()
+        self.adapters[naca_adapter.get_dataset_id()] = naca_adapter
+        self.adapters[airfrans_adapter.get_dataset_id()] = airfrans_adapter
+        # Also alias DATASET-AIRFRANS-1K if referenced
+        self.adapters["DATASET-AIRFRANS-1K"] = airfrans_adapter
+
+    def get_adapter(self, dataset_id: str) -> Optional[DatasetAdapter]:
+        """Retrieves active adapter for a dataset."""
+        return self.adapters.get(dataset_id)
+
+    def list_adapters(self) -> List[Dict[str, Any]]:
+        """Lists summary metadata for registered multi-dataset adapters."""
+        res = []
+        for did, adapter in self.adapters.items():
+            # Avoid duplicate reporting for aliases
+            if any(item["dataset_id"] == adapter.get_dataset_id() for item in res):
+                continue
+            manifest = adapter.get_manifest()
+            state = adapter.get_storage_state()
+            report = adapter.check_storage_safety()
+            res.append({
+                "dataset_id": adapter.get_dataset_id(),
+                "name": manifest.name,
+                "domain": manifest.domain,
+                "license": manifest.license,
+                "storage_state": state.value,
+                "is_safe_for_download": report.is_safe_for_download,
+                "case_count": len(adapter.list_cases(limit=1000)),
+                "fields_count": len(adapter.get_fields()),
+                "available_splits": list(adapter.get_available_splits().keys())
+            })
+        return res
 
     def _register_seed_datasets(self):
         # 1. AirfRANS Benchmark Dataset
@@ -24,9 +64,9 @@ class DatasetCatalog:
             dataset_id="DATASET-AIRFRANS-1K",
             name="AirfRANS: High-Fidelity 2D RANS Aerodynamics Dataset",
             version="1.0.0",
-            source="IRT Saint Exupéry / INRIA / OpenFOAM",
-            license="ODC-By v1.0 (Open Data Commons Attribution)",
-            citation="Bonnet et al. (2022). AirfRANS: High Fidelity Computational Fluid Dynamics Dataset for Machine Learning.",
+            source="IRT Saint Exupéry / INRIA / Sorbonne / OpenFOAM",
+            license="Open Data Commons Open Database License (ODbL) v1.0",
+            citation="Bonnet, F., Phan, T., & Moutarde, F. (2022). AirfRANS: High Fidelity Computational Fluid Dynamics Dataset for Machine Learning. NeurIPS 2022.",
             url="https://github.com/Extrality/AirfRANS",
             checksum=hashlib.sha256(b"AIRFRANS-BENCHMARK-V1-SHA256").hexdigest(),
             size_bytes=24_500_000_000,  # ~24.5 GB raw

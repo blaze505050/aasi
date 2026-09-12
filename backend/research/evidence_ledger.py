@@ -36,6 +36,9 @@ class EvidenceType(str, Enum):
     LITERATURE_CITATION = "LITERATURE_CITATION"
     SURFACE_COORDINATES = "SURFACE_COORDINATES"
     POLAR_DATASET = "POLAR_DATASET"
+    DATASET_CASE = "DATASET_CASE"
+    DATASET_VALIDATION = "DATASET_VALIDATION"
+    OOD_EVALUATION = "OOD_EVALUATION"
     ANALYTICAL_DERIVATION = "ANALYTICAL_DERIVATION"
     SURROGATE_INFERENCE = "SURROGATE_INFERENCE"
     CFD_CASE_DECK = "CFD_CASE_DECK"
@@ -224,7 +227,13 @@ class EvidenceLedger(BaseModel):
                     orphans.append(r.evidence_id)
                     errors.append(f"Orphan evidence record: {r.evidence_id}")
 
-            val_types = [EvidenceType.VALIDATION_COMPARISON, EvidenceType.EXPERIMENTAL_BENCHMARK, EvidenceType.CFD_GRID_CONVERGENCE]
+            val_types = [
+                EvidenceType.VALIDATION_COMPARISON,
+                EvidenceType.EXPERIMENTAL_BENCHMARK,
+                EvidenceType.CFD_GRID_CONVERGENCE,
+                EvidenceType.DATASET_VALIDATION,
+                EvidenceType.OOD_EVALUATION,
+            ]
             val_records = [r.evidence_id for r in self.records if r.evidence_type in val_types]
             if any(v in reachable_set for v in val_records):
                 conclusion_has_val = True

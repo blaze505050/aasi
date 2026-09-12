@@ -122,3 +122,61 @@ class AerodynamicUncertaintyQuantifier:
             coverage_factor_k=1.96,
             notes=notes
         )
+
+    @classmethod
+    def compute_multidataset_uncertainty(
+        cls,
+        geometry: str = "NACA 0012",
+        aoa_deg: float = 8.0,
+        datasets: Optional[List[str]] = None,
+        gci_fine: Optional[float] = None,
+        surrogate_std: Optional[float] = None
+    ) -> UncertaintyAssessment:
+        """
+        Computes formal multi-dataset uncertainty budget combining experimental LTPT
+        balance limits and AirfRANS simpleFoam numerical discretization discrepancies.
+        """
+        active_datasets = datasets or ["DATASET-NACA-0012-LTPT", "DATASET-AIRFRANS-1K"]
+        inp = InputUncertainty()
+        num = NumericalUncertainty()
+        if gci_fine is not None:
+            num.discretization_gci_cl = round(gci_fine, 5)
+            num.total_numerical_uncertainty_cl = round(math.sqrt(num.discretization_gci_cl**2 + num.iterative_convergence_residual_cl**2), 5)
+
+        mod = ModelUncertainty()
+        if surrogate_std is not None:
+            mod.surrogate_epistemic_std_cl = round(surrogate_std, 5)
+        if aoa_deg >= 12.0:
+            mod.turbulence_model_discrepancy_cl = 0.065
+        mod.total_model_uncertainty_cl = round(math.sqrt(mod.surrogate_epistemic_std_cl**2 + mod.turbulence_model_discrepancy_cl**2), 5)
+
+        meas = MeasurementUncertainty()
+
+        u_c = math.sqrt(
+            inp.propagated_cl_input_error**2 +
+            num.total_numerical_uncertainty_cl**2 +
+            mod.total_model_uncertainty_cl**2 +
+            meas.balance_accuracy_cl**2
+        )
+        u_95 = 1.96 * u_c
+
+        notes = [
+            f"Multi-dataset evaluation across: {', '.join(active_datasets)}.",
+            f"Evaluated on geometry '{geometry}' at AoA = {aoa_deg}°.",
+            f"Dominant uncertainty: {'Turbulence Closure Discrepancy' if aoa_deg >= 12.0 else 'Numerical Discretization'}.",
+            f"Expanded multi-dataset U95 interval: +/- {u_95:.4f} CL."
+        ]
+
+        return UncertaintyAssessment(
+            geometry=geometry,
+            status=UncertaintyStatus.QUANTIFIED,
+            input_uncertainty=inp,
+            numerical_uncertainty=num,
+            model_uncertainty=mod,
+            measurement_uncertainty=meas,
+            combined_standard_uncertainty_cl=round(u_c, 5),
+            combined_expanded_uncertainty_cl_u95=round(u_95, 5),
+            coverage_factor_k=1.96,
+            notes=notes
+        )
+

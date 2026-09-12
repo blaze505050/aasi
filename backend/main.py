@@ -1201,6 +1201,101 @@ async def check_physical_constraints(req: ConstraintCheckRequest):
     return report.model_dump()
 
 
+# --- Multi-Dataset Benchmark and Adapter Endpoints ---
+
+class MultiDatasetBenchmarkRequest(BaseModel):
+    model_name: str = "AeroSurrogateV1"
+    predictions: List[Dict[str, Any]] = Field(default_factory=list)
+    dataset_ids: Optional[List[str]] = None
+
+
+@app.get("/api/datasets/adapters", summary="List Registered Multi-Dataset Adapters")
+async def list_dataset_adapters():
+    from backend.datasets.catalog import DatasetCatalog
+    catalog = DatasetCatalog()
+    return catalog.list_adapters()
+
+
+@app.get("/api/datasets/{dataset_id}/audit", summary="Get Dataset Engineering & Provenance Audit")
+async def get_dataset_audit(dataset_id: str):
+    from backend.datasets.catalog import DatasetCatalog
+    catalog = DatasetCatalog()
+    adapter = catalog.get_adapter(dataset_id)
+    if not adapter:
+        raise HTTPException(status_code=404, detail=f"Dataset adapter '{dataset_id}' not found.")
+    manifest = adapter.get_manifest()
+    storage_state = adapter.get_storage_state()
+    storage_report = adapter.check_storage_safety()
+    return {
+        "dataset_id": adapter.get_dataset_id(),
+        "manifest": manifest.model_dump(),
+        "storage_state": storage_state.value,
+        "storage_safety_report": storage_report.model_dump(),
+        "fields": [f.model_dump() for f in adapter.get_fields()],
+        "available_splits": adapter.get_available_splits()
+    }
+
+
+@app.get("/api/datasets/{dataset_id}/cases", summary="List Dataset Cases")
+async def list_dataset_cases(dataset_id: str, limit: int = 50, offset: int = 0):
+    from backend.datasets.catalog import DatasetCatalog
+    catalog = DatasetCatalog()
+    adapter = catalog.get_adapter(dataset_id)
+    if not adapter:
+        raise HTTPException(status_code=404, detail=f"Dataset adapter '{dataset_id}' not found.")
+    cases = adapter.list_cases(limit=limit, offset=offset)
+    return {
+        "dataset_id": dataset_id,
+        "total_cases": len(cases),
+        "limit": limit,
+        "offset": offset,
+        "cases": [c.model_dump() for c in cases]
+    }
+
+
+@app.get("/api/datasets/{dataset_id}/splits", summary="Get Dataset IID and OOD Split Partitions")
+async def get_dataset_splits(dataset_id: str):
+    from backend.datasets.catalog import DatasetCatalog
+    catalog = DatasetCatalog()
+    adapter = catalog.get_adapter(dataset_id)
+    if not adapter:
+        raise HTTPException(status_code=404, detail=f"Dataset adapter '{dataset_id}' not found.")
+    return {
+        "dataset_id": dataset_id,
+        "splits": adapter.get_available_splits()
+    }
+
+
+@app.post("/api/datasets/{dataset_id}/validate", summary="Execute Automated Dataset Integrity Validation")
+async def validate_dataset(dataset_id: str):
+    from backend.datasets.catalog import DatasetCatalog
+    from backend.datasets.validation import DatasetValidator
+    catalog = DatasetCatalog()
+    adapter = catalog.get_adapter(dataset_id)
+    if not adapter:
+        raise HTTPException(status_code=404, detail=f"Dataset adapter '{dataset_id}' not found.")
+    cases = adapter.list_cases(limit=500)
+    splits = adapter.get_available_splits()
+    report = DatasetValidator.run_full_dataset_validation(
+        dataset_id=dataset_id,
+        cases=cases,
+        splits=splits
+    )
+    return report.model_dump()
+
+
+@app.post("/api/datasets/benchmark", summary="Execute Multi-Dataset Aerodynamic Benchmark")
+async def run_multi_dataset_benchmark(req: MultiDatasetBenchmarkRequest):
+    from backend.physics.multi_benchmark import MultiDatasetBenchmarkEngine
+    engine = MultiDatasetBenchmarkEngine()
+    result = engine.benchmark_model_predictions(
+        model_name=req.model_name,
+        predictions=req.predictions,
+        dataset_ids=req.dataset_ids
+    )
+    return result.model_dump()
+
+
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
 
 async def chat_completion(request: ChatRequest):
