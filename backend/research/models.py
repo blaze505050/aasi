@@ -83,6 +83,17 @@ class ResearchExperiment(BaseModel):
 
 class ResearchRunStatus(str, Enum):
     INITIALIZED = "INITIALIZED"
+    CREATED = "CREATED"
+    QUESTION_VALIDATED = "QUESTION_VALIDATED"
+    EVIDENCE_COLLECTED = "EVIDENCE_COLLECTED"
+    DATASET_VALIDATED = "DATASET_VALIDATED"
+    COMPUTATION_RUNNING = "COMPUTATION_RUNNING"
+    COMPUTATION_COMPLETED = "COMPUTATION_COMPLETED"
+    VALIDATION_RUNNING = "VALIDATION_RUNNING"
+    VALIDATION_COMPLETED = "VALIDATION_COMPLETED"
+    UNCERTAINTY_ASSESSED = "UNCERTAINTY_ASSESSED"
+    CONCLUSION_GENERATED = "CONCLUSION_GENERATED"
+    REPRODUCIBILITY_VERIFIED = "REPRODUCIBILITY_VERIFIED"
     RETRIEVING_EVIDENCE = "RETRIEVING_EVIDENCE"
     INGESTING_DATA = "INGESTING_DATA"
     EXECUTING_COMPUTATION = "EXECUTING_COMPUTATION"
@@ -137,4 +148,8 @@ class ResearchRun(BaseModel):
     conclusion_level: Optional[str] = None
     evidence_ledger: Optional[Dict[str, Any]] = None
     reproducibility_bundle_available: bool = False
+    uncertainty_assessment: Optional[Dict[str, Any]] = None
+    grid_convergence: Optional[Dict[str, Any]] = None
+    reproducibility_verification: Optional[Dict[str, Any]] = None
+    failure_reasons: List[str] = Field(default_factory=list)
 

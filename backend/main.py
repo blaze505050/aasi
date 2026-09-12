@@ -1111,6 +1111,57 @@ async def create_research_run(req: ResearchRunCreateRequest):
     return run.model_dump()
 
 
+class ReproducibilityVerifyRequest(BaseModel):
+    run_id: Optional[str] = None
+    bundle_path: Optional[str] = None
+
+
+@app.post("/api/research/reproduce/verify", summary="Independently Verify Scientific Research Run Reproducibility")
+async def verify_research_run_reproducibility(req: ReproducibilityVerifyRequest):
+    from backend.research.service import research_loop_service
+    from backend.research.verifier import ReproducibilityVerifier
+    from pathlib import Path
+
+    if req.bundle_path:
+        bundle_dir = Path(req.bundle_path)
+        if not bundle_dir.exists():
+            raise HTTPException(status_code=404, detail=f"Bundle directory not found: {req.bundle_path}")
+        report = ReproducibilityVerifier.verify_bundle_directory(bundle_dir)
+        return report.model_dump()
+    
+    if req.run_id:
+        run = research_loop_service.get_run(req.run_id)
+        if not run:
+            raise HTTPException(status_code=404, detail=f"Research run {req.run_id} not found")
+        report = ReproducibilityVerifier.verify_run(run)
+        return report.model_dump()
+    
+    runs = research_loop_service.list_runs()
+    flagship_run = next((r for r in runs if r.is_flagship), None)
+    if not flagship_run:
+        flagship_run = research_loop_service.execute_flagship_naca0012_run()
+    report = ReproducibilityVerifier.verify_run(flagship_run)
+    return report.model_dump()
+
+
+@app.get("/api/research/runs/{run_id}/uncertainty", summary="Get 5-Tier Epistemic Uncertainty Assessment")
+async def get_run_uncertainty(run_id: str):
+    from backend.research.service import research_loop_service
+    run = research_loop_service.get_run(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Research run not found")
+    return run.uncertainty_assessment or {}
+
+
+@app.get("/api/research/runs/{run_id}/grid-convergence", summary="Get ASME V&V 20 Grid Convergence Study")
+async def get_run_grid_convergence(run_id: str):
+    from backend.research.service import research_loop_service
+    run = research_loop_service.get_run(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Research run not found")
+    return run.grid_convergence or {}
+
+
 @app.post("/api/physics/aerodynamics/surface-cp", summary="Predict Chordwise Surface Cp Distribution")
 async def predict_surface_cp(req: SurfaceCpRequest):
     from backend.physics_ai.field.surrogate import SurfaceCpSurrogate

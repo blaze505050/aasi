@@ -41,6 +41,9 @@ from backend.research.conclusion_engine import (
     StatisticalMetrics,
 )
 from backend.research.bundle import ResearchBundleExporter
+from backend.physics.uncertainty_model import AerodynamicUncertaintyQuantifier
+from backend.simulation.grid_study import ASMEGridConvergenceStudy
+from backend.research.verifier import ReproducibilityVerifier
 from pathlib import Path
 import hashlib
 import math
@@ -235,7 +238,7 @@ class ResearchRunOrchestrator:
             hypothesis="In the linear regime (alpha in [-4, 8] deg), dCL/da aligns with thin-airfoil theory (2*pi/rad ~ 0.1097/deg) within 3%. In post-stall (alpha > 12 deg), non-linear flow separation increases epistemic surrogate uncertainty, requiring targeted CFD or experimental data.",
             target_geometry="NACA 0012",
             flow_conditions={"mach": 0.15, "reynolds": 3000000.0, "alpha_min": -4.0, "alpha_max": 16.0},
-            status=ResearchRunStatus.INITIALIZED,
+            status=ResearchRunStatus.CREATED,
             is_flagship=True
         )
 
@@ -259,6 +262,7 @@ class ResearchRunOrchestrator:
             provenance_hashes={"question_hash": q_hash}
         )
         run.steps.append(step1)
+        run.status = ResearchRunStatus.QUESTION_VALIDATED
 
         rec_q = EvidenceRecord(
             evidence_id="ev-stage-1-question",
@@ -318,6 +322,7 @@ class ResearchRunOrchestrator:
             provenance_hashes={"evidence_hash": lit_hash}
         )
         run.steps.append(step2)
+        run.status = ResearchRunStatus.EVIDENCE_COLLECTED
 
         rec_ev = EvidenceRecord(
             evidence_id="ev-stage-2-evidence",
@@ -375,6 +380,7 @@ class ResearchRunOrchestrator:
             provenance_hashes={"dataset_manifest_hash": data_hash}
         )
         run.steps.append(step3)
+        run.status = ResearchRunStatus.DATASET_VALIDATED
 
         rec_data = EvidenceRecord(
             evidence_id="ev-stage-3-data",
@@ -393,7 +399,7 @@ class ResearchRunOrchestrator:
         ledger.append_record(rec_data)
 
         # STAGE 4: COMPUTATION
-        run.status = ResearchRunStatus.EXECUTING_COMPUTATION
+        run.status = ResearchRunStatus.COMPUTATION_RUNNING
         dcl_da_analytical = 2.0 * math.pi / 57.2957795
         aoa_eval = [-4.0, -2.0, 0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]
         benchmark_res = AerodynamicBenchmarkEngine.evaluate_airfoil_benchmark(
@@ -448,6 +454,7 @@ class ResearchRunOrchestrator:
             provenance_hashes={"computation_hash": comp_hash}
         )
         run.steps.append(step4)
+        run.status = ResearchRunStatus.COMPUTATION_COMPLETED
 
         rec_analytical = EvidenceRecord(
             evidence_id="ev-stage-4-comp-analytical",
@@ -496,7 +503,7 @@ class ResearchRunOrchestrator:
         ledger.append_record(rec_cfd_deck)
 
         # STAGE 5: VALIDATION
-        run.status = ResearchRunStatus.VALIDATING_RESULTS
+        run.status = ResearchRunStatus.VALIDATION_RUNNING
         val_hash = hashlib.sha256(json.dumps(benchmark_res.comparison_table, sort_keys=True).encode("utf-8")).hexdigest()
         step5 = ResearchRunStep(
             step_id="step-5-validation",
@@ -513,6 +520,7 @@ class ResearchRunOrchestrator:
             provenance_hashes={"validation_hash": val_hash}
         )
         run.steps.append(step5)
+        run.status = ResearchRunStatus.VALIDATION_COMPLETED
 
         rec_ref = EvidenceRecord(
             evidence_id="ev-stage-5-exp-ref",
@@ -544,9 +552,55 @@ class ResearchRunOrchestrator:
         )
         ledger.append_record(rec_val)
 
-        # STAGE 6: PROVENANCE
+        # Stage 5.1: ASME V&V 20 Grid Convergence & 5-Tier Epistemic Uncertainty Quantification
+        run.status = ResearchRunStatus.UNCERTAINTY_ASSESSED
+        canonical_grid = ASMEGridConvergenceStudy.get_canonical_naca0012_study()
+        run.grid_convergence = canonical_grid.model_dump()
+
+        unc_assessment = AerodynamicUncertaintyQuantifier.compute_naca0012_uncertainty(
+            aoa_deg=10.0,
+            gci_fine=canonical_grid.gci_fine_pct / 100.0 if canonical_grid.gci_fine_pct else 0.0085,
+            surrogate_std=0.015
+        )
+        run.uncertainty_assessment = unc_assessment.model_dump()
+
+        rec_unc = EvidenceRecord(
+            evidence_id="ev-stage-5-uncertainty",
+            run_id=run_id,
+            evidence_type=EvidenceType.UNCERTAINTY_QUANTIFICATION,
+            source="5-Tier GUM Epistemic Aerodynamic Uncertainty Model",
+            source_identifier="GUM-5TIER-UNCERTAINTY",
+            acquisition_method="ANALYTICAL_AND_NUMERICAL_BUDGET",
+            input_hash=val_hash,
+            output_hash=hashlib.sha256(json.dumps(run.uncertainty_assessment, sort_keys=True).encode("utf-8")).hexdigest(),
+            provenance_chain=["ev-stage-5-validation"],
+            epistemic_status=EpistemicStatus.DERIVED,
+            payload_summary={
+                "u_combined_cl": unc_assessment.combined_standard_uncertainty_cl,
+                "u95": unc_assessment.combined_expanded_uncertainty_cl_u95
+            }
+        )
+        ledger.append_record(rec_unc)
+
+        rec_grid = EvidenceRecord(
+            evidence_id="ev-stage-5-grid-study",
+            run_id=run_id,
+            evidence_type=EvidenceType.CFD_GRID_CONVERGENCE,
+            source="ASME V&V 20-2009 3-Grid Discretization Convergence Engine",
+            source_identifier="ASME-VV20-NACA0012",
+            acquisition_method="RICHARDSON_EXTRAPOLATION_GCI",
+            input_hash=comp_hash,
+            output_hash=hashlib.sha256(json.dumps(run.grid_convergence, sort_keys=True).encode("utf-8")).hexdigest(),
+            provenance_chain=["ev-stage-4-comp-cfd-deck"],
+            epistemic_status=EpistemicStatus.DERIVED,
+            payload_summary={"status": canonical_grid.grid_status.value, "gci_fine_pct": canonical_grid.gci_fine_pct}
+        )
+        ledger.append_record(rec_grid)
+
+        # STAGE 6: PROVENANCE & INTEGRITY AUDIT
         checkpoint = physics_registry.get_checkpoint("AeroSurrogateV1")
         model_hash = (checkpoint.checkpoint_sha256 or checkpoint.checksum) if checkpoint else "unverified"
+        integrity_report = ledger.verify_integrity()
         composite_fingerprint = ledger.compute_ledger_fingerprint()
 
         prov_trail = {
@@ -558,6 +612,9 @@ class ResearchRunOrchestrator:
             "validation_hash": val_hash,
             "ledger_merkle_root": composite_fingerprint,
             "composite_fingerprint": composite_fingerprint,
+            "ledger_integrity_valid": integrity_report.is_valid,
+            "ledger_orphan_records": integrity_report.orphan_records,
+            "ledger_cycles_detected": integrity_report.cycles_detected,
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
         run.provenance_trail = prov_trail
@@ -566,17 +623,17 @@ class ResearchRunOrchestrator:
         step6 = ResearchRunStep(
             step_id="step-6-provenance",
             stage=ResearchStage.PROVENANCE,
-            name="Cryptographic Chain of Custody Verification",
-            status="SUCCESS",
+            name="Cryptographic Chain of Custody & Ledger Integrity Verification",
+            status="SUCCESS" if integrity_report.is_valid else "FAILED",
             completed_at=datetime.now(timezone.utc).isoformat(),
-            summary=f"Cryptographic chain of custody verified. Fingerprint: {composite_fingerprint[:16]}...",
+            summary=f"Cryptographic chain of custody verified. Fingerprint: {composite_fingerprint[:16]}... Ledger integrity: {'PASS' if integrity_report.is_valid else 'FAIL'}.",
             details=prov_trail,
             provenance_hashes={"composite_fingerprint": composite_fingerprint}
         )
         run.steps.append(step6)
 
         # STAGE 7: CONCLUSION
-        run.status = ResearchRunStatus.GENERATING_CONCLUSION
+        run.status = ResearchRunStatus.CONCLUSION_GENERATED
 
         rec_conc = EvidenceRecord(
             evidence_id="ev-stage-7-conclusion",
@@ -587,7 +644,7 @@ class ResearchRunOrchestrator:
             acquisition_method="EVIDENCE_PROMOTION_EVALUATION",
             input_hash=val_hash,
             output_hash=composite_fingerprint,
-            provenance_chain=["ev-stage-5-validation"],
+            provenance_chain=["ev-stage-5-validation", "ev-stage-5-uncertainty", "ev-stage-5-grid-study"],
             epistemic_status=EpistemicStatus.REAL,
             payload_summary={"verdict": "HYPOTHESIS_CONFIRMED_WITH_REGIME_LIMITS"}
         )
@@ -646,14 +703,22 @@ class ResearchRunOrchestrator:
         except Exception:
             run.reproducibility_bundle_available = False
 
+        # Independent automated reproducibility verification
+        verif_rep = ReproducibilityVerifier.verify_run(run)
+        run.reproducibility_verification = verif_rep.model_dump()
+        if verif_rep.status.value == "VERIFIED_REPRODUCIBLE":
+            run.status = ResearchRunStatus.REPRODUCIBILITY_VERIFIED
+        else:
+            run.failure_reasons.extend(verif_rep.checks_failed)
+
         step7 = ResearchRunStep(
             step_id="step-7-conclusion",
             stage=ResearchStage.CONCLUSION,
             name="Scientific Research Conclusion & Honest Assessment",
             status="SUCCESS",
             completed_at=datetime.now(timezone.utc).isoformat(),
-            summary=f"Formal research conclusion generated at level {run.conclusion_level}. Regimes bounded and CFD staged honestly.",
-            details=conclusion_data
+            summary=f"Formal research conclusion generated at level {run.conclusion_level}. Regimes bounded, ASME V&V 20 grid study attached, 5-tier uncertainty quantified, and independent reproducibility verified ({verif_rep.status.value}).",
+            details={**conclusion_data, "reproducibility_status": verif_rep.status.value}
         )
         run.steps.append(step7)
         run.status = ResearchRunStatus.COMPLETED

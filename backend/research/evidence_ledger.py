@@ -40,6 +40,7 @@ class EvidenceType(str, Enum):
     SURROGATE_INFERENCE = "SURROGATE_INFERENCE"
     CFD_CASE_DECK = "CFD_CASE_DECK"
     CFD_GRID_CONVERGENCE = "CFD_GRID_CONVERGENCE"
+    UNCERTAINTY_QUANTIFICATION = "UNCERTAINTY_QUANTIFICATION"
     EXPERIMENTAL_BENCHMARK = "EXPERIMENTAL_BENCHMARK"
     VALIDATION_COMPARISON = "VALIDATION_COMPARISON"
     RESEARCH_CONCLUSION = "RESEARCH_CONCLUSION"
@@ -159,6 +160,91 @@ class EvidenceLedger(BaseModel):
         self.merkle_root = fingerprint
         return fingerprint
 
+    def verify_integrity(self) -> EvidenceIntegrityReport:
+        """
+        Audits the complete evidence ledger DAG for:
+        - Duplicate evidence IDs
+        - Broken parent links
+        - Directed cycles in provenance
+        - Orphan records unreachable from conclusion
+        - Ancestor validation requirement
+        """
+        errors = []
+        dup_ids = []
+        broken_links = []
+        cycles = []
+        orphans = []
+
+        seen_ids = set()
+        for r in self.records:
+            if r.evidence_id in seen_ids:
+                dup_ids.append(r.evidence_id)
+                errors.append(f"Duplicate evidence ID: {r.evidence_id}")
+            seen_ids.add(r.evidence_id)
+
+        for r in self.records:
+            for p_id in r.provenance_chain:
+                if p_id not in seen_ids:
+                    broken_links.append(f"{r.evidence_id} -> {p_id}")
+                    errors.append(f"Broken provenance link: {r.evidence_id} references missing parent {p_id}")
+
+        adj = {r.evidence_id: r.provenance_chain for r in self.records}
+        visited_state: Dict[str, int] = {}
+
+        def _dfs_cycle(node: str, path: List[str]) -> bool:
+            visited_state[node] = 1
+            for neighbor in adj.get(node, []):
+                if neighbor in adj:
+                    if visited_state.get(neighbor, 0) == 1:
+                        cycle_str = " -> ".join(path + [neighbor])
+                        cycles.append(cycle_str)
+                        errors.append(f"Provenance cycle detected: {cycle_str}")
+                        return True
+                    elif visited_state.get(neighbor, 0) == 0:
+                        if _dfs_cycle(neighbor, path + [neighbor]):
+                            return True
+            visited_state[node] = 2
+            return False
+
+        for node in adj:
+            if visited_state.get(node, 0) == 0:
+                _dfs_cycle(node, [node])
+
+        conclusion_records = [r for r in self.records if r.evidence_type == EvidenceType.RESEARCH_CONCLUSION]
+        has_conclusion = len(conclusion_records) > 0
+        conclusion_has_val = False
+
+        if has_conclusion:
+            conc_id = conclusion_records[0].evidence_id
+            _, reachable, _ = self.verify_backward_chain(conc_id)
+            reachable_set = set(reachable)
+
+            for r in self.records:
+                if r.evidence_id not in reachable_set:
+                    orphans.append(r.evidence_id)
+                    errors.append(f"Orphan evidence record: {r.evidence_id}")
+
+            val_types = [EvidenceType.VALIDATION_COMPARISON, EvidenceType.EXPERIMENTAL_BENCHMARK, EvidenceType.CFD_GRID_CONVERGENCE]
+            val_records = [r.evidence_id for r in self.records if r.evidence_type in val_types]
+            if any(v in reachable_set for v in val_records):
+                conclusion_has_val = True
+            else:
+                errors.append("Conclusion node does not have validation ancestor.")
+
+        is_valid = (len(errors) == 0)
+
+        return EvidenceIntegrityReport(
+            is_valid=is_valid,
+            total_records=len(self.records),
+            orphan_records=orphans,
+            broken_parent_links=broken_links,
+            cycles_detected=cycles,
+            duplicate_ids=dup_ids,
+            has_conclusion=has_conclusion,
+            conclusion_has_validation=conclusion_has_val,
+            integrity_errors=errors
+        )
+
     def to_export_dict(self) -> Dict[str, Any]:
         """Exports full ledger representation for reproducibility bundles."""
         return {
@@ -169,3 +255,16 @@ class EvidenceLedger(BaseModel):
             "total_records": len(self.records),
             "records": [r.model_dump() for r in self.records]
         }
+
+
+class EvidenceIntegrityReport(BaseModel):
+    """Diagnostic report evaluating cryptographic DAG integrity of an EvidenceLedger."""
+    is_valid: bool
+    total_records: int
+    orphan_records: List[str] = Field(default_factory=list)
+    broken_parent_links: List[str] = Field(default_factory=list)
+    cycles_detected: List[str] = Field(default_factory=list)
+    duplicate_ids: List[str] = Field(default_factory=list)
+    has_conclusion: bool = False
+    conclusion_has_validation: bool = False
+    integrity_errors: List[str] = Field(default_factory=list)
