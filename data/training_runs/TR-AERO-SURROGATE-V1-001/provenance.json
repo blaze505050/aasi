@@ -1,6 +1,6 @@
 {
-  "timestamp_utc": "2026-09-10T12:39:02.662145+00:00",
-  "git_commit": "03528e70e8e0532f4656b94d75bd9626bb9304a7",
+  "timestamp_utc": "2026-09-12T18:35:56.997941+00:00",
+  "git_commit": "f574b76347e71dccd76988359b44e92f6a513946",
   "seed": 42,
   "os_name": "Windows",
   "os_release": "11",
@@ -10,7 +10,7 @@
   "device": "cpu",
   "cpu_architecture": "AMD64",
   "dataset_checksum": "",
-  "split_checksum": "7eeec01120fb08870d50e19232ac3bea9b6b179ed81f5376f09ac5bb22c30128",
+  "split_checksum": "8b37b1fe8c0d92eb3fccca3cb47143324b89ccd4974f186e3a8717db89ed172c",
   "training_config": {
     "training_run_id": "TR-AERO-SURROGATE-V1-001",
     "model_family": "AeroSurrogateV1",

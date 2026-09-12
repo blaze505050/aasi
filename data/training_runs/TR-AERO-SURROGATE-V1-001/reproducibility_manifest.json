@@ -1,0 +1,180 @@
+{
+  "run_id": "TR-AERO-SURROGATE-V1-001",
+  "timestamp_utc": "2026-09-12T18:35:56.910601+00:00",
+  "git_commit": "f574b76347e71dccd76988359b44e92f6a513946",
+  "python_version": "3.12.10",
+  "dependency_versions": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "hardware_info": {
+    "machine": "AMD64",
+    "system": "Windows",
+    "cpu_count": "Intel64 Family 6 Model 126 Stepping 5, GenuineIntel"
+  },
+  "random_seed": 42,
+  "training_dataset_id": "DATASET-AUTHENTIC-AIRFOILS-V1",
+  "training_dataset_hash": "8b37b1fe8c0d92eb3fccca3cb47143324b89ccd4974f186e3a8717db89ed172c",
+  "validation_dataset_hash": "8b37b1fe8c0d92eb3fccca3cb47143324b89ccd4974f186e3a8717db89ed172c",
+  "test_dataset_hash": "8b37b1fe8c0d92eb3fccca3cb47143324b89ccd4974f186e3a8717db89ed172c",
+  "geometry_split_manifest_hash": "8b37b1fe8c0d92eb3fccca3cb47143324b89ccd4974f186e3a8717db89ed172c",
+  "model_architecture": "AeroSurrogateV1",
+  "hyperparameters": {
+    "training_run_id": "TR-AERO-SURROGATE-V1-001",
+    "model_family": "AeroSurrogateV1",
+    "dataset_id": "DATASET-AUTHENTIC-AIRFOILS-V1",
+    "dataset_version": "1.0.0",
+    "split_version": "GEOMETRY_LEVEL_SPLIT_V1",
+    "seed": 42,
+    "epochs": 150,
+    "batch_size": 32,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "loss_weights": {
+      "cl": 1.0,
+      "cd": 5.0,
+      "cm": 2.0
+    },
+    "hardware": "LOCAL_CPU"
+  },
+  "optimizer": "AdamW (Vectorized NumPy Analytical Backprop)",
+  "normalization_parameters": {
+    "condition": {
+      "mean": [
+        0.18750007450580597,
+        2000000.0,
+        5.0
+      ],
+      "scale": [
+        0.07395104318857193,
+        816497.5,
+        6.904105186462402
+      ],
+      "features": [
+        "mach",
+        "log10_reynolds",
+        "aoa_deg"
+      ]
+    },
+    "target": {
+      "mean": [
+        0.5518582463264465,
+        0.03335142508149147,
+        -0.04316665604710579
+      ],
+      "scale": [
+        0.633287787437439,
+        0.056569281965494156,
+        0.04605400934815407
+      ],
+      "targets": [
+        "CL",
+        "CD",
+        "CM"
+      ]
+    }
+  },
+  "uncertainty_config": {
+    "validity_envelope": {
+      "mach": [
+        0.05,
+        0.4
+      ],
+      "reynolds": [
+        500000.0,
+        6000000.0
+      ],
+      "aoa_deg": [
+        -8.0,
+        18.0
+      ]
+    }
+  },
+  "checkpoint_file": "aero_surrogate_v1.npz",
+  "checkpoint_sha256": "73dd1c6f4341f84d8ff2811c882a3183ec9fff0f9a7dd0d5cfe7c717633273de",
+  "training_metrics": {
+    "split_name": "train",
+    "sample_count": 432,
+    "geometry_count": 3,
+    "cl_mae": 0.0041,
+    "cl_rmse": 0.0052,
+    "cl_r2": 0.9999,
+    "cd_mae": 0.0007,
+    "cd_rmse": 0.00085,
+    "cd_r2": 0.9998,
+    "cm_mae": 0.0004,
+    "cm_rmse": 0.0006,
+    "cm_r2": 0.9998,
+    "mean_relative_error_pct": 0.72,
+    "physics_violation_count": 0,
+    "monotonicity_violations": 0,
+    "symmetry_violations": 0,
+    "drag_violations": 0
+  },
+  "validation_metrics": {
+    "split_name": "val",
+    "sample_count": 144,
+    "geometry_count": 1,
+    "cl_mae": 0.0222,
+    "cl_rmse": 0.0267,
+    "cl_r2": 0.9982,
+    "cd_mae": 0.00108,
+    "cd_rmse": 0.00135,
+    "cd_r2": 0.9994,
+    "cm_mae": 0.0005,
+    "cm_rmse": 0.0006,
+    "cm_r2": 0.9994,
+    "mean_relative_error_pct": 3.22,
+    "physics_violation_count": 0,
+    "monotonicity_violations": 0,
+    "symmetry_violations": 0,
+    "drag_violations": 0
+  },
+  "test_metrics": {
+    "split_name": "test",
+    "sample_count": 216,
+    "geometry_count": 2,
+    "cl_mae": 0.1408,
+    "cl_rmse": 0.1411,
+    "cl_r2": 0.9332,
+    "cd_mae": 0.00149,
+    "cd_rmse": 0.00173,
+    "cd_r2": 0.8837,
+    "cm_mae": 0.0196,
+    "cm_rmse": 0.0197,
+    "cm_r2": 0.2314,
+    "mean_relative_error_pct": 26.78,
+    "physics_violation_count": 0,
+    "monotonicity_violations": 0,
+    "symmetry_violations": 0,
+    "drag_violations": 0
+  },
+  "ood_metrics": {
+    "split_name": "ood_geometry",
+    "sample_count": 108,
+    "geometry_count": 1,
+    "cl_mae": 0.0173,
+    "cl_rmse": 0.0197,
+    "cl_r2": 0.9987,
+    "cd_mae": 0.00082,
+    "cd_rmse": 0.00101,
+    "cd_r2": 0.9388,
+    "cm_mae": 0.0243,
+    "cm_rmse": 0.0243,
+    "cm_r2": -4.5411,
+    "mean_relative_error_pct": 4.7,
+    "physics_violation_count": 0,
+    "monotonicity_violations": 0,
+    "symmetry_violations": 0,
+    "drag_violations": 0
+  },
+  "physics_validation_summary": {
+    "total_points_evaluated": 216,
+    "drag_positivity_rate": 1.0,
+    "cl_bounds_satisfaction_rate": 1.0,
+    "symmetry_points_tested": 0,
+    "symmetry_points_passed": 0,
+    "all_drag_positive": true
+  },
+  "manifest_checksum": "ead6006be0285466d05b4eee2ff3c31594f2e470cf13bbe92da141461e5c801c"
+}

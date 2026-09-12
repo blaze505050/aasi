@@ -73,6 +73,9 @@ class UncertaintyMetrics(BaseModel):
     cl_uncertainty: float = 0.0
     cd_uncertainty: float = 0.0
     cm_uncertainty: float = 0.0
+    is_calibrated: bool = False
+    calibration_status: str = "UNCERTAINTY_NOT_CALIBRATED"  # UNCERTAINTY_NOT_CALIBRATED, CONFORMAL_CALIBRATED
+    epistemic_tag: str = "SURROGATE — VERIFIED DOMAIN"
 
 
 class AirfoilGeometryDefinition(BaseModel):
@@ -95,6 +98,7 @@ class AerodynamicPrediction(BaseModel):
     cm: float
     uncertainty: UncertaintyMetrics
     domain_status: DomainStatusEnum
+    epistemic_tag: str = "SURROGATE — VERIFIED DOMAIN"
     validation_status: ValidationStatusEnum = ValidationStatusEnum.VALIDATED_ON_TEST_SET
     physics_checks: Dict[str, bool] = Field(default_factory=dict)
     provenance: Dict[str, Any] = Field(default_factory=dict)

@@ -70,22 +70,31 @@ class EpistemicUncertaintyEngine:
         # 4. Out-of-Distribution score
         ood_score = round(max(0.0, mahal_dist * 0.4 + nn_dist * 0.6), 3)
 
-        # 5. Domain Status Classification
-        if is_outside_envelope or ood_score > 3.0:
+        # 5. Domain Status and Epistemic Tag Classification
+        if is_outside_envelope:
             domain_status = DomainStatusEnum.SURROGATE_OUT_OF_DOMAIN
             confidence_level = "OOD"
             confidence_score = round(max(0.05, 1.0 / (1.0 + ood_score)), 3)
             uncertainty_mult = 4.0
+            epistemic_tag = "OUT OF DOMAIN"
+        elif ood_score > 3.0:
+            domain_status = DomainStatusEnum.SURROGATE_OUT_OF_DOMAIN
+            confidence_level = "LOW"
+            confidence_score = round(max(0.05, 1.0 / (1.0 + ood_score)), 3)
+            uncertainty_mult = 4.0
+            epistemic_tag = "SURROGATE — HIGH UNCERTAINTY"
         elif ood_score > 1.8 or abs(raw_aoa) > 12.0 or raw_mach > 0.35:
             domain_status = DomainStatusEnum.EXTRAPOLATION_NEAR_BOUNDARY
             confidence_level = "MEDIUM"
             confidence_score = round(max(0.35, 1.0 / (1.0 + 0.5 * ood_score)), 3)
             uncertainty_mult = 2.0
+            epistemic_tag = "SURROGATE — OOD WARNING"
         else:
             domain_status = DomainStatusEnum.IN_DOMAIN
             confidence_level = "HIGH"
             confidence_score = round(min(0.98, max(0.70, 1.0 - (ood_score * 0.1))), 3)
             uncertainty_mult = 1.0
+            epistemic_tag = "SURROGATE — VERIFIED DOMAIN"
 
         metrics = UncertaintyMetrics(
             confidence_level=confidence_level,
@@ -96,6 +105,9 @@ class EpistemicUncertaintyEngine:
             cl_uncertainty=round(self.base_residuals["cl"] * uncertainty_mult, 4),
             cd_uncertainty=round(self.base_residuals["cd"] * uncertainty_mult, 5),
             cm_uncertainty=round(self.base_residuals["cm"] * uncertainty_mult, 4),
+            is_calibrated=False,
+            calibration_status="UNCERTAINTY_NOT_CALIBRATED",
+            epistemic_tag=epistemic_tag,
         )
 
         return domain_status, metrics

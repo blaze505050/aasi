@@ -1296,6 +1296,201 @@ async def run_multi_dataset_benchmark(req: MultiDatasetBenchmarkRequest):
     return result.model_dump()
 
 
+# --- Physics-AI Model Lab, Lifecycle & Cross-Dataset Endpoints ---
+
+class TrainModelRequest(BaseModel):
+    training_run_id: Optional[str] = None
+    epochs: int = Field(150, ge=1, le=2000)
+    batch_size: int = Field(32, ge=1, le=256)
+    learning_rate: float = Field(0.003, gt=0.0)
+    seed: int = Field(42)
+    export_to_shared: bool = Field(True)
+
+
+class GeneralizationEvaluationRequest(BaseModel):
+    source_dataset_id: str = "DATASET-AUTHENTIC-AIRFOILS-V1"
+    target_dataset_id: str = "DATASET-AIRFRANS-1K"
+    model_name: str = "AeroSurrogateV1"
+    geometry: Optional[str] = None
+
+
+class AdvanceAcquisitionRequest(BaseModel):
+    target_stage: str
+    actor: str = "AASI_ENGINEER"
+    notes: str = ""
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+@app.get("/api/datasets/{dataset_id}/acquisition", summary="Get 11-Stage Dataset Acquisition Status & Trail")
+async def get_dataset_acquisition(dataset_id: str):
+    from backend.datasets.catalog import DatasetCatalog
+    from backend.datasets.acquisition import acquisition_manager
+    catalog = DatasetCatalog()
+    adapter = catalog.get_adapter(dataset_id)
+    if not adapter:
+        raise HTTPException(status_code=404, detail=f"Dataset adapter '{dataset_id}' not found.")
+    manifest = adapter.get_manifest()
+    transitions = acquisition_manager.transitions.get(dataset_id, [])
+    return {
+        "dataset_id": dataset_id,
+        "name": manifest.name,
+        "lifecycle_stage": manifest.lifecycle_stage.value,
+        "ordered_stages": [s.value for s in acquisition_manager.ORDERED_STAGES],
+        "checksum": manifest.checksum,
+        "transition_history": [t.model_dump() for t in transitions] or manifest.transition_history,
+    }
+
+
+@app.post("/api/datasets/{dataset_id}/acquisition/advance", summary="Advance Dataset Acquisition Lifecycle")
+async def advance_dataset_acquisition(dataset_id: str, req: AdvanceAcquisitionRequest):
+    from backend.datasets.catalog import DatasetCatalog
+    from backend.datasets.acquisition import acquisition_manager, AcquisitionContractViolationError
+    from backend.datasets.models import DatasetLifecycle
+    catalog = DatasetCatalog()
+    adapter = catalog.get_adapter(dataset_id)
+    if not adapter:
+        raise HTTPException(status_code=404, detail=f"Dataset adapter '{dataset_id}' not found.")
+    manifest = adapter.get_manifest()
+    try:
+        target_stage = DatasetLifecycle(req.target_stage.upper())
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Unknown lifecycle stage '{req.target_stage}'")
+
+    try:
+        transition = acquisition_manager.advance_lifecycle(
+            manifest=manifest,
+            to_stage=target_stage,
+            actor=req.actor,
+            metadata=req.metadata,
+            notes=req.notes
+        )
+        return {
+            "success": True,
+            "lifecycle_stage": manifest.lifecycle_stage.value,
+            "transition": transition.model_dump()
+        }
+    except AcquisitionContractViolationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+@app.post("/api/models/governance/check", summary="Check Hardware Feasibility Before Training")
+async def check_hardware_governance(sample_count: int = 2000, epochs: int = 150):
+    from backend.physics_ai.governance import HardwareGovernanceGuard
+    report = HardwareGovernanceGuard.evaluate_training_feasibility(
+        sample_count=sample_count,
+        epochs=epochs
+    )
+    return report.model_dump()
+
+
+@app.post("/api/models/train", summary="Execute Reproducible Real Physics-AI Model Training")
+async def train_physics_ai_model(req: TrainModelRequest):
+    from backend.physics_ai.training import SurrogateTrainer
+    from backend.physics_ai.schemas import TrainingRunConfig
+    run_id = req.training_run_id or f"TR-AERO-SURROGATE-{req.seed}"
+    cfg = TrainingRunConfig(
+        training_run_id=run_id,
+        epochs=req.epochs,
+        batch_size=req.batch_size,
+        learning_rate=req.learning_rate,
+        seed=req.seed
+    )
+    trainer = SurrogateTrainer(config=cfg)
+    try:
+        result = trainer.run_training(export_to_shared=req.export_to_shared)
+        return {
+            "training_run_id": result["training_run_id"],
+            "checkpoint_path": result["checkpoint_path"],
+            "checksum": result["checksum"],
+            "parameters": result["parameters"],
+            "lifecycle_status": result["lifecycle_status"],
+            "test_metrics": result["test_metrics"].model_dump(),
+            "val_metrics": result["val_metrics"].model_dump(),
+            "ood_metrics": result["ood_metrics"].model_dump() if result.get("ood_metrics") else None,
+            "reproducibility_manifest": result["reproducibility_manifest"],
+            "scientific_report": result["scientific_report"]
+        }
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@app.get("/api/models/active", summary="Get Active AeroSurrogate Metadata & Epistemic Status")
+async def get_active_model():
+    from pathlib import Path
+    from backend.physics_ai.inference import AerodynamicInferenceEngine
+    from backend.physics_ai.checkpoints import CheckpointManager
+    try:
+        engine = AerodynamicInferenceEngine()
+        ckpt_mgr = CheckpointManager()
+        is_valid, checksum, msg = ckpt_mgr.verify_checkpoint_integrity(
+            engine.checkpoint_path,
+            expected_sha256=engine.checksum if engine.checksum != "MISSING" else None
+        )
+        return {
+            "model_id": engine.model.model_id if engine.model else "AERO_SURROGATE_V1",
+            "model_version": engine.model.model_version if engine.model else "1.0.0",
+            "weights_status": engine.weights_status,
+            "is_checkpoint_verified": is_valid,
+            "checkpoint_path": str(engine.checkpoint_path),
+            "checkpoint_sha256": checksum,
+            "diagnostic_message": msg,
+            "parameters": engine.model.count_parameters() if engine.model else 13800,
+            "training_metadata": engine.metadata,
+        }
+    except Exception as e:
+        return {
+            "model_id": "AERO_SURROGATE_V1",
+            "weights_status": "MODEL_UNAVAILABLE",
+            "is_checkpoint_verified": False,
+            "diagnostic_message": f"Checkpoint unavailable: {str(e)}"
+        }
+
+
+@app.get("/api/models/reproducibility/{run_id}", summary="Get Training Reproducibility Manifest (7 Core Questions)")
+async def get_model_reproducibility(run_id: str):
+    import json
+    from pathlib import Path
+    manifest_path = Path("data/training_runs") / run_id / "reproducibility_manifest.json"
+    if not manifest_path.exists():
+        # Fallback to default
+        manifest_path = Path("data/training_runs/TR-AERO-SURROGATE-V1-001/reproducibility_manifest.json")
+    if not manifest_path.exists():
+        raise HTTPException(status_code=404, detail=f"Reproducibility manifest for run '{run_id}' not found.")
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    from backend.physics_ai.reproducibility import TrainingReproducibilityManifest
+    manifest = TrainingReproducibilityManifest.model_validate(data)
+    seven_q = manifest.answer_seven_reproducibility_questions()
+    return {
+        "manifest": manifest.model_dump(),
+        "seven_core_questions": seven_q
+    }
+
+
+@app.post("/api/models/generalization/evaluate", summary="Evaluate Cross-Dataset Generalization")
+async def evaluate_cross_dataset_generalization(req: GeneralizationEvaluationRequest):
+    from backend.physics.generalization import CrossDatasetGeneralizationEngine
+    from backend.physics_ai.inference import AerodynamicInferenceEngine
+    engine = CrossDatasetGeneralizationEngine()
+    try:
+        infer = AerodynamicInferenceEngine()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"MODEL_UNAVAILABLE: {str(e)}")
+
+    def predictor(geom: str, mach: float, reynolds: float, aoa_deg: float):
+        pred = infer.predict(geometry=geom, mach=mach, reynolds=reynolds, aoa_deg=aoa_deg)
+        return pred.cl, pred.cd
+
+    report = engine.evaluate_generalization(
+        model_name=req.model_name,
+        source_dataset_id=req.source_dataset_id,
+        target_dataset_id=req.target_dataset_id,
+        predictions_generator=predictor,
+        target_geometry_filter=req.geometry
+    )
+    return report.model_dump()
+
+
+
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
 
 async def chat_completion(request: ChatRequest):

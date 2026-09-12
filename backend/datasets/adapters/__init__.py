@@ -11,6 +11,7 @@ from backend.datasets.adapters.base import (
 )
 from backend.datasets.adapters.naca0012 import NACA0012DatasetAdapter
 from backend.datasets.adapters.airfrans import AirfRANSDatasetAdapter
+from backend.datasets.adapters.tmr2d import NASATMR2DDatasetAdapter
 
 __all__ = [
     "DatasetAdapter",
@@ -20,4 +21,5 @@ __all__ = [
     "StorageRequirementReport",
     "NACA0012DatasetAdapter",
     "AirfRANSDatasetAdapter",
+    "NASATMR2DDatasetAdapter",
 ]

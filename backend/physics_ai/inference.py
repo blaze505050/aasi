@@ -196,6 +196,7 @@ class AerodynamicInferenceEngine:
             cd=cd_val,
             cm=cm_val,
             domain_status=domain_status,
+            epistemic_tag=uncertainty.epistemic_tag,
             uncertainty=uncertainty,
             model_id=self.model.model_id,
             model_version=self.model.model_version,

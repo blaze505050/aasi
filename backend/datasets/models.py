@@ -12,18 +12,26 @@ from datetime import datetime, timezone
 
 
 class DatasetLifecycle(str, Enum):
+    # Official 11-stage acquisition contract:
     DISCOVERED = "DISCOVERED"
     LICENSE_VERIFIED = "LICENSE_VERIFIED"
-    LICENSE_CHECKED = "LICENSE_VERIFIED"  # alias for backward compat
+    SOURCE_VERIFIED = "SOURCE_VERIFIED"
+    DOWNLOAD_REQUESTED = "DOWNLOAD_REQUESTED"
     DOWNLOADED = "DOWNLOADED"
     HASH_VERIFIED = "HASH_VERIFIED"
     PARSED = "PARSED"
-    VALIDATED = "VALIDATED"
-    SPLIT = "SPLIT"
+    SCHEMA_VALIDATED = "SCHEMA_VALIDATED"
+    PHYSICS_VALIDATED = "PHYSICS_VALIDATED"
+    SPLIT_VALIDATED = "SPLIT_VALIDATED"
     READY_FOR_TRAINING = "READY_FOR_TRAINING"
-    TRAINING_READY = "READY_FOR_TRAINING"  # alias for backward compat
-    DEPLOYED = "READY_FOR_TRAINING"  # alias for backward compat
     FAILED = "FAILED"
+
+    # Backward compatibility aliases
+    LICENSE_CHECKED = "LICENSE_VERIFIED"
+    VALIDATED = "PHYSICS_VALIDATED"
+    SPLIT = "SPLIT_VALIDATED"
+    TRAINING_READY = "READY_FOR_TRAINING"
+    DEPLOYED = "READY_FOR_TRAINING"
 
 
 class DataSplitType(str, Enum):
@@ -38,8 +46,23 @@ class StorageStatus(str, Enum):
     LOCAL = "AVAILABLE_LOCAL"  # alias
     AVAILABLE_REMOTE_DIRECT = "AVAILABLE_REMOTE_DIRECT"
     AVAILABLE_REMOTE_MANUAL = "AVAILABLE_REMOTE_MANUAL"
+    REMOTE_DATASET_AVAILABLE = "REMOTE_DATASET_AVAILABLE"
+    LOCAL_DATASET_NOT_ACQUIRED = "LOCAL_DATASET_NOT_ACQUIRED"
     DEGRADED_SAMPLE_ONLY = "DEGRADED_SAMPLE_ONLY"
     MISSING_AUTHENTIC_SOURCE = "MISSING_AUTHENTIC_SOURCE"
+
+
+class AcquisitionTransition(BaseModel):
+    """Immutable transition record in the 11-stage dataset acquisition contract."""
+    transition_id: str
+    dataset_id: str
+    from_stage: DatasetLifecycle
+    to_stage: DatasetLifecycle
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    actor: str = "AASI_ACQUISITION_ENGINE"
+    gate_checks_passed: Dict[str, bool] = Field(default_factory=dict)
+    provenance_hash: str = ""
+    notes: str = ""
 
 
 class DatasetManifest(BaseModel):

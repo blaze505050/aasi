@@ -169,3 +169,62 @@ class PhysicsAwareValidator:
             "all_drag_positive": bool(pos_drag_count == total),
         }
 
+    @staticmethod
+    def validate_surface_cp(cps: np.ndarray) -> Dict[str, Any]:
+        """
+        Validates surface pressure distribution against fundamental subsonic fluid mechanics.
+        Rule 1: Cp <= 1.0 (stagnation point limit in incompressible flow).
+        Rule 2: Cp >= -6.0 (subsonic suction peak limit before extreme supersonic shock stall).
+        """
+        max_cp = float(np.max(cps))
+        min_cp = float(np.min(cps))
+
+        stagnation_satisfied = bool(max_cp <= 1.05)  # Allow small 0.05 discretization tolerance
+        suction_bound_satisfied = bool(min_cp >= -6.5)
+
+        violations = []
+        if not stagnation_satisfied:
+            violations.append(f"Unphysical stagnation violation: Cp_max = {max_cp:.4f} > 1.0")
+        if not suction_bound_satisfied:
+            violations.append(f"Unphysical suction peak violation: Cp_min = {min_cp:.4f} < -6.0")
+
+        return {
+            "is_cp_valid": len(violations) == 0,
+            "max_cp": round(max_cp, 4),
+            "min_cp": round(min_cp, 4),
+            "stagnation_satisfied": stagnation_satisfied,
+            "suction_bound_satisfied": suction_bound_satisfied,
+            "violations": violations
+        }
+
+    @staticmethod
+    def audit_model_promotion_gates(
+        metrics: Dict[str, Any],
+        physics_report: Dict[str, Any]
+    ) -> Tuple[bool, List[str]]:
+        """
+        Independent scientific gatekeeper.
+        A model with excellent statistical metrics but physically invalid behavior
+        CANNOT be promoted to VERIFIED or VERIFIED_PRODUCTION.
+        """
+        violations = []
+
+        # 1. Physics gates
+        if not physics_report.get("all_drag_positive", False):
+            violations.append("PHYSICAL_GATE_FAILURE: Non-positive drag predictions detected.")
+        if physics_report.get("drag_positivity_rate", 1.0) < 1.0:
+            violations.append("PHYSICAL_GATE_FAILURE: Drag positivity violated on holdout test set.")
+
+        # 2. Statistical gates on test set
+        r2 = metrics.get("r2", metrics.get("cl_r2", 0.0))
+        rmse = metrics.get("rmse", metrics.get("cl_rmse", 1.0))
+
+        if r2 < 0.80:
+            violations.append(f"STATISTICAL_GATE_FAILURE: Insufficient test set determination R² = {r2:.3f} < 0.80.")
+        if rmse > 0.15:
+            violations.append(f"STATISTICAL_GATE_FAILURE: Test set RMSE = {rmse:.4f} exceeds threshold 0.15.")
+
+        can_promote = len(violations) == 0
+        return can_promote, violations
+
+

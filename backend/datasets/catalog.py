@@ -12,6 +12,7 @@ from backend.datasets.models import DatasetManifest, DatasetLifecycle, StorageSt
 from backend.datasets.adapters.base import DatasetAdapter
 from backend.datasets.adapters.naca0012 import NACA0012DatasetAdapter
 from backend.datasets.adapters.airfrans import AirfRANSDatasetAdapter
+from backend.datasets.adapters.tmr2d import NASATMR2DDatasetAdapter
 
 
 class DatasetCatalog:
@@ -24,12 +25,15 @@ class DatasetCatalog:
         self._register_adapters()
 
     def _register_adapters(self):
-        naca_adapter = NACA0012DatasetAdapter()
-        airfrans_adapter = AirfRANSDatasetAdapter()
-        self.adapters[naca_adapter.get_dataset_id()] = naca_adapter
-        self.adapters[airfrans_adapter.get_dataset_id()] = airfrans_adapter
+        self.register_adapter(NACA0012DatasetAdapter())
+        self.register_adapter(AirfRANSDatasetAdapter())
+        self.register_adapter(NASATMR2DDatasetAdapter())
         # Also alias DATASET-AIRFRANS-1K if referenced
-        self.adapters["DATASET-AIRFRANS-1K"] = airfrans_adapter
+        self.adapters["DATASET-AIRFRANS-1K"] = self.adapters["DATASET-AIRFRANS-1K"]
+
+    def register_adapter(self, adapter: DatasetAdapter) -> None:
+        """Pluggable registration of an authoritative CFD dataset adapter."""
+        self.adapters[adapter.get_dataset_id()] = adapter
 
     def get_adapter(self, dataset_id: str) -> Optional[DatasetAdapter]:
         """Retrieves active adapter for a dataset."""

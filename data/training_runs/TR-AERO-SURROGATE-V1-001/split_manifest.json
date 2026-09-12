@@ -1,5 +1,5 @@
 {
-  "split_version": "GEOMETRY_LEVEL_V1",
+  "split_version": "GEOMETRY_LEVEL_V2",
   "seed": 42,
   "train_geometries": [
     "Clark Y",
@@ -17,14 +17,22 @@
     "RAE 2822"
   ],
   "geometry_leakage_percentage": 0.0,
+  "categories": {
+    "IN-DISTRIBUTION": 216,
+    "GEOMETRY-OOD": 108,
+    "REYNOLDS-OOD": 0,
+    "AOA-OOD": 72,
+    "JOINT-OOD": 36
+  },
   "counts": {
     "train": 432,
     "val": 144,
-    "test": 180,
-    "ood_geometry": 90,
-    "ood_condition": 108,
-    "ood_combined": 54,
+    "test": 216,
+    "ood_geometry": 108,
+    "ood_reynolds": 0,
+    "ood_aoa": 72,
+    "ood_joint": 36,
     "total": 1008
   },
-  "split_checksum": "7eeec01120fb08870d50e19232ac3bea9b6b179ed81f5376f09ac5bb22c30128"
+  "split_checksum": "8b37b1fe8c0d92eb3fccca3cb47143324b89ccd4974f186e3a8717db89ed172c"
 }

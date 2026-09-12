@@ -19,6 +19,9 @@ from backend.datasets.models import DatasetManifest, DatasetLifecycle, StorageSt
 
 class DatasetStorageState(str, Enum):
     """Reflects local workstation storage status for CFD datasets."""
+    DATASET_STORAGE_REQUIREMENTS = "DATASET_STORAGE_REQUIREMENTS"
+    REMOTE_DATASET_AVAILABLE = "REMOTE_DATASET_AVAILABLE"
+    LOCAL_DATASET_NOT_ACQUIRED = "LOCAL_DATASET_NOT_ACQUIRED"
     DATASET_METADATA_ONLY = "DATASET_METADATA_ONLY"
     DATASET_PARTIAL = "DATASET_PARTIAL"
     DATASET_FULL = "DATASET_FULL"
@@ -63,6 +66,8 @@ class StorageRequirementReport(BaseModel):
     available_disk_bytes: int
     safety_threshold_bytes: int = 15_000_000_000  # Leave at least 15 GB free
     is_safe_for_download: bool
+    remote_available: bool = True
+    locally_acquired: bool = False
     recommendation: str
 
 
@@ -118,12 +123,13 @@ class DatasetAdapter(ABC):
         safety_threshold = 15_000_000_000  # 15 GB reserve required
         is_safe = (free - uncompressed_bytes) > safety_threshold
         
+        locally_acquired = (self.get_storage_state() in (DatasetStorageState.DATASET_FULL, DatasetStorageState.DATASET_PARTIAL))
         if not is_safe:
             state = DatasetStorageState.RESOURCE_LIMITED
             recommendation = (
                 f"Full dataset ({uncompressed_bytes / 1e9:.1f} GB uncompressed) exceeds safety reserve "
                 f"on {free / 1e9:.1f} GB available disk. Enforcing {DatasetStorageState.RESOURCE_LIMITED.value} / "
-                f"{DatasetStorageState.DATASET_METADATA_ONLY.value}."
+                f"{DatasetStorageState.REMOTE_DATASET_AVAILABLE.value}."
             )
         else:
             state = DatasetStorageState.DATASET_METADATA_ONLY
@@ -137,5 +143,7 @@ class DatasetAdapter(ABC):
             available_disk_bytes=free,
             safety_threshold_bytes=safety_threshold,
             is_safe_for_download=is_safe,
+            remote_available=True,
+            locally_acquired=locally_acquired,
             recommendation=recommendation
         )
