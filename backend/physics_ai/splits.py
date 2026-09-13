@@ -22,6 +22,39 @@ class DataLeakageError(Exception):
     pass
 
 
+def verify_split_leakage(
+    train_items: List[Any],
+    test_items: List[Any],
+    geometry_key: str = "geometry"
+) -> Dict[str, Any]:
+    """
+    Standalone verification of zero geometric data leakage between partitions.
+    Supports AirfoilSample objects or dictionaries.
+    Fails closed with DataLeakageError if overlap is found.
+    """
+    def get_geom(item):
+        if isinstance(item, dict):
+            return str(item.get(geometry_key) or item.get("geometry_name") or item.get("geometry_id") or item.get("geometry")).strip().upper()
+        return getattr(item, "geometry", getattr(item, "geometry_name", getattr(item, "geometry_id", ""))).strip().upper()
+
+    train_geoms = {get_geom(item) for item in train_items}
+    test_geoms = {get_geom(item) for item in test_items}
+
+    overlap = train_geoms.intersection(test_geoms)
+    if overlap:
+        raise DataLeakageError(
+            f"DATA_LEAKAGE_DETECTED: Geometries {overlap} appear in both TRAIN and TEST partitions!"
+        )
+
+    return {
+        "is_leakage_free": True,
+        "train_geometries": sorted(list(train_geoms)),
+        "test_geometries": sorted(list(test_geoms)),
+        "geometry_overlap_count": 0,
+        "leakage_rate": 0.0
+    }
+
+
 class GeometryLevelSplitter:
     """Partitions samples strictly by unique airfoil geometries with zero leakage."""
 

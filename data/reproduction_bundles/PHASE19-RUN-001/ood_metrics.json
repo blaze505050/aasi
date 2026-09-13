@@ -1,0 +1,24 @@
+{
+  "in_distribution": {
+    "r2": 0.890370502148267,
+    "cl_rmse": 0.012,
+    "sample_count": 10
+  },
+  "geometry_ood": {
+    "r2": -7.776975194843512,
+    "cl_rmse": 0.5789010536530617,
+    "sample_count": 2
+  },
+  "reynolds_ood": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "note": "AirfRANS Re restricted to 2e6-6e6; transonic/hypersonic regimes not present."
+  },
+  "aoa_ood": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "note": "Cases restricted to -5 to +15 deg; deep stall (>25 deg) not present in subset."
+  },
+  "joint_ood": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "note": "Unseen geometry at high Re untested in current machine footprint."
+  }
+}

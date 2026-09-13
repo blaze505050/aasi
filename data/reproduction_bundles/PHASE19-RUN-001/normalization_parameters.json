@@ -1,0 +1,19 @@
+{
+  "normalizer_type": "StandardScaler",
+  "fitted_on": "TRAIN_SPLIT_ONLY",
+  "feature_names": [
+    "reynolds_millions",
+    "mach",
+    "aoa_deg"
+  ],
+  "mean": [
+    3.6399999999999997,
+    0.16229999999999997,
+    6.1
+  ],
+  "scale": [
+    1.2737346762472526,
+    0.051662472194517986,
+    4.6141088080237305
+  ]
+}

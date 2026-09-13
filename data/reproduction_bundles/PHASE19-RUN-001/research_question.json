@@ -1,0 +1,21 @@
+{
+  "run_id": "PHASE19-RUN-001",
+  "title": "Phase 19 Autonomous Reproducibility Benchmark: Physics-Informed Aerodynamic Surrogate",
+  "research_question": "Can regularized analytical surrogates achieve generalizable lift/drag prediction on authentic AirfRANS cases with zero physical constraint violations?",
+  "hypothesis": "Analytical SVD regularized surrogates trained on geometry-isolated RANS datasets maintain strictly positive drag and R2 > 0.85 on unseen geometries.",
+  "target_geometry": "NACA 4-Digit & 5-Digit Airfoils",
+  "operating_conditions": {
+    "mach_range": [
+      0.09,
+      0.22
+    ],
+    "reynolds_range": [
+      2000000.0,
+      6000000.0
+    ],
+    "aoa_range": [
+      -5.0,
+      15.0
+    ]
+  }
+}

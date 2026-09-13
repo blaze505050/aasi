@@ -1,0 +1,7 @@
+{
+  "model_id": "AERO_SURROGATE_PHASE19",
+  "architecture": "AnalyticalRegularizedSurrogate",
+  "input_dimension": 3,
+  "output_dimension": 2,
+  "parameter_count": 8
+}

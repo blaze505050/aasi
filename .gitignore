@@ -90,3 +90,7 @@ data/datasets/cache/
 !data/training_runs/
 !data/training_runs/TR-AERO-SURROGATE-V1-001/
 !data/training_runs/TR-AERO-SURROGATE-V1-001/**
+!data/manifests/
+!data/manifests/**
+!data/reproduction_bundles/
+!data/reproduction_bundles/**

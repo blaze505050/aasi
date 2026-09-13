@@ -1,0 +1,8 @@
+{
+  "calibration_status": "CALIBRATED_CONFORMAL_95",
+  "calibration_sample_count": 2,
+  "cl_95_margin": 0.3605617967378658,
+  "cd_95_margin": 0.003927122331946483,
+  "epistemic_tag": "SURROGATE \u2014 VERIFIED DOMAIN",
+  "methodology": "Conformal Prediction Residual Quantiles on Held-Out Validation Split"
+}

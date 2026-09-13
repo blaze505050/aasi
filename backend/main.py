@@ -1373,6 +1373,73 @@ async def advance_dataset_acquisition(dataset_id: str, req: AdvanceAcquisitionRe
         raise HTTPException(status_code=422, detail=str(e))
 
 
+@app.get("/api/environment/manifest", summary="Get Verifiable System Environment Manifest")
+async def get_system_environment():
+    """Returns cryptographic machine-readable host system environment manifest."""
+    from backend.physics_ai.governance import HardwareGovernanceGuard
+    manifest = HardwareGovernanceGuard.get_system_environment_manifest()
+    return manifest.model_dump()
+
+
+@app.post("/api/phase19/execute", summary="Execute Phase 19 Scientific Campaign & Reproduction")
+async def execute_phase19_campaign():
+    """Executes deterministic campaign, two-run reproducibility test, and independent verification."""
+    from backend.physics_ai.reproduction_campaign import Phase19CampaignOrchestrator
+    try:
+        results = Phase19CampaignOrchestrator.run_campaign()
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/phase19/status", summary="Get Phase 19 Latest Campaign Status")
+async def get_phase19_status():
+    """Retrieves current status and verified metrics of the Phase 19 reproduction bundle."""
+    import json
+    from pathlib import Path
+    from backend.research.verifier import ReproducibilityVerifier
+    bundle_dir = Path("data/reproduction_bundles/PHASE19-RUN-001")
+    if not bundle_dir.exists() or not (bundle_dir / "hashes.sha256").exists():
+        return {"status": "NOT_EXECUTED", "run_id": None}
+    
+    report = ReproducibilityVerifier.verify_phase19_bundle(bundle_dir)
+    metrics = {}
+    metrics_f = bundle_dir / "evaluation_metrics.json"
+    if metrics_f.exists():
+        try:
+            metrics = json.loads(metrics_f.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    ood_metrics = {}
+    ood_f = bundle_dir / "ood_metrics.json"
+    if ood_f.exists():
+        try:
+            ood_metrics = json.loads(ood_f.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    uncertainty = {}
+    unc_f = bundle_dir / "uncertainty_results.json"
+    if unc_f.exists():
+        try:
+            uncertainty = json.loads(unc_f.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    return {
+        "status": report.status.value,
+        "run_id": report.run_id,
+        "bundle_dir": str(bundle_dir),
+        "tamper_detected": report.tamper_detected,
+        "checks_passed": report.checks_passed,
+        "checks_failed": report.checks_failed,
+        "metrics": metrics,
+        "ood_metrics": ood_metrics,
+        "uncertainty": uncertainty
+    }
+
+
 @app.post("/api/models/governance/check", summary="Check Hardware Feasibility Before Training")
 async def check_hardware_governance(sample_count: int = 2000, epochs: int = 150):
     from backend.physics_ai.governance import HardwareGovernanceGuard

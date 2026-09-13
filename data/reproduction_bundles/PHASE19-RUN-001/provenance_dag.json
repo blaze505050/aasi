@@ -1,0 +1,59 @@
+{
+  "ledger_id": "LEDGER-PHASE19-001",
+  "records": [
+    {
+      "evidence_id": "EV-01",
+      "type": "RESEARCH_QUESTION",
+      "content_hash": "223b1992b9d2f4202742cedcd172d3d8f8cb6885c3df5955d7dcf1c578f42546",
+      "parents": []
+    },
+    {
+      "evidence_id": "EV-02",
+      "type": "DATASET_ACQUISITION",
+      "content_hash": "fbcb3e370079ba85d6f8287a876c675426e8c86d231c8c0282d9fbc82bbd1b87",
+      "parents": [
+        "EV-01"
+      ]
+    },
+    {
+      "evidence_id": "EV-03",
+      "type": "SPLIT_VALIDATION",
+      "content_hash": "6cc370d7784935f6c15a22e38727751f9ee5603420cbe5921b5a6f0530ccb5db",
+      "parents": [
+        "EV-02"
+      ]
+    },
+    {
+      "evidence_id": "EV-04",
+      "type": "TRAINING_EXECUTION",
+      "content_hash": "95c86cb748c3cf9ba8f47d2212b2be11a584fb91aa81900039944bfba6e1245c",
+      "parents": [
+        "EV-03"
+      ]
+    },
+    {
+      "evidence_id": "EV-05",
+      "type": "PHYSICS_VALIDATION",
+      "content_hash": "764a99272ec1bfdb62bd190bfae02714b45ea5be499d225b39c2fe65764e6d8c",
+      "parents": [
+        "EV-04"
+      ]
+    },
+    {
+      "evidence_id": "EV-06",
+      "type": "OOD_EVALUATION",
+      "content_hash": "130d82aae495ea374aa96e495b784153cd97c367eb91831f784ffbd3cfaf12c2",
+      "parents": [
+        "EV-05"
+      ]
+    },
+    {
+      "evidence_id": "EV-07",
+      "type": "CONCLUSION",
+      "content_hash": "87ed4f87a842f25728bbf37705ee61260473c042dee8c67308e3b7e9b5628028",
+      "parents": [
+        "EV-06"
+      ]
+    }
+  ]
+}

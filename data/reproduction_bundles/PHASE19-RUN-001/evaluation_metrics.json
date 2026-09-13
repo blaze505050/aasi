@@ -1,0 +1,13 @@
+{
+  "train_r2": 0.890370502148267,
+  "test_r2": -7.776975194843512,
+  "cl_rmse": 0.5789010536530617,
+  "cd_rmse": 0.008867260313852958,
+  "min_cd": 0.010910907958887942,
+  "max_cp": 0.985,
+  "physics_gates_passed": {
+    "drag_non_negative": true,
+    "lift_slope_monotonic": true,
+    "stagnation_cp_bounded": true
+  }
+}

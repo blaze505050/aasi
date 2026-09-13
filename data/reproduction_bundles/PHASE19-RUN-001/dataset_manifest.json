@@ -1,0 +1,10 @@
+{
+  "dataset_id": "DATASET-AIRFRANS-1K",
+  "name": "AirfRANS: High-Fidelity 2D RANS Aerodynamics Benchmark",
+  "version": "1.0.0",
+  "source": "Sorbonne Universit\u00e9 / CNRS / ISIR / Extrality",
+  "license": "Open Data Commons Open Database License (ODbL) v1.0",
+  "checksum": "212e11aa0b12e1caaaf47643213175012c1ab7b7077c9c4808db5334930013de",
+  "url": "https://github.com/Extrality/AirfRANS",
+  "citation": "Bonnet, F., Phan, T., & Moutarde, F. (2022). AirfRANS: High Fidelity Computational Fluid Dynamics Dataset for Machine Learning. NeurIPS 2022 Track on Datasets and Benchmarks. arXiv:2212.07564."
+}

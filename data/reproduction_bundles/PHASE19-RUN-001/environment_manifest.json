@@ -1,0 +1,20 @@
+{
+  "timestamp_utc": "2026-09-13T07:20:37.676752+00:00",
+  "os_platform": "Windows-11-10.0.26200-SP0",
+  "architecture": "AMD64",
+  "python_version": "3.12.10",
+  "git_commit": "c14017aea16b685a2a4e83c8e92afb3b29acf418",
+  "total_ram_gb": 8.0,
+  "available_ram_gb": 1.0,
+  "total_disk_gb": 127.0,
+  "available_disk_gb": 25.21,
+  "disk_safety_reserve_gb": 15.0,
+  "is_disk_safety_satisfied": true,
+  "numpy_version": "2.5.3",
+  "scipy_version": "1.18.1",
+  "torch_version": null,
+  "torch_cuda_available": false,
+  "simplefoam_available": false,
+  "wsl_available": true,
+  "manifest_hash": "aa673c4b0b72b2532663ae286b5b36319fd610b0536d8e1f68c699354b3fd043"
+}

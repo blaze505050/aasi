@@ -1,0 +1,11 @@
+{
+  "training_run_id": "PHASE19-RUN-001",
+  "algorithm": "RidgeRegressionAnalytical",
+  "alpha": 0.1,
+  "random_seed": 42,
+  "deterministic_execution": true,
+  "device": "Local CPU",
+  "epochs": 150,
+  "batch_size": 10,
+  "timestamp_utc": "2026-09-13T07:20:37.686992+00:00"
+}

@@ -1,0 +1,14 @@
+{
+  "run_id": "PHASE19-RUN-001",
+  "reproduction_steps": [
+    "1. Load subset_manifest.json and split_definition.json.",
+    "2. Fit normalization_parameters.json strictly on train split.",
+    "3. Compute closed-form Ridge weights: W = (X^T X + alpha*I)^(-1) X^T y.",
+    "4. Compare weights against checkpoint.npz (assert max diff < 1e-6)."
+  ],
+  "environment": {
+    "python": "3.12.10",
+    "os": "Windows-11-10.0.26200-SP0",
+    "git_commit": "c14017aea16b685a2a4e83c8e92afb3b29acf418"
+  }
+}

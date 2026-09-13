@@ -1,0 +1,21 @@
+{
+  "split_id": "SPLIT-PHASE19-GEOM-ISOLATED",
+  "strategy": "STRICT_GEOMETRY_LEVEL_SEPARATION",
+  "train_geometries": [
+    "NACA 0012",
+    "NACA 2412",
+    "NACA 4412"
+  ],
+  "val_geometries": [
+    "NACA 0018",
+    "NACA 23012"
+  ],
+  "test_geometries": [
+    "NACA 4415",
+    "NACA 6409"
+  ],
+  "train_cases_count": 10,
+  "val_cases_count": 2,
+  "test_cases_count": 2,
+  "leakage_audit_passed": true
+}
