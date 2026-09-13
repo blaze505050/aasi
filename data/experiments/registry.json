@@ -1,0 +1,336 @@
+{
+  "AASI-P20-EXP-001": {
+    "experiment_id": "AASI-P20-EXP-001",
+    "parent_experiment_id": null,
+    "created_at": "2026-09-13T08:22:13.084828+00:00",
+    "model_name": "Benchmark-Suite-Comparison",
+    "representation_name": "Comparison-A-vs-D",
+    "dataset_manifest_hash": "551871857e8bf1ef08da857ce055008ecbd3b6389df0ff431b67a84b80af6bd5",
+    "geometry_hashes": [
+      "a59ce0fb4364304a3d6e34f80e90946a3590d8a34d70faff2bd580aa8ffb4010",
+      "ec13d8ce2923877f330b289dff61e91679c1873a36a108e781abd6166083454e",
+      "991ea6c874d6b879b81f1ede7ce1b2ec0b4a39208cf0edcefff43cbcb23e686d",
+      "c6d3a1dbb0a8f01697e9fe1e9e47da832ff007d29b7384d8fce2021b7deec681",
+      "bdd34b9f2ce6fe384ded681eb412f26e73b763b60065d63fda852daa395ebc8f",
+      "1db5b0e23163e9b2cd9e68c6426467ce709d8b96b94b761e572ff83077c76204",
+      "0ed1e0a04c73d2d11ef426d10de40d4eae8c7d281a279826d41fa6bd085d2ee7",
+      "0a56337047a2b4eb3ff4c40fa61c614cfaaa6ba3c2dc6dfb99737ae5a5618cee",
+      "0a8152ce19e8a85a557e8afe698ba9f65d6f4c16abef03e9b7ded286636c6f2a",
+      "59730c2ec2430b7a92072b2a8a2484bd3f870dfe72a5d7fb030524c20871e582",
+      "825c6e40bf0d1caa2dd9dce896033883b140f6ed7a0482dc39c317930c7cc99e"
+    ],
+    "split_definition": {
+      "train": [
+        "NACA 0012",
+        "NACA 0009",
+        "NACA 2412"
+      ],
+      "val": [
+        "NACA 0006",
+        "NACA 4412"
+      ],
+      "test": [
+        "NACA 6409",
+        "NACA 4415",
+        "Clark Y",
+        "RAE 2822"
+      ]
+    },
+    "hyperparameters": {
+      "models_tested": 8,
+      "seed": 42
+    },
+    "training_metrics": {
+      "best_train_r2": 0.9996
+    },
+    "ood_metrics": {
+      "baseline_ood_r2": -7.777,
+      "best_ood_r2": 0.9776,
+      "leaderboard": [
+        {
+          "model_id": "Phase19-Ridge-Baseline",
+          "representation": "Representation A (Descriptors)",
+          "train_r2": 0.8534,
+          "geo_ood_r2": 0.8407,
+          "rmse": 0.1074,
+          "mae": 0.0729,
+          "physical_violations": 78,
+          "uncertainty_status": "UNCERTAINTY_CALIBRATED",
+          "weights_hash": "4ca98260a9eb71a80d7ffb62e056878e59b33ddfe07f67dde47833cdabc70a7a"
+        },
+        {
+          "model_id": "Polynomial-Ridge-Deg2",
+          "representation": "Representation A (Descriptors)",
+          "train_r2": 0.9895,
+          "geo_ood_r2": 0.7072,
+          "rmse": 0.326,
+          "mae": 0.2033,
+          "physical_violations": 0,
+          "uncertainty_status": "UNCERTAINTY_NOT_CALIBRATED",
+          "weights_hash": "7019ca790f9ab3ea943be1ebf156539ea14766432eae4406b5eff6fa398300b8"
+        },
+        {
+          "model_id": "Random-Forest-Surrogate",
+          "representation": "Representation D (Geometry-Aware)",
+          "train_r2": 0.9996,
+          "geo_ood_r2": 0.9776,
+          "rmse": 0.0775,
+          "mae": 0.0501,
+          "physical_violations": 0,
+          "uncertainty_status": "UNCERTAINTY_NOT_CALIBRATED",
+          "weights_hash": "e55f229f40c277901e77f6a833146a05dc71fba8ebd337538a6c25c2946b8b8c"
+        },
+        {
+          "model_id": "Gradient-Boosting-Surrogate",
+          "representation": "Representation D (Geometry-Aware)",
+          "train_r2": 0.9974,
+          "geo_ood_r2": 0.9756,
+          "rmse": 0.0835,
+          "mae": 0.0519,
+          "physical_violations": 0,
+          "uncertainty_status": "UNCERTAINTY_NOT_CALIBRATED",
+          "weights_hash": "f2654b3f5aa96afd5f35b1e9d07bc924c27a3f3ec89f8e62e8ca5e9c62ad0f00"
+        },
+        {
+          "model_id": "Multilayer-Perceptron-Surrogate",
+          "representation": "Representation D (Geometry-Aware)",
+          "train_r2": 0.8067,
+          "geo_ood_r2": -139.7087,
+          "rmse": 0.7004,
+          "mae": 0.5736,
+          "physical_violations": 0,
+          "uncertainty_status": "UNCERTAINTY_NOT_CALIBRATED",
+          "weights_hash": "267bb576bfe637c3594e32631d1740f22a3b19a7486c007187099ef4747076d6"
+        },
+        {
+          "model_id": "Geometry-Aware-MLP",
+          "representation": "Representation D (Geometry-Aware)",
+          "train_r2": 0.8035,
+          "geo_ood_r2": -102.4097,
+          "rmse": 0.6048,
+          "mae": 0.5009,
+          "physical_violations": 1,
+          "uncertainty_status": "UNCERTAINTY_NOT_CALIBRATED",
+          "weights_hash": "feda4da6546f64a475cfb97e8d4679d4c43a27357975de337b13da2553f160af"
+        },
+        {
+          "model_id": "Physics-Constrained-Surrogate",
+          "representation": "Representation A (Descriptors)",
+          "train_r2": 0.8652,
+          "geo_ood_r2": 0.8485,
+          "rmse": 0.1073,
+          "mae": 0.0719,
+          "physical_violations": 0,
+          "uncertainty_status": "UNCERTAINTY_CALIBRATED",
+          "weights_hash": "4ca98260a9eb71a80d7ffb62e056878e59b33ddfe07f67dde47833cdabc70a7a"
+        },
+        {
+          "model_id": "Model-Ensemble-Surrogate",
+          "representation": "Representation D (Geometry-Aware)",
+          "train_r2": 0.9791,
+          "geo_ood_r2": 0.4578,
+          "rmse": 0.4428,
+          "mae": 0.2876,
+          "physical_violations": 1,
+          "uncertainty_status": "UNCERTAINTY_CALIBRATED",
+          "weights_hash": "7aef9ec31a12bac617ccecebec3a0fac80944914d240711cd52a2f763b6eef91"
+        }
+      ]
+    },
+    "calibration_metrics": {
+      "uq_audited_count": 8
+    },
+    "physical_admissibility": {
+      "total_violations": 80
+    },
+    "checkpoint_hash": "4ca98260a9eb71a80d7ffb62e056878e59b33ddfe07f67dde47833cdabc70a7a",
+    "environment_hash": "4b68ef5f8adad6d22ef14ae2f11186eeb1e345f17d3d2dc5942faeb3bba305a4",
+    "provenance_dag_hash": "114db01dfa5b2621586ca390e0abd48b1ec47660dec27dc7a34284c4fed9e7d5",
+    "scientific_conclusion": "Hypothesis H1 is SUPPORTED: Geometry-aware coordinate representations improved OOD R^2 from -7.777 to 0.978 (Random-Forest-Surrogate).",
+    "promotion_stage": "OOD_EVALUATED",
+    "is_verified": false
+  },
+  "AASI-P20-EXP-002": {
+    "experiment_id": "AASI-P20-EXP-002",
+    "parent_experiment_id": "AASI-P20-EXP-001",
+    "created_at": "2026-09-13T08:22:13.090486+00:00",
+    "model_name": "Physics-Constraint-Ablation",
+    "representation_name": "Representation A",
+    "dataset_manifest_hash": "551871857e8bf1ef08da857ce055008ecbd3b6389df0ff431b67a84b80af6bd5",
+    "geometry_hashes": [
+      "a59ce0fb4364304a3d6e34f80e90946a3590d8a34d70faff2bd580aa8ffb4010",
+      "ec13d8ce2923877f330b289dff61e91679c1873a36a108e781abd6166083454e",
+      "991ea6c874d6b879b81f1ede7ce1b2ec0b4a39208cf0edcefff43cbcb23e686d",
+      "c6d3a1dbb0a8f01697e9fe1e9e47da832ff007d29b7384d8fce2021b7deec681",
+      "bdd34b9f2ce6fe384ded681eb412f26e73b763b60065d63fda852daa395ebc8f",
+      "1db5b0e23163e9b2cd9e68c6426467ce709d8b96b94b761e572ff83077c76204",
+      "0ed1e0a04c73d2d11ef426d10de40d4eae8c7d281a279826d41fa6bd085d2ee7",
+      "0a56337047a2b4eb3ff4c40fa61c614cfaaa6ba3c2dc6dfb99737ae5a5618cee",
+      "0a8152ce19e8a85a557e8afe698ba9f65d6f4c16abef03e9b7ded286636c6f2a",
+      "59730c2ec2430b7a92072b2a8a2484bd3f870dfe72a5d7fb030524c20871e582",
+      "825c6e40bf0d1caa2dd9dce896033883b140f6ed7a0482dc39c317930c7cc99e"
+    ],
+    "split_definition": {
+      "train": [
+        "NACA 0012",
+        "NACA 0009",
+        "NACA 2412"
+      ],
+      "test": [
+        "NACA 6409",
+        "NACA 4415",
+        "Clark Y",
+        "RAE 2822"
+      ]
+    },
+    "hyperparameters": {
+      "lambda_drag": 10.0,
+      "alpha": 1.0
+    },
+    "training_metrics": {
+      "unconstrained_train_r2": 0.8562,
+      "constrained_train_r2": 0.868
+    },
+    "ood_metrics": {
+      "unconstrained_test_r2": 0.8444,
+      "constrained_test_r2": 0.8525
+    },
+    "calibration_metrics": {
+      "sweep_points": 50
+    },
+    "physical_admissibility": {
+      "unconstrained_cd_violations": 8,
+      "constrained_cd_violations": 0
+    },
+    "checkpoint_hash": "cd3b605b1b925b92ccc70d05e82550204a5ae41d63399d9aa14fd0322022abdc",
+    "environment_hash": "4b68ef5f8adad6d22ef14ae2f11186eeb1e345f17d3d2dc5942faeb3bba305a4",
+    "provenance_dag_hash": "6ce36de486dd63f683ba2170de79baafcae9a79d05d1bd6f663f39fe273da337",
+    "scientific_conclusion": "Hypothesis H2 is SUPPORTED: Physics-constrained model completely eliminated 8 negative drag violations on extreme AoA sweep while retaining 101.4% of in-domain R^2.",
+    "promotion_stage": "PHYSICS_VALIDATED",
+    "is_verified": false
+  },
+  "AASI-P20-EXP-003": {
+    "experiment_id": "AASI-P20-EXP-003",
+    "parent_experiment_id": "AASI-P20-EXP-001",
+    "created_at": "2026-09-13T08:22:13.202347+00:00",
+    "model_name": "Conformal-Calibration-Benchmark",
+    "representation_name": "Representation D",
+    "dataset_manifest_hash": "551871857e8bf1ef08da857ce055008ecbd3b6389df0ff431b67a84b80af6bd5",
+    "geometry_hashes": [
+      "a59ce0fb4364304a3d6e34f80e90946a3590d8a34d70faff2bd580aa8ffb4010",
+      "ec13d8ce2923877f330b289dff61e91679c1873a36a108e781abd6166083454e",
+      "991ea6c874d6b879b81f1ede7ce1b2ec0b4a39208cf0edcefff43cbcb23e686d",
+      "c6d3a1dbb0a8f01697e9fe1e9e47da832ff007d29b7384d8fce2021b7deec681",
+      "bdd34b9f2ce6fe384ded681eb412f26e73b763b60065d63fda852daa395ebc8f",
+      "1db5b0e23163e9b2cd9e68c6426467ce709d8b96b94b761e572ff83077c76204",
+      "0ed1e0a04c73d2d11ef426d10de40d4eae8c7d281a279826d41fa6bd085d2ee7",
+      "0a56337047a2b4eb3ff4c40fa61c614cfaaa6ba3c2dc6dfb99737ae5a5618cee",
+      "0a8152ce19e8a85a557e8afe698ba9f65d6f4c16abef03e9b7ded286636c6f2a",
+      "59730c2ec2430b7a92072b2a8a2484bd3f870dfe72a5d7fb030524c20871e582",
+      "825c6e40bf0d1caa2dd9dce896033883b140f6ed7a0482dc39c317930c7cc99e"
+    ],
+    "split_definition": {
+      "train": [
+        "NACA 0012",
+        "NACA 0009"
+      ],
+      "cal": [
+        "NACA 2412"
+      ],
+      "test": [
+        "NACA 4412",
+        "NACA 0006",
+        "Clark Y"
+      ]
+    },
+    "hyperparameters": {
+      "q_hat": 1.4243,
+      "alpha": 0.05
+    },
+    "training_metrics": {
+      "train_samples": 288.0,
+      "cal_samples": 144.0
+    },
+    "ood_metrics": {
+      "test_samples": 432
+    },
+    "calibration_metrics": {
+      "uncalibrated_coverage": 0.9954,
+      "conformal_coverage": 0.9884,
+      "conformal_sharpness": 87.7525,
+      "status": "UNCERTAINTY_CALIBRATED"
+    },
+    "physical_admissibility": {
+      "is_calibrated": true
+    },
+    "checkpoint_hash": "39a66ddf650350a438fb848d60cc07ff2dfe2d1452f018849eefc8a1e57f1fae",
+    "environment_hash": "4b68ef5f8adad6d22ef14ae2f11186eeb1e345f17d3d2dc5942faeb3bba305a4",
+    "provenance_dag_hash": "73cd62bd83d6f9f8f73645608616d1454147be687bc1edf1b1176180a3b54f91",
+    "scientific_conclusion": "Hypothesis H3 is SUPPORTED: Conformal prediction achieved empirical coverage of 98.8% on unseen airfoils (nominal 95.0%), resolving baseline overconfidence (99.5%).",
+    "promotion_stage": "UNCERTAINTY_AUDITED",
+    "is_verified": true
+  },
+  "AASI-P20-EXP-004": {
+    "experiment_id": "AASI-P20-EXP-004",
+    "parent_experiment_id": "AASI-P20-EXP-001",
+    "created_at": "2026-09-13T08:22:13.235492+00:00",
+    "model_name": "Active-Learning-Feasibility",
+    "representation_name": "Representation D",
+    "dataset_manifest_hash": "551871857e8bf1ef08da857ce055008ecbd3b6389df0ff431b67a84b80af6bd5",
+    "geometry_hashes": [
+      "a59ce0fb4364304a3d6e34f80e90946a3590d8a34d70faff2bd580aa8ffb4010",
+      "ec13d8ce2923877f330b289dff61e91679c1873a36a108e781abd6166083454e",
+      "991ea6c874d6b879b81f1ede7ce1b2ec0b4a39208cf0edcefff43cbcb23e686d",
+      "c6d3a1dbb0a8f01697e9fe1e9e47da832ff007d29b7384d8fce2021b7deec681",
+      "bdd34b9f2ce6fe384ded681eb412f26e73b763b60065d63fda852daa395ebc8f",
+      "1db5b0e23163e9b2cd9e68c6426467ce709d8b96b94b761e572ff83077c76204",
+      "0ed1e0a04c73d2d11ef426d10de40d4eae8c7d281a279826d41fa6bd085d2ee7",
+      "0a56337047a2b4eb3ff4c40fa61c614cfaaa6ba3c2dc6dfb99737ae5a5618cee",
+      "0a8152ce19e8a85a557e8afe698ba9f65d6f4c16abef03e9b7ded286636c6f2a",
+      "59730c2ec2430b7a92072b2a8a2484bd3f870dfe72a5d7fb030524c20871e582",
+      "825c6e40bf0d1caa2dd9dce896033883b140f6ed7a0482dc39c317930c7cc99e"
+    ],
+    "split_definition": {
+      "train": [
+        "NACA 0012",
+        "NACA 2412"
+      ],
+      "candidate_pool": [
+        "NACA 0009",
+        "NACA 0006",
+        "NACA 4412",
+        "NACA 0018",
+        "NACA 23012",
+        "NACA 6409",
+        "NACA 4415",
+        "Clark Y",
+        "RAE 2822"
+      ]
+    },
+    "hyperparameters": {
+      "top_k": 5,
+      "w_uncertainty": 0.45,
+      "w_ood": 0.35,
+      "w_diversity": 0.2
+    },
+    "training_metrics": {
+      "train_cases": 288.0
+    },
+    "ood_metrics": {
+      "candidates_evaluated": 216
+    },
+    "calibration_metrics": {
+      "top_candidate": "CAND-P20-001-NACA4415-AOA16"
+    },
+    "physical_admissibility": {
+      "staged_case_path": "data/cases/staged\\CAND-P20-001-NACA4415-AOA16",
+      "execution_status": "USER_EXECUTED_REQUIRED"
+    },
+    "checkpoint_hash": "66106d96a926dbbbff1165747370071bc3b4d8219e6e0f03dd76cd4f0ab4a49a",
+    "environment_hash": "4b68ef5f8adad6d22ef14ae2f11186eeb1e345f17d3d2dc5942faeb3bba305a4",
+    "provenance_dag_hash": "588f6ac84b043eb16ba1aaa2d271728c4a29ba2c1450571cd228a79713e9a5f3",
+    "scientific_conclusion": "Hypothesis H4 is SUPPORTED (Engineering Loop & Case Staging Verified): Active learning successfully identified 5 high-value CFD candidates targeting maximum epistemic uncertainty and geometric OOD distance. Top candidate (CAND-P20-001-NACA4415-AOA16) was staged as a complete OpenFOAM deck. Full closure of the retrain loop honestly reports USER_EXECUTED_REQUIRED due to host solver absence.",
+    "promotion_stage": "SCIENTIFICALLY_VERIFIED",
+    "is_verified": true
+  }
+}

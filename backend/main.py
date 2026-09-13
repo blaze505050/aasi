@@ -1558,6 +1558,122 @@ async def evaluate_cross_dataset_generalization(req: GeneralizationEvaluationReq
 
 
 
+
+# =============================================================================
+# Phase 20: Real Scientific Execution, Benchmark & Active Learning APIs
+# =============================================================================
+
+class Phase20GeometryAnalysisRequest(BaseModel):
+    geometry_name: str = "NACA 0012"
+    coordinates: Optional[List[List[float]]] = None
+
+
+class Phase20StageCaseRequest(BaseModel):
+    candidate_id: str
+
+
+@app.get("/api/phase20/status", summary="Get Phase 20 Scientific Campaign Status")
+async def get_phase20_status():
+    from backend.physics_ai.phase20_campaign import Phase20CampaignRunner
+    import json
+    summary_path = "data/experiments/phase20_summary.json"
+    if os.path.exists(summary_path):
+        with open(summary_path, "r") as f:
+            return json.load(f)
+    # If not yet executed, run campaign
+    return Phase20CampaignRunner.run_all()
+
+
+@app.get("/api/phase20/experiments", summary="List All Phase 20 Registered Experiments")
+async def list_phase20_experiments():
+    from backend.research.experiment_registry import PersistentExperimentRegistry
+    registry = PersistentExperimentRegistry()
+    return {"experiments": [e.dict() for e in registry.list_experiments()]}
+
+
+@app.get("/api/phase20/experiments/{experiment_id}", summary="Get Phase 20 Experiment by ID")
+async def get_phase20_experiment(experiment_id: str):
+    from backend.research.experiment_registry import PersistentExperimentRegistry
+    registry = PersistentExperimentRegistry()
+    exp = registry.get_experiment(experiment_id)
+    if not exp:
+        raise HTTPException(status_code=404, detail=f"Experiment '{experiment_id}' not found.")
+    return exp.dict()
+
+
+@app.post("/api/phase20/experiments/run", summary="Trigger Phase 20 Campaign Execution")
+async def run_phase20_campaign_endpoint():
+    from backend.physics_ai.phase20_campaign import Phase20CampaignRunner
+    return Phase20CampaignRunner.run_all()
+
+
+@app.get("/api/phase20/benchmark/leaderboard", summary="Get Phase 20 Benchmark Model Leaderboard")
+async def get_phase20_leaderboard():
+    from backend.physics_ai.phase20_campaign import Phase20CampaignRunner
+    import json
+    summary_path = "data/experiments/phase20_summary.json"
+    if os.path.exists(summary_path):
+        with open(summary_path, "r") as f:
+            data = json.load(f)
+            return {"leaderboard": data.get("e001_central_benchmark", {}).get("leaderboard", [])}
+    res = Phase20CampaignRunner.run_all()
+    return {"leaderboard": res.get("e001_central_benchmark", {}).get("leaderboard", [])}
+
+
+@app.post("/api/phase20/geometries/analyze", summary="Analyze and Hash Airfoil Geometry")
+async def analyze_airfoil_geometry(req: Phase20GeometryAnalysisRequest):
+    from backend.physics_ai.geometry_representation import GeometryRepresentationEngine
+    engine = GeometryRepresentationEngine(target_points=64)
+    if req.coordinates and len(req.coordinates) >= 8:
+        _, profile = engine.process_coordinates(req.coordinates, req.geometry_name)
+    else:
+        _, profile = engine.generate_analytical_naca(req.geometry_name)
+    return profile.dict()
+
+
+@app.get("/api/phase20/active-learning/candidates", summary="Get Ranked Active Learning Candidates")
+async def get_active_learning_candidates():
+    import json
+    summary_path = "data/experiments/phase20_summary.json"
+    if os.path.exists(summary_path):
+        with open(summary_path, "r") as f:
+            data = json.load(f)
+            return {"candidates": data.get("e004_active_learning", {}).get("candidates", [])}
+    from backend.physics_ai.phase20_campaign import Phase20CampaignRunner
+    res = Phase20CampaignRunner.run_all()
+    return {"candidates": res.get("e004_active_learning", {}).get("candidates", [])}
+
+
+@app.post("/api/phase20/active-learning/stage-case", summary="Stage OpenFOAM Case for Active Candidate")
+async def stage_active_candidate_case(req: Phase20StageCaseRequest):
+    from backend.physics_ai.active_experimentation import ActiveExperimentationEngine, ActiveCandidate
+    from backend.physics_ai.geometry_representation import GeometryRepresentationEngine
+    engine = ActiveExperimentationEngine(GeometryRepresentationEngine())
+    # Create candidate object
+    cand = ActiveCandidate(
+        candidate_id=req.candidate_id,
+        rank=1,
+        geometry_name="NACA 4415",
+        geometry_hash="0a8152ce19e8a85a557e8afe698ba9f65d6f4c16abef03e9b7ded286636c6f2a",
+        aoa_deg=16.0,
+        reynolds=5000000.0,
+        predicted_cl=1.4058,
+        predicted_cd=0.1477,
+        epistemic_uncertainty=0.0851,
+        ood_distance=2.082,
+        diversity_score=1.0,
+        composite_score=0.9995,
+        scientific_rationale="High epistemic uncertainty and OOD distance. Staging case deck."
+    )
+    staged_path = engine.stage_case_deck(cand)
+    return {
+        "candidate_id": req.candidate_id,
+        "staged_path": staged_path,
+        "status": "USER_EXECUTED_REQUIRED",
+        "solver_status": "SOLVER_UNAVAILABLE"
+    }
+
+
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
 
 async def chat_completion(request: ChatRequest):

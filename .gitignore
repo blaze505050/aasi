@@ -94,3 +94,5 @@ data/datasets/cache/
 !data/manifests/**
 !data/reproduction_bundles/
 !data/reproduction_bundles/**
+!data/experiments/
+!data/experiments/**
