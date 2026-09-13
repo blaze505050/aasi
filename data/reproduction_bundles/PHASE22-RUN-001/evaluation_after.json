@@ -1,0 +1,7 @@
+{
+  "r2": 0.5476,
+  "rmse": 0.2964,
+  "mae": 0.1995,
+  "max_error": 0.8297,
+  "uncertainty_coverage": 0.025
+}

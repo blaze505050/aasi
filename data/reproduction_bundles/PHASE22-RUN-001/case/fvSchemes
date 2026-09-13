@@ -1,0 +1,1 @@
+/* OpenFOAM fvSchemes */ ddtSchemes { default steadyState; } gradSchemes { default Gauss linear; }

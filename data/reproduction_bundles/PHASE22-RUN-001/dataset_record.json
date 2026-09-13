@@ -1,0 +1,9 @@
+{
+  "experiment_id": "AASI-P22-CFD-001",
+  "geometry_name": "NACA 0012",
+  "reynolds": 3000000.0,
+  "aoa_deg": 4.0,
+  "cl": 0.435,
+  "cd": 0.0084,
+  "provenance_hash": "4988f69a909e2c9c765fd7daccb3f5d7e4eaf502e93a38ed009ace1308edb9a8"
+}

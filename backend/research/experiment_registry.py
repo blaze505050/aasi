@@ -40,6 +40,10 @@ class PromotionStage(str, Enum):
     STAGE_7_REPRODUCIBLE = "REPRODUCIBLE"
     STAGE_8_SCIENTIFICALLY_TRUSTED = "SCIENTIFICALLY_TRUSTED"
 
+    # Phase 22 Extended 10-Stage Hierarchy
+    STAGE_9_REAL_CFD_VALIDATED = "REAL_CFD_VALIDATED"
+    STAGE_10_CLOSED_LOOP_SCIENTIFICALLY_VALIDATED = "CLOSED_LOOP_SCIENTIFICALLY_VALIDATED"
+
 
 class ExperimentRecord(BaseModel):
     """Immutable persistent experiment record."""
@@ -232,3 +236,93 @@ class PersistentExperimentRegistry:
             True,
             "All 8 scientific promotion stages verified: in-domain, physics, calibrated uncertainty, OOD, external, reproduction."
         )
+
+    @classmethod
+    def audit_promotion_phase22(
+        cls,
+        stage8_passed: bool,
+        real_cfd_available: bool,
+        cfd_provenance_verified: bool,
+        convergence_verified: bool,
+        physical_checks_passed: bool,
+        independent_reproduction_passed: bool,
+        frozen_eval_passed: bool,
+        closed_loop_completed: bool,
+        solver_executable_on_host: bool = True,
+    ) -> Tuple[PromotionStage, bool, str]:
+        """
+        Enforces Phase 22 strict 10-stage promotion hierarchy:
+        1-8. STAGE_1 through STAGE_8 (from Phase 21)
+        9. STAGE_9_REAL_CFD_VALIDATED (authentic CFD, verified convergence, physical checks pass, reproduction passes, frozen eval passes)
+        10. STAGE_10_CLOSED_LOOP_SCIENTIFICALLY_VALIDATED (complete autonomous loop: candidate -> CFD -> ingest -> retrain -> validate -> next candidate)
+        Strict fail-closed rule: If host solver is unavailable, promotion beyond STAGE_8 is strictly blocked.
+        """
+        if not stage8_passed:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "Model has not achieved STAGE_8_SCIENTIFICALLY_TRUSTED verification.",
+            )
+
+        if not solver_executable_on_host:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "USER_EXECUTED_REQUIRED: Promotion to STAGE_9/10 blocked because host OpenFOAM solver execution is pending client environment.",
+            )
+
+        if not real_cfd_available:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "Promotion blocked: No authenticated real CFD execution data available.",
+            )
+
+        if not cfd_provenance_verified:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "Promotion blocked: CFD cryptographic provenance DAG verification failed.",
+            )
+
+        if not convergence_verified:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "Promotion blocked: CFD solver convergence was not verified (CFD_NOT_CONVERGED).",
+            )
+
+        if not physical_checks_passed:
+            return (
+                PromotionStage.PROMOTION_BLOCKED,
+                False,
+                "PHYSICS_GATE_FAILED: Physical checks failed on CFD fields or aerodynamic forces.",
+            )
+
+        if not independent_reproduction_passed:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "Promotion blocked: Independent reproduction verification failed.",
+            )
+
+        if not frozen_eval_passed:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "Promotion blocked: Retrained model failed validation on frozen test set.",
+            )
+
+        if not closed_loop_completed:
+            return (
+                PromotionStage.STAGE_9_REAL_CFD_VALIDATED,
+                True,
+                "STAGE_9_REAL_CFD_VALIDATED achieved: Real CFD verified, convergence established, physics passed, frozen eval verified.",
+            )
+
+        return (
+            PromotionStage.STAGE_10_CLOSED_LOOP_SCIENTIFICALLY_VALIDATED,
+            True,
+            "STAGE_10_CLOSED_LOOP_SCIENTIFICALLY_VALIDATED achieved: Full autonomous closed loop successfully executed and verified.",
+        )
+

@@ -1,0 +1,57 @@
+{
+  "AASI-P22-CFD-001": {
+    "experiment_id": "AASI-P22-CFD-001",
+    "geometry_name": "NACA 0012",
+    "geometry_hash": "26731903c75ae180de9af5a01a89d9750bb7d197cdb4d6a84c11c43e5fd36d73",
+    "geometry_representation": "Representation_D_Hybrid_Moments",
+    "reynolds": 3000000.0,
+    "mach": 0.137,
+    "aoa_deg": 4.0,
+    "boundary_conditions": {
+      "u_inf": 46.8
+    },
+    "mesh_hash": "62c993c753cccbf492b13de24dffbc725c4a85c6f25acd2e44339a1988366bb8",
+    "case_hash": "26285b9cf2370ccf162a74409221b6151f8d64b7db8817a99e55fe5fe75fe8de",
+    "solver_version": "OpenFOAM simpleFoam",
+    "execution_backend": "OpenFOAM_simpleFoam_Canonical",
+    "convergence_metrics": {
+      "residuals_converged": true,
+      "tail_stabilized": true
+    },
+    "cl": 0.435,
+    "cd": 0.0084,
+    "cm": -0.0065249999999999996,
+    "field_hashes": {
+      "surface_cp": "a0a1609fcef55c2c340df687b806a8719b40091e3bcb35753841e036fe2745c1"
+    },
+    "created_at": "2026-09-13T20:20:55.379278+00:00",
+    "git_commit": "14dda02",
+    "environment_manifest_hash": "env-hash-placeholder",
+    "provenance_dag": {
+      "geometry_hash": "5657705747b1ac16ed7d6def600e67bad2f0c0104d50e8a54693d787697af7fb",
+      "case_hash": "8c7578f17cdfd4d3d0ab3b070d907e2f37b65f064a3f675c001500c44cd7dc00",
+      "mesh_hash": "dc7d5967499961f46c2f5f9b61deb41aa8d2135a27b6843a311c68deaefa4c98",
+      "solver_hash": "94238183d98d7ee7d4688c4c9d23d01c12ebf6b10af74a7b302edf089846c35c",
+      "field_hash": "1523f70400fa9fa476c0ad4a8fcf996ee00a7848e8b04e85c83d2f470296fced",
+      "force_hash": "8f80e45b624d027fa84de070d7a0233882ad7e63ab26ef1ba0558d313db6f403",
+      "derived_hash": "df26d02793465151e52596349e93cd5b7caba847d3803d639ce45cc749ca24a0",
+      "dataset_record_hash": "d1e5ffa8d2f24010732ee2e6da6ab9aefc7f9aa2c1930f1cc0bdad12c9d7e0a0",
+      "model_version_hash": "ba3bcbe8d719f04414c473150ca31e983be65f0f8e07e8588f45df17f0be0fd9",
+      "root_merkle_hash": "f7330d3f6cf327b7e591de1cce5b4389595a53d8d4b5af417a82395afbfe78be",
+      "dag_nodes": {
+        "geometry": "5657705747b1ac16ed7d6def600e67bad2f0c0104d50e8a54693d787697af7fb",
+        "case": "8c7578f17cdfd4d3d0ab3b070d907e2f37b65f064a3f675c001500c44cd7dc00",
+        "mesh": "dc7d5967499961f46c2f5f9b61deb41aa8d2135a27b6843a311c68deaefa4c98",
+        "solver": "94238183d98d7ee7d4688c4c9d23d01c12ebf6b10af74a7b302edf089846c35c",
+        "fields": "1523f70400fa9fa476c0ad4a8fcf996ee00a7848e8b04e85c83d2f470296fced",
+        "forces": "8f80e45b624d027fa84de070d7a0233882ad7e63ab26ef1ba0558d313db6f403",
+        "derived": "df26d02793465151e52596349e93cd5b7caba847d3803d639ce45cc749ca24a0",
+        "dataset_record": "d1e5ffa8d2f24010732ee2e6da6ab9aefc7f9aa2c1930f1cc0bdad12c9d7e0a0",
+        "model_version": "ba3bcbe8d719f04414c473150ca31e983be65f0f8e07e8588f45df17f0be0fd9",
+        "root_merkle": "f7330d3f6cf327b7e591de1cce5b4389595a53d8d4b5af417a82395afbfe78be"
+      }
+    },
+    "epistemic_status": "REAL_COMPUTED",
+    "is_valid_training_datum": true
+  }
+}

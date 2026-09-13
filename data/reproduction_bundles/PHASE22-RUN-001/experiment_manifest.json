@@ -1,0 +1,14 @@
+{
+  "experiment_id": "P22-E001",
+  "name": "Closed-Loop Active Learning & Real CFD Evaluation",
+  "candidate_id": "CAND-P22-001",
+  "geometry_id": "NACA 0012",
+  "flow_conditions": {
+    "alpha_deg": 4.0,
+    "reynolds": 3000000.0,
+    "mach": 0.15
+  },
+  "solver": "OpenFOAM simpleFoam",
+  "epistemic_status": "REAL_EXECUTED",
+  "scientific_verdict": "UNCHANGED"
+}

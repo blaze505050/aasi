@@ -1,0 +1,1 @@
+/* OpenFOAM fvSolution */ solvers { p { solver GAMG; tolerance 1e-06; relTol 0.01; } }

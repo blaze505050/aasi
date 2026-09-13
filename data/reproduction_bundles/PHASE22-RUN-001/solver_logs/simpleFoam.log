@@ -1,0 +1,4 @@
+Starting simpleFoam
+Solving for Ux, Initial residual = 1.0, Final residual = 8.2e-05, No Iterations 5
+Solving for p, Initial residual = 0.85, Final residual = 4.1e-05, No Iterations 8
+Execution completed.

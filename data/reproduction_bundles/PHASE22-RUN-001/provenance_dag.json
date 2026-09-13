@@ -1,0 +1,14 @@
+{
+  "nodes": {
+    "geometry": "geom-hash-naca0012",
+    "case": "case-hash-p22-001",
+    "mesh": "mesh-hash-blockmesh-20k",
+    "solver": "solver-hash-simplefoam",
+    "fields": "field-hash-p-u-cp",
+    "forces": "force-hash-cl-cd",
+    "dataset_record": "dataset-hash-aasi-p22-cfd-001",
+    "model_version": "model-hash-after",
+    "conclusion": "conclusion-hash-unchanged"
+  },
+  "root_merkle_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,5 @@
+{
+  "architecture": "RandomForestSurrogate",
+  "n_estimators": 50,
+  "retrained": true
+}
