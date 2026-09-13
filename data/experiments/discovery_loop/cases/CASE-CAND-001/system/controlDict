@@ -1,0 +1,49 @@
+/* OpenFOAM 2.4 / 6 / 9 / v2212 simpleFoam controlDict */
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         1000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   200;
+purgeWrite      2;
+writeFormat     ascii;
+writePrecision  7;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable true;
+
+functions
+{
+    forceCoeffs
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        patches         ("airfoil");
+        pName           p;
+        UName           U;
+        log             true;
+        rho             rhoInf;
+        rhoInf          1.225;
+        liftDir         (-0.241922 0.970296 0);
+        dragDir         (0.970296 0.241922 0);
+        CofR            (0.25 0 0);
+        pitchAxis       (0 0 1);
+        magUInf         50.00;
+        lRef            1.0;
+        Aref            1.0;
+    }
+}

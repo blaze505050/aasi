@@ -56,6 +56,40 @@ class GeometryRepresentationEngine:
         serialized = json.dumps(rounded, separators=(',', ':'))
         return hashlib.sha256(serialized.encode('utf-8')).hexdigest()
 
+    def generate_naca4(
+        self, thickness: float = 0.12, camber: float = 0.0, camber_loc: float = 0.0, n_points: int = 32
+    ) -> np.ndarray:
+        """Generates closed NACA 4-digit airfoil coordinates."""
+        beta = np.linspace(0, np.pi, n_points)
+        x = 0.5 * (1.0 - np.cos(beta))
+        yt = 5.0 * thickness * (
+            0.2969 * np.sqrt(np.maximum(0.0, x))
+            - 0.1260 * x
+            - 0.3516 * (x**2)
+            + 0.2843 * (x**3)
+            - 0.1036 * (x**4)
+        )
+        yc = np.zeros_like(x)
+        dyc_dx = np.zeros_like(x)
+        if camber > 0 and camber_loc > 0:
+            fwd = x < camber_loc
+            rear = ~fwd
+            yc[fwd] = (camber / (camber_loc**2)) * (2.0 * camber_loc * x[fwd] - x[fwd] ** 2)
+            dyc_dx[fwd] = (2.0 * camber / (camber_loc**2)) * (camber_loc - x[fwd])
+            yc[rear] = (camber / ((1.0 - camber_loc) ** 2)) * (
+                (1.0 - 2.0 * camber_loc) + 2.0 * camber_loc * x[rear] - x[rear] ** 2
+            )
+            dyc_dx[rear] = (2.0 * camber / ((1.0 - camber_loc) ** 2)) * (camber_loc - x[rear])
+
+        theta = np.arctan(dyc_dx)
+        xu = x - yt * np.sin(theta)
+        yu = yc + yt * np.cos(theta)
+        xl = x + yt * np.sin(theta)
+        yl = yc - yt * np.cos(theta)
+        upper = np.column_stack([xu[::-1], yu[::-1]])
+        lower = np.column_stack([xl[1:], yl[1:]])
+        return np.vstack([upper, lower])
+
     def process_coordinates(
         self,
         coords: Union[List[List[float]], np.ndarray],

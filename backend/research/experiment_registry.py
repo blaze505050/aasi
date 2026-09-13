@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 
 
 class PromotionStage(str, Enum):
+    # Phase 20 stages (backward compatibility)
     TRAINED = "TRAINED"
     PHYSICS_VALIDATED = "PHYSICS_VALIDATED"
     REPRODUCIBLE = "REPRODUCIBLE"
@@ -28,6 +29,16 @@ class PromotionStage(str, Enum):
     SCIENTIFICALLY_VERIFIED = "SCIENTIFICALLY_VERIFIED"
     TRAINED_UNVERIFIED = "TRAINED_UNVERIFIED"
     PROMOTION_BLOCKED = "PROMOTION_BLOCKED"
+
+    # Phase 21 Extended 8-Stage Hierarchy
+    STAGE_1_UNTRAINED = "UNTRAINED"
+    STAGE_2_IN_DOMAIN_VALIDATED = "IN_DOMAIN_VALIDATED"
+    STAGE_3_PHYSICS_VERIFIED = "PHYSICS_VERIFIED"
+    STAGE_4_UNCERTAINTY_CALIBRATED = "UNCERTAINTY_CALIBRATED"
+    STAGE_5_OOD_TESTED = "OOD_TESTED"
+    STAGE_6_EXTERNALLY_VALIDATED = "EXTERNALLY_VALIDATED"
+    STAGE_7_REPRODUCIBLE = "REPRODUCIBLE"
+    STAGE_8_SCIENTIFICALLY_TRUSTED = "SCIENTIFICALLY_TRUSTED"
 
 
 class ExperimentRecord(BaseModel):
@@ -149,4 +160,75 @@ class PersistentExperimentRegistry:
             PromotionStage.SCIENTIFICALLY_VERIFIED,
             True,
             "All physical, reproducibility, OOD, and uncertainty calibration gates passed. Promoted to SCIENTIFICALLY_VERIFIED."
+        )
+
+    @classmethod
+    def audit_promotion_phase21(
+        cls,
+        in_domain_valid: bool,
+        physics_valid: bool,
+        uncertainty_calibrated: bool,
+        ood_tested: bool,
+        externally_validated: bool,
+        reproducible: bool,
+        ood_r2: float = 0.0,
+    ) -> Tuple[PromotionStage, bool, str]:
+        """
+        Enforces Phase 21 strict 8-stage promotion hierarchy:
+        1. UNTRAINED
+        2. IN_DOMAIN_VALIDATED
+        3. PHYSICS_VERIFIED
+        4. UNCERTAINTY_CALIBRATED
+        5. OOD_TESTED
+        6. EXTERNALLY_VALIDATED
+        7. REPRODUCIBLE
+        8. SCIENTIFICALLY_TRUSTED
+        No model may skip a stage.
+        """
+        if not in_domain_valid:
+            return (
+                PromotionStage.STAGE_1_UNTRAINED,
+                False,
+                "Model has not achieved in-domain validation threshold."
+            )
+
+        if not physics_valid:
+            return (
+                PromotionStage.PROMOTION_BLOCKED,
+                False,
+                "PHYSICS_GATE_FAILED: Physical violation detected (negative drag or unphysical forces)."
+            )
+
+        if not uncertainty_calibrated:
+            return (
+                PromotionStage.STAGE_3_PHYSICS_VERIFIED,
+                False,
+                "Model is physics verified, but epistemic uncertainty is UNCERTAINTY_NOT_CALIBRATED."
+            )
+
+        if not ood_tested or ood_r2 < 0.0:
+            return (
+                PromotionStage.STAGE_4_UNCERTAINTY_CALIBRATED,
+                False,
+                f"Model has calibrated uncertainty, but OOD generalization is unverified or negative (R^2={ood_r2:.3f})."
+            )
+
+        if not externally_validated:
+            return (
+                PromotionStage.STAGE_5_OOD_TESTED,
+                False,
+                "Model generalizes to OOD test geometries, but lacks external cross-dataset or experimental validation."
+            )
+
+        if not reproducible:
+            return (
+                PromotionStage.STAGE_6_EXTERNALLY_VALIDATED,
+                False,
+                "Model externally validated, but bitwise reproduction verifier failed."
+            )
+
+        return (
+            PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+            True,
+            "All 8 scientific promotion stages verified: in-domain, physics, calibrated uncertainty, OOD, external, reproduction."
         )
