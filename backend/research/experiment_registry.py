@@ -326,3 +326,95 @@ class PersistentExperimentRegistry:
             "STAGE_10_CLOSED_LOOP_SCIENTIFICALLY_VALIDATED achieved: Full autonomous closed loop successfully executed and verified.",
         )
 
+    @classmethod
+    def audit_promotion_phase23(
+        cls,
+        stage8_passed: bool,
+        backend_executed: bool,
+        remote_provenance_verified: bool,
+        convergence_verified: bool,
+        physical_checks_passed: bool,
+        reproduction_passed: bool,
+        frozen_eval_passed: bool,
+        verified_loop_cycles: int = 1,
+        multi_geometry_verified: bool = False,
+        fabrication_check_passed: bool = True,
+    ) -> Tuple[PromotionStage, bool, str]:
+        """
+        Enforces Phase 23 Remote Compute Fabric 10-Stage Model Promotion Governance.
+        Governing Rule: Absolute Anti-Fabrication Rule.
+        Stage 9 requires verified live solver execution (local or remote), physical gates, and frozen eval.
+        Stage 10 strictly requires repeated verified cycles across multiple geometries (verified_loop_cycles >= 3).
+        """
+        if not fabrication_check_passed:
+            return (
+                PromotionStage.PROMOTION_BLOCKED,
+                False,
+                "FABRICATION_DETECTED: Critical anti-fabrication check failed. Model promotion permanently revoked.",
+            )
+
+        if not stage8_passed:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "Promotion blocked: Model has not passed STAGE_8_SCIENTIFICALLY_TRUSTED requirements.",
+            )
+
+        if not backend_executed:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "USER_EXECUTED_REQUIRED: Remote or local solver has not executed live simulation. Promotion to STAGE_9/10 blocked.",
+            )
+
+        if not remote_provenance_verified:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "PROVENANCE_FAILED: 12-node Merkle provenance DAG verification failed.",
+            )
+
+        if not convergence_verified:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "CFD_NOT_CONVERGED: Solver residuals or force stability failed numerical convergence criteria.",
+            )
+
+        if not physical_checks_passed:
+            return (
+                PromotionStage.PROMOTION_BLOCKED,
+                False,
+                "PHYSICS_GATE_FAILED: Ingested flowfields violated aerodynamic conservation laws.",
+            )
+
+        if not reproduction_passed:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "REPRODUCIBILITY_FAILED: Independent reproduction bundle verification failed.",
+            )
+
+        if not frozen_eval_passed:
+            return (
+                PromotionStage.STAGE_8_SCIENTIFICALLY_TRUSTED,
+                False,
+                "FROZEN_EVAL_FAILED: Retrained candidate failed evaluation against pre-registered frozen test set.",
+            )
+
+        # Stage 9 passed
+        if verified_loop_cycles < 3 or not multi_geometry_verified:
+            return (
+                PromotionStage.STAGE_9_REAL_CFD_VALIDATED,
+                True,
+                "STAGE_9_REAL_CFD_VALIDATED achieved: Live remote/local CFD execution verified, physical gates passed, frozen eval verified. (Stage 10 requires repeated verified cycles across >=3 geometries).",
+            )
+
+        # Stage 10 passed
+        return (
+            PromotionStage.STAGE_10_CLOSED_LOOP_SCIENTIFICALLY_VALIDATED,
+            True,
+            "STAGE_10_SCIENTIFICALLY_TRUSTED achieved: Repeated autonomous closed-loop cycles verified across multiple distinct geometries.",
+        )
+
+

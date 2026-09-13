@@ -1,0 +1,169 @@
+{
+  "name": "Phase 22 Immutable Frozen Test Set",
+  "version": "1.0.0",
+  "created_at": "2026-09-13T20:17:34.681228+00:00",
+  "total_samples": 20,
+  "samples": [
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": -4.0,
+      "reynolds": 3000000.0,
+      "cl": 0.1097,
+      "cd": 0.0121,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": -2.0,
+      "reynolds": 3000000.0,
+      "cl": 0.3288,
+      "cd": 0.0132,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 0.0,
+      "reynolds": 3000000.0,
+      "cl": 0.5476,
+      "cd": 0.0153,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 2.0,
+      "reynolds": 3000000.0,
+      "cl": 0.7657,
+      "cd": 0.0185,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 4.0,
+      "reynolds": 3000000.0,
+      "cl": 0.9829,
+      "cd": 0.0228,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 6.0,
+      "reynolds": 3000000.0,
+      "cl": 1.1989,
+      "cd": 0.028,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 8.0,
+      "reynolds": 3000000.0,
+      "cl": 1.4134,
+      "cd": 0.0343,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 10.0,
+      "reynolds": 3000000.0,
+      "cl": 1.6262,
+      "cd": 0.0415,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 12.0,
+      "reynolds": 3000000.0,
+      "cl": 1.837,
+      "cd": 0.0496,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 6409",
+      "aoa_deg": 14.0,
+      "reynolds": 3000000.0,
+      "cl": 2.0456,
+      "cd": 0.0586,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": -4.0,
+      "reynolds": 3000000.0,
+      "cl": -0.0219,
+      "cd": 0.0105,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": -2.0,
+      "reynolds": 3000000.0,
+      "cl": 0.1974,
+      "cd": 0.011,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 0.0,
+      "reynolds": 3000000.0,
+      "cl": 0.4164,
+      "cd": 0.0127,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 2.0,
+      "reynolds": 3000000.0,
+      "cl": 0.635,
+      "cd": 0.0156,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 4.0,
+      "reynolds": 3000000.0,
+      "cl": 0.8527,
+      "cd": 0.0198,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 6.0,
+      "reynolds": 3000000.0,
+      "cl": 1.0695,
+      "cd": 0.0251,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 8.0,
+      "reynolds": 3000000.0,
+      "cl": 1.2849,
+      "cd": 0.0315,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 10.0,
+      "reynolds": 3000000.0,
+      "cl": 1.4987,
+      "cd": 0.0391,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 12.0,
+      "reynolds": 3000000.0,
+      "cl": 1.7108,
+      "cd": 0.0478,
+      "is_ood": true
+    },
+    {
+      "airfoil": "NACA 4415",
+      "aoa_deg": 14.0,
+      "reynolds": 3000000.0,
+      "cl": 1.9207,
+      "cd": 0.0575,
+      "is_ood": true
+    }
+  ],
+  "hash": "a1d6fa6d67d1a7c754af1a809d1068effe1c2c04978183ddf314a8c0363bc8b6"
+}

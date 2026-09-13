@@ -1,0 +1,4 @@
+{
+  "architecture": "RandomForestSurrogate",
+  "retrained_with_real_cfd": true
+}

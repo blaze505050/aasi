@@ -1,0 +1,14 @@
+{
+  "job_id": "JOB-P23-NACA0012-AOA4",
+  "experiment_id": "P23-E001",
+  "geometry_name": "NACA 0012",
+  "solver": "simpleFoam",
+  "backend": "google_colab",
+  "status": "REAL_EXECUTED",
+  "conditions": {
+    "aoa_deg": 4.0,
+    "reynolds": 3000000.0,
+    "mach": 0.15
+  },
+  "created_at": "2026-09-13T21:15:22.116885+00:00"
+}

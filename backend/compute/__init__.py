@@ -1,5 +1,6 @@
 """
 AASI Compute Module.
+Phase 23: Remote Compute Fabric & Execution Backends.
 """
 
 from backend.compute.models import (
@@ -21,7 +22,25 @@ from backend.compute.hardware_matrix import (
     hardware_matrix_manager,
 )
 
+# Phase 23 Remote Compute Fabric
+from backend.compute.base import (
+    BackendType,
+    ExecutionState,
+    ComputeBackend,
+    BackendProbeResult,
+    JobStatusResult,
+)
+from backend.compute.jobs import (
+    CFDJobManifest,
+    CFDJobEvent,
+)
+from backend.compute.colab import ColabBackend
+from backend.compute.local_openfoam import LocalOpenFOAMBackend
+from backend.compute.remote_hpc import FutureRemoteHPCBackend
+from backend.compute.manager import ComputeFabricManager
+
 __all__ = [
+    # Legacy Phase 5/6 models
     "ComputeBackendType",
     "ExecutionStatus",
     "ComputeRequest",
@@ -36,5 +55,16 @@ __all__ = [
     "ComputationalTaskType",
     "HardwareMatrixManager",
     "hardware_matrix_manager",
+    # Phase 23 Compute Fabric
+    "BackendType",
+    "ExecutionState",
+    "ComputeBackend",
+    "BackendProbeResult",
+    "JobStatusResult",
+    "CFDJobManifest",
+    "CFDJobEvent",
+    "ColabBackend",
+    "LocalOpenFOAMBackend",
+    "FutureRemoteHPCBackend",
+    "ComputeFabricManager",
 ]
-

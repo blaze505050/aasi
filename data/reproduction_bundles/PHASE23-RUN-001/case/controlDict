@@ -1,0 +1,3 @@
+/* controlDict */
+application simpleFoam;
+startFrom startTime;

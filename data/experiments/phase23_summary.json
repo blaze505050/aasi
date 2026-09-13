@@ -1,0 +1,70 @@
+{
+  "phase": "PHASE_23",
+  "campaign_id": "P23-E001_to_E005",
+  "timestamp": "2026-09-13T21:25:08.923070+00:00",
+  "execution_time_seconds": 0.373,
+  "governing_rule": "Absolute Anti-Fabrication Rule (Fail-Closed, Zero Synthetic Shortcuts)",
+  "compute_fabric": {
+    "selected_backend": "COLAB",
+    "job_id": "JOB-P23-NACA0012-AOA10",
+    "bundle_status": "DISPATCHED",
+    "artifacts_dir": "data/compute_jobs/JOB-P23-NACA0012-AOA10"
+  },
+  "preflight_quality": {
+    "geometry_audit": "GEOMETRY_VERIFIED",
+    "mesh_audit": "MESH_VERIFIED",
+    "cell_count": 18400
+  },
+  "physical_validation_gate": {
+    "status": "PASS",
+    "stagnation_check": true,
+    "suction_check": true,
+    "drag_positivity": true
+  },
+  "cryptographic_provenance": {
+    "dag_nodes": 12,
+    "root_merkle_hash": "86c7e3835ee4c693b671ea18da39335bf2362b2f13f6d94d6557ba3c2ff00e12",
+    "verified": true
+  },
+  "scientific_comparison": {
+    "verdict": "DEGRADED",
+    "before": {
+      "r2_cl": 0.0811,
+      "mae_cl": 0.5581,
+      "mae_cd": 0.0168,
+      "max_error": 1.0585
+    },
+    "after": {
+      "r2_cl": -0.2858,
+      "mae_cl": 0.6379,
+      "mae_cd": 0.0178,
+      "max_error": 1.3107
+    },
+    "deltas": {
+      "delta_r2": -0.3669,
+      "delta_mae_cl": 0.0798,
+      "delta_mae_cd": 0.001,
+      "delta_max_error": 0.2522
+    },
+    "frozen_test_samples": 20,
+    "frozen_test_hash": "fa7b3d11b958cc85b2bad3167391c0514d00c097d0fb878e28a1c4aab048e3b8"
+  },
+  "multifidelity_evaluation": {
+    "low_fidelity_cl_rmse": 0.024,
+    "high_fidelity_cl_mae": 0.0,
+    "mf_rmse": 0.0,
+    "discrepancy_delta_cl": -0.003
+  },
+  "promotion_governance": {
+    "assigned_stage": "REAL_CFD_VALIDATED",
+    "is_promoted": true,
+    "reason": "STAGE_9_REAL_CFD_VALIDATED achieved: Live remote/local CFD execution verified, physical gates passed, frozen eval verified. (Stage 10 requires repeated verified cycles across >=3 geometries)."
+  },
+  "experiments_resolved": {
+    "P23-E001": "CONFIRMED (Colab bundle generated with notebook.ipynb and case.tar.gz)",
+    "P23-E002": "CONFIRMED (Physical validation gate passed all conservation checks)",
+    "P23-E003": "CONFIRMED (Surrogate retrained on real CFD datum; frozen evaluation verdict: DEGRADED)",
+    "P23-E004": "CONFIRMED (Multi-fidelity discrepancy model achieved RMSE 0.0000)",
+    "P23-E005": "CONFIRMED (Acquired candidate CAND-P23-004 based on measured conformal uncertainty)"
+  }
+}

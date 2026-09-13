@@ -2146,6 +2146,201 @@ async def promote_phase22_model(req: Phase22ModelPromoteRequest):
     }
 
 
+# ==========================================
+# PHASE 23: REMOTE COMPUTE FABRIC & REAL CFD
+# ==========================================
+
+class Phase23JobCreateRequest(BaseModel):
+    geometry_name: str = "NACA 0012"
+    alpha_deg: float = 4.0
+    reynolds: float = 3000000.0
+    mach: float = 0.15
+    backend: str = "COLAB"
+
+
+class Phase23ModelPromoteRequest(BaseModel):
+    model_name: str = "AeroSurrogate-Phase23"
+    stage8_passed: bool = True
+    backend_executed: bool = True
+    remote_provenance_verified: bool = True
+    convergence_verified: bool = True
+    physical_checks_passed: bool = True
+    reproduction_passed: bool = True
+    frozen_eval_passed: bool = True
+    verified_loop_cycles: int = 1
+    multi_geometry_verified: bool = False
+    fabrication_check_passed: bool = True
+
+
+@app.get("/api/compute/backends", summary="Query All Available Compute Backends")
+async def get_compute_backends():
+    from backend.compute.manager import ComputeFabricManager
+    mgr = ComputeFabricManager()
+    probes = mgr.probe_all_backends()
+    return {
+        "status": "SUCCESS",
+        "backends": {k: v.model_dump() for k, v in probes.items()},
+        "policy_selection": mgr.select_backend_policy().value,
+    }
+
+
+@app.get("/api/compute/colab/status", summary="Query Google Colab Runtime Reality Probe")
+async def get_colab_status():
+    from backend.compute.colab import ColabBackend
+    backend = ColabBackend()
+    probe = backend.probe()
+    return probe.model_dump()
+
+
+@app.post("/api/compute/jobs", summary="Plan and Stage a New Compute Job")
+async def create_compute_job(req: Phase23JobCreateRequest):
+    from backend.compute.base import BackendType
+    from backend.compute.manager import ComputeFabricManager
+    mgr = ComputeFabricManager()
+    btype = BackendType(req.backend.upper()) if req.backend.upper() in [b.value for b in BackendType] else BackendType.COLAB
+    manifest = mgr.plan_job(
+        experiment_id="P23-USER-001",
+        geometry_name=req.geometry_name,
+        alpha_deg=req.alpha_deg,
+        reynolds=req.reynolds,
+        mach=req.mach,
+        target_backend=btype,
+    )
+    manifest = mgr.prepare_job(manifest)
+    return manifest.model_dump()
+
+
+@app.get("/api/compute/jobs/{job_id}", summary="Get Status and Manifest of a Compute Job")
+async def get_compute_job(job_id: str):
+    from backend.compute.manager import ComputeFabricManager
+    mgr = ComputeFabricManager()
+    status_res = mgr.dispatch_job(job_id)
+    job_manifest_path = Path("data/compute_jobs") / job_id / "job_manifest.json"
+    manifest_data = None
+    if job_manifest_path.exists():
+        manifest_data = json.loads(job_manifest_path.read_text(encoding="utf-8"))
+    return {
+        "status": status_res.model_dump(),
+        "manifest": manifest_data,
+    }
+
+
+@app.post("/api/compute/jobs/{job_id}/prepare", summary="Package Reproducible Execution Bundle for Job")
+async def prepare_compute_job(job_id: str):
+    job_manifest_path = Path("data/compute_jobs") / job_id / "job_manifest.json"
+    if not job_manifest_path.exists():
+        raise HTTPException(status_code=404, detail=f"Job {job_id} not found.")
+    from backend.compute.jobs import CFDJobManifest
+    from backend.compute.manager import ComputeFabricManager
+    manifest = CFDJobManifest.load(job_manifest_path)
+    mgr = ComputeFabricManager()
+    updated = mgr.prepare_job(manifest)
+    return updated.model_dump()
+
+
+@app.post("/api/compute/jobs/{job_id}/dispatch", summary="Dispatch Job to Execution Backend")
+async def dispatch_compute_job(job_id: str):
+    from backend.compute.manager import ComputeFabricManager
+    mgr = ComputeFabricManager()
+    res = mgr.dispatch_job(job_id)
+    return res.model_dump()
+
+
+@app.post("/api/compute/jobs/{job_id}/ingest", summary="Ingest Solver Artifacts from Job")
+async def ingest_compute_job_artifacts(job_id: str):
+    from backend.compute.colab import ColabBackend
+    backend = ColabBackend()
+    res = backend.collect(job_id)
+    if not res.get("collected", False):
+        raise HTTPException(status_code=400, detail=res.get("error", "Artifact ingestion failed."))
+    return res
+
+
+@app.post("/api/compute/jobs/{job_id}/verify", summary="Verify Physical Field Realism and Provenance")
+async def verify_compute_job(job_id: str):
+    from backend.compute.manager import ComputeFabricManager
+    mgr = ComputeFabricManager()
+    res = mgr.ingest_and_validate(job_id)
+    return res
+
+
+@app.get("/api/phase23/status", summary="Query Phase 23 Campaign and Remote Fabric Status")
+async def get_phase23_status():
+    summary_path = Path("data/experiments/phase23_summary.json")
+    if summary_path.exists():
+        try:
+            return json.loads(summary_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    from backend.physics_ai.closed_loop_p23 import ComputeAgnosticDiscoveryEngine
+    engine = ComputeAgnosticDiscoveryEngine()
+    return engine.run_phase23_campaign()
+
+
+@app.get("/api/phase23/experiments", summary="Query Pre-Registered Phase 23 Experiments (P23-E001 to E005)")
+async def get_phase23_experiments():
+    summary_path = Path("data/experiments/phase23_summary.json")
+    if summary_path.exists():
+        data = json.loads(summary_path.read_text(encoding="utf-8"))
+        return data.get("experiments_resolved", {})
+    from backend.physics_ai.closed_loop_p23 import ComputeAgnosticDiscoveryEngine
+    engine = ComputeAgnosticDiscoveryEngine()
+    camp = engine.run_phase23_campaign()
+    return camp.get("experiments_resolved", {})
+
+
+@app.get("/api/phase23/provenance/{job_id}", summary="Get 12-Node Cryptographic Merkle Provenance DAG")
+async def get_phase23_provenance(job_id: str):
+    job_manifest_path = Path("data/compute_jobs") / job_id / "job_manifest.json"
+    if job_manifest_path.exists():
+        data = json.loads(job_manifest_path.read_text(encoding="utf-8"))
+        return {
+            "job_id": job_id,
+            "root_merkle_hash": data.get("provenance_root_hash"),
+            "backend": data.get("backend"),
+            "geometry_hash": data.get("geometry_hash"),
+            "case_hash": data.get("case_hash"),
+        }
+    summary_path = Path("data/experiments/phase23_summary.json")
+    if summary_path.exists():
+        data = json.loads(summary_path.read_text(encoding="utf-8"))
+        return data.get("cryptographic_provenance", {})
+    raise HTTPException(status_code=404, detail=f"Provenance for job {job_id} not found.")
+
+
+@app.post("/api/phase23/reproduce", summary="Verify PHASE23-RUN-001 Reproduction Bundle")
+async def verify_phase23_reproduction():
+    from backend.research.reproduction_verifier_phase23 import Phase23ReproductionVerifier
+    bundle_path = Path("data/reproduction_bundles/PHASE23-RUN-001")
+    if not bundle_path.exists():
+        Phase23ReproductionVerifier.assemble_bundle(bundle_path)
+    report = Phase23ReproductionVerifier.verify_bundle(bundle_path)
+    return {"bundle": "PHASE23-RUN-001", "verification": report}
+
+
+@app.post("/api/phase23/model/promote", summary="Audit Model Promotion Against Phase 23 Hierarchy")
+async def promote_phase23_model(req: Phase23ModelPromoteRequest):
+    from backend.research.experiment_registry import PersistentExperimentRegistry
+    stage, is_promoted, reason = PersistentExperimentRegistry.audit_promotion_phase23(
+        stage8_passed=req.stage8_passed,
+        backend_executed=req.backend_executed,
+        remote_provenance_verified=req.remote_provenance_verified,
+        convergence_verified=req.convergence_verified,
+        physical_checks_passed=req.physical_checks_passed,
+        reproduction_passed=req.reproduction_passed,
+        frozen_eval_passed=req.frozen_eval_passed,
+        verified_loop_cycles=req.verified_loop_cycles,
+        multi_geometry_verified=req.multi_geometry_verified,
+        fabrication_check_passed=req.fabrication_check_passed,
+    )
+    return {
+        "model_name": req.model_name,
+        "promotion_stage": stage.value if hasattr(stage, "value") else str(stage),
+        "is_promoted": is_promoted,
+        "audit_reason": reason,
+    }
+
+
 @app.post("/api/chat", response_model=ChatResponse, summary="AASI Chat and Tool Execution")
 
 async def chat_completion(request: ChatRequest):

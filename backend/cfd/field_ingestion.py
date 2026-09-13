@@ -45,6 +45,7 @@ class PhysicalFieldValidator:
         """
         violations: List[str] = []
         checks: Dict[str, Any] = {}
+        surface_cp = np.asarray(surface_cp, dtype=np.float64)
 
         # 1. NaN and Inf check
         has_nan = np.isnan(surface_cp).any()

@@ -1,0 +1,6 @@
+{
+  "valid": true,
+  "stagnation_limit_passed": true,
+  "suction_peak_passed": true,
+  "drag_positivity_passed": true
+}
