@@ -147,3 +147,34 @@ class ComputeFabricManager:
 
         verify_result = backend.verify(job_id)
         return verify_result
+
+    def import_job_results(self, job_id: str, archive_path: Any) -> Dict[str, Any]:
+        """
+        Phase 24: Imports, cryptographically validates, and parses user-executed Colab results archive.
+        """
+        colab_backend: ColabBackend = self.backends[BackendType.COLAB] # type: ignore
+        return colab_backend.import_results(job_id, archive_path)
+
+    def get_job_instructions(self, job_id: str) -> Dict[str, Any]:
+        """
+        Returns step-by-step instructions and bundle paths for user execution in Google Colab.
+        """
+        job_dir = self.workspace_root / Path("data/compute_jobs") / job_id
+        bundle_exists = (job_dir / "notebook.ipynb").exists()
+        return {
+            "job_id": job_id,
+            "bundle_ready": bundle_exists,
+            "bundle_path": str(job_dir.as_posix()),
+            "files": [f.name for f in job_dir.iterdir()] if job_dir.exists() else [],
+            "colab_url": "https://colab.research.google.com/#create=true",
+            "instructions": [
+                f"1. Open Google Colab at https://colab.research.google.com/",
+                f"2. Upload notebook.ipynb from {job_dir.as_posix()}/notebook.ipynb",
+                f"3. Upload case.tar.gz from {job_dir.as_posix()}/case.tar.gz into Colab files pane",
+                f"4. Click 'Runtime' -> 'Run all' to execute the 15-step OpenFOAM simulation pipeline",
+                f"5. Download the resulting results.tar.gz file from Colab",
+                f"6. Return to AASI and click 'Import Colab Results' to cryptographically audit and ingest the run.",
+            ],
+            "anti_circumvention_notice": "AASI operates under zero account automation and zero platform policy circumvention."
+        }
+

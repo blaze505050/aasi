@@ -1,8 +1,8 @@
 {
   "phase": "PHASE_23",
   "campaign_id": "P23-E001_to_E005",
-  "timestamp": "2026-09-13T21:25:08.923070+00:00",
-  "execution_time_seconds": 0.373,
+  "timestamp": "2026-09-14T20:26:31.117494+00:00",
+  "execution_time_seconds": 0.411,
   "governing_rule": "Absolute Anti-Fabrication Rule (Fail-Closed, Zero Synthetic Shortcuts)",
   "compute_fabric": {
     "selected_backend": "COLAB",
@@ -23,7 +23,7 @@
   },
   "cryptographic_provenance": {
     "dag_nodes": 12,
-    "root_merkle_hash": "86c7e3835ee4c693b671ea18da39335bf2362b2f13f6d94d6557ba3c2ff00e12",
+    "root_merkle_hash": "478773b9e72801e22aaae0c9cb4adad06eb3f73a4742b44b39ab4e8e6ed67c21",
     "verified": true
   },
   "scientific_comparison": {

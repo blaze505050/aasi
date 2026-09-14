@@ -1,0 +1,5 @@
+{
+  "valid": true,
+  "validation_class": "PHYSICAL_VALIDATION_PASS",
+  "disambiguation_note": "PHYSICAL_VALIDATION_PASS: Meets fundamental physical conservation gates. Explicitly distinguished from FORMAL_VERIFICATION_AND_VALIDATION under ASME V&V 20."
+}

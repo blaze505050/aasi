@@ -45,6 +45,10 @@ class CFDJobManifest(BaseModel):
     artifacts_dir: Optional[str] = None
     runtime_metadata: Dict[str, Any] = Field(default_factory=dict)
     output_hashes: Dict[str, str] = Field(default_factory=dict)
+    expected_output_hashes: Dict[str, str] = Field(default_factory=dict)
+    imported_result_hash: Optional[str] = None
+    execution_log_summary: Optional[str] = None
+    validation_verdict: Optional[str] = None
     provenance_root_hash: Optional[str] = None
 
     def transition_to(self, new_state: ExecutionState, detail: str = "") -> None:

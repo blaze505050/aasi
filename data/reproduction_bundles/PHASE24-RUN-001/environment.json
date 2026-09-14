@@ -1,0 +1,9 @@
+{
+  "orchestrator_platform": "Windows 11 Enterprise x86_64",
+  "target_runtime": "Google Colab Ubuntu 22.04 LTS x86_64",
+  "openfoam_version": "OpenFOAM-v2312",
+  "python_version": "3.12",
+  "cycles_executed": 3,
+  "anti_fabrication_enforced": true,
+  "fail_closed_governance": true
+}

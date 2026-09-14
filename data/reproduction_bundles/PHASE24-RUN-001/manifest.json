@@ -1,0 +1,32 @@
+{
+  "bundle_id": "PHASE24-RUN-001",
+  "timestamp": "2026-09-14T20:00:00.457886+00:00",
+  "cycles": [
+    {
+      "name": "cycle1",
+      "airfoil": "NACA 0012",
+      "alpha": 4.0,
+      "cl": 0.438,
+      "cd": 0.0078,
+      "delta_cl": -0.0006
+    },
+    {
+      "name": "cycle2",
+      "airfoil": "NACA 4412",
+      "alpha": 6.0,
+      "cl": 1.082,
+      "cd": 0.0125,
+      "delta_cl": -0.0786
+    },
+    {
+      "name": "cycle3",
+      "airfoil": "NACA 6409",
+      "alpha": 8.0,
+      "cl": 1.4134,
+      "cd": 0.0343,
+      "delta_cl": -0.0468
+    }
+  ],
+  "frozen_test_hash": "fa7b3d11b958cc85b2bad3167391c0514d00c097d0fb878e28a1c4aab048e3b8",
+  "governing_rule": "Absolute Anti-Fabrication Rule"
+}

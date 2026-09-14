@@ -1,0 +1,8 @@
+{
+  "name": "cycle2",
+  "airfoil": "NACA 4412",
+  "alpha": 6.0,
+  "cl": 1.082,
+  "cd": 0.0125,
+  "delta_cl": -0.0786
+}
