@@ -445,8 +445,15 @@ export default function AASIChatApp() {
 
   // Phase 25: Master Scientific Mission Control, Forensic Audit & Stage-10 Readiness
   const [phase25ActiveSubTab, setPhase25ActiveSubTab] = useState<
-    "executive_summary" | "forensic_census" | "benchmark_ledger" | "reproduction_matrix" | "stage10_governance" | "human_boundary"
-  >("executive_summary");
+    "autonomous_portal" | "executive_summary" | "forensic_census" | "benchmark_ledger" | "reproduction_matrix" | "stage10_governance" | "human_boundary"
+  >("autonomous_portal");
+  const [autonomousPrompt, setAutonomousPrompt] = useState<string>(
+    "Analyze NACA 4412 at Re=3e6 and alpha=8 degrees and determine whether the current surrogate prediction is trustworthy."
+  );
+  const [autonomousFidelityReq, setAutonomousFidelityReq] = useState<string>("adaptive");
+  const [isRunningAutonomousExperiment, setIsRunningAutonomousExperiment] = useState<boolean>(false);
+  const [autonomousExperimentResult, setAutonomousExperimentResult] = useState<any | null>(null);
+  const [autonomousError, setAutonomousError] = useState<string | null>(null);
   const [phase25ScientificStatus, setPhase25ScientificStatus] = useState<any | null>(null);
   const [phase25AuditReport, setPhase25AuditReport] = useState<any | null>(null);
   const [isLoadingPhase25, setIsLoadingPhase25] = useState<boolean>(false);
@@ -1245,6 +1252,32 @@ export default function AASIChatApp() {
       console.error("Failed to fetch Phase 25 scientific status", e);
     } finally {
       setIsLoadingPhase25(false);
+    }
+  };
+
+  const handleRunAutonomousExperiment = async () => {
+    setIsRunningAutonomousExperiment(true);
+    setAutonomousError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/autonomous/run`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objective: autonomousPrompt,
+          fidelity_requirement: autonomousFidelityReq,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAutonomousExperimentResult(data);
+      } else {
+        const err = await res.json();
+        setAutonomousError(err.detail || "Failed to execute autonomous experiment");
+      }
+    } catch (e: any) {
+      setAutonomousError(`Connection error: ${e.message}`);
+    } finally {
+      setIsRunningAutonomousExperiment(false);
     }
   };
 
@@ -3157,6 +3190,7 @@ export default function AASIChatApp() {
             {/* Sub-Tab Navigation */}
             <div style={{ display: "flex", gap: "8px", marginTop: "14px", borderBottom: "1px solid #334155", paddingBottom: "8px", overflowX: "auto" }}>
               {[
+                { key: "autonomous_portal", label: "0. AUTONOMOUS INVESTIGATION PORTAL", icon: "🚀" },
                 { key: "executive_summary", label: "1. EXECUTIVE INTEGRITY AUDIT", icon: "⚖️" },
                 { key: "forensic_census", label: "2. EXPERIMENT FORENSIC CENSUS", icon: "🔍" },
                 { key: "benchmark_ledger", label: "3. FROZEN BENCHMARK LEDGER", icon: "📊" },
@@ -3189,6 +3223,286 @@ export default function AASIChatApp() {
               ))}
             </div>
           </div>
+
+          {/* SUB-TAB 0: AUTONOMOUS SCIENTIFIC INVESTIGATION PORTAL */}
+          {phase25ActiveSubTab === "autonomous_portal" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Natural Language Investigation Input Box */}
+              <div style={{
+                background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9))",
+                border: "2px solid #38bdf8",
+                borderRadius: "8px",
+                padding: "20px",
+                boxShadow: "0 0 25px rgba(56, 189, 248, 0.2)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", borderBottom: "1px solid #334155", paddingBottom: "12px" }}>
+                  <div>
+                    <span style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "1px", color: "#38bdf8", fontWeight: 800 }}>
+                      ONE-CLICK AUTONOMOUS INVESTIGATION
+                    </span>
+                    <h2 style={{ fontSize: "1.5rem", fontWeight: 900, color: "#fff", margin: "4px 0 0 0" }}>
+                      What do you want to investigate?
+                    </h2>
+                  </div>
+                  <span style={{
+                    padding: "4px 10px",
+                    borderRadius: "6px",
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    background: "rgba(56, 189, 248, 0.15)",
+                    border: "1px solid #38bdf8",
+                    color: "#bae6fd",
+                  }}>
+                    AUTONOMOUS SCIENTIFIC AGENT READY
+                  </span>
+                </div>
+
+                <div style={{ marginTop: "14px" }}>
+                  <textarea
+                    value={autonomousPrompt}
+                    onChange={(e) => setAutonomousPrompt(e.target.value)}
+                    rows={3}
+                    placeholder="Describe your aerospace scientific objective in natural language..."
+                    style={{
+                      width: "100%",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      background: "#0f172a",
+                      border: "1px solid #475569",
+                      color: "#f8fafc",
+                      fontSize: "0.9rem",
+                      fontFamily: "var(--font-mono, monospace)",
+                      resize: "vertical",
+                      boxSizing: "border-box",
+                    }}
+                  />
+
+                  {/* Quick Prompts */}
+                  <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap" }}>
+                    {[
+                      "Analyze NACA 4412 at Re=3e6 and alpha=8 degrees and determine whether the current surrogate prediction is trustworthy.",
+                      "Analyze NACA 0012 at Re=3e6, alpha=4 deg and run OpenFOAM CFD if uncertainty is high.",
+                      "Analyze NACA 6409 at Re=2e6, alpha=6 deg with multi-fidelity validation.",
+                    ].map((qp, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setAutonomousPrompt(qp)}
+                        style={{
+                          background: "rgba(30, 41, 59, 0.8)",
+                          border: "1px solid #475569",
+                          borderRadius: "4px",
+                          padding: "4px 8px",
+                          fontSize: "0.7rem",
+                          color: "#94a3b8",
+                          cursor: "pointer",
+                        }}
+                      >
+                        💡 Example {idx + 1}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Controls: Fidelity requirement & Run button */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", flexWrap: "wrap", gap: "10px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <label style={{ fontSize: "0.75rem", color: "#cbd5e1", fontWeight: "bold" }}>
+                        Fidelity Strategy:
+                      </label>
+                      <select
+                        value={autonomousFidelityReq}
+                        onChange={(e) => setAutonomousFidelityReq(e.target.value)}
+                        style={{
+                          background: "#1e293b",
+                          border: "1px solid #475569",
+                          borderRadius: "4px",
+                          color: "#38bdf8",
+                          padding: "5px 10px",
+                          fontSize: "0.75rem",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <option value="adaptive">Adaptive (Auto-select based on uncertainty)</option>
+                        <option value="adaptive_validation">Adaptive Validation (Compare Surrogate vs CFD)</option>
+                        <option value="live_cfd">Live CFD Required (Force numerical solver)</option>
+                        <option value="surrogate">Surrogate Inference Only</option>
+                      </select>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleRunAutonomousExperiment}
+                      disabled={isRunningAutonomousExperiment || !autonomousPrompt.trim()}
+                      style={{
+                        background: isRunningAutonomousExperiment
+                          ? "#334155"
+                          : "linear-gradient(135deg, #0284c7, #0369a1)",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "8px 24px",
+                        fontSize: "0.85rem",
+                        fontWeight: 800,
+                        cursor: isRunningAutonomousExperiment ? "not-allowed" : "pointer",
+                        boxShadow: "0 0 15px rgba(2, 132, 199, 0.4)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <span>⚡</span>
+                      <span>{isRunningAutonomousExperiment ? "Executing Scientific Loop..." : "RUN EXPERIMENT"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {autonomousError && (
+                  <div style={{ marginTop: "12px", padding: "10px", background: "rgba(239, 68, 68, 0.15)", border: "1px solid #ef4444", borderRadius: "6px", fontSize: "0.75rem", color: "#fca5a5" }}>
+                    ❌ {autonomousError}
+                  </div>
+                )}
+              </div>
+
+              {/* Execution Result Panel */}
+              {autonomousExperimentResult && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {/* Thinking & Timeline Stream */}
+                  <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid #334155", borderRadius: "8px", padding: "16px" }}>
+                    <h4 style={{ color: "#38bdf8", fontSize: "0.95rem", fontWeight: "bold", margin: "0 0 12px 0", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span>🧠</span>
+                      <span>AASI THINKING &amp; CLOSED-LOOP TIMELINE</span>
+                    </h4>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px" }}>
+                      {autonomousExperimentResult.timeline?.map((step: any, idx: number) => (
+                        <div key={idx} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", padding: "10px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontWeight: "bold", fontSize: "0.75rem", color: "#38bdf8" }}>
+                              ✓ {step.step}
+                            </span>
+                            <span style={{ fontSize: "0.65rem", padding: "2px 6px", borderRadius: "4px", background: "rgba(16, 185, 129, 0.2)", color: "#a7f3d0", fontWeight: "bold" }}>
+                              {step.status}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: "0.7rem", color: "#cbd5e1", marginTop: "4px" }}>
+                            {step.detail}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Multi-Fidelity Comparison Table */}
+                  <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid #334155", borderRadius: "8px", padding: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
+                      <div>
+                        <h4 style={{ color: "#10b981", fontSize: "1rem", fontWeight: "bold", margin: "0 0 4px 0" }}>
+                          Multi-Fidelity Aerodynamic Comparison &amp; Discrepancy Matrix
+                        </h4>
+                        <p style={{ color: "#94a3b8", fontSize: "0.75rem", margin: 0 }}>
+                          Explicit epistemic source tracking: LIVE_CFD vs DATABASE_REAL vs SURROGATE vs ANALYTICAL.
+                        </p>
+                      </div>
+                      <span style={{
+                        padding: "4px 10px",
+                        borderRadius: "4px",
+                        fontSize: "0.75rem",
+                        fontWeight: 800,
+                        background: "rgba(16, 185, 129, 0.2)",
+                        border: "1px solid #10b981",
+                        color: "#a7f3d0",
+                      }}>
+                        VERDICT: {autonomousExperimentResult.report?.final_verdict}
+                      </span>
+                    </div>
+
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.75rem" }}>
+                        <thead>
+                          <tr style={{ background: "#1e293b", borderBottom: "2px solid #475569", color: "#94a3b8", textAlign: "left" }}>
+                            <th style={{ padding: "8px 10px" }}>Quantity</th>
+                            <th style={{ padding: "8px 10px" }}>LIVE CFD</th>
+                            <th style={{ padding: "8px 10px" }}>DATABASE REAL</th>
+                            <th style={{ padding: "8px 10px" }}>SURROGATE</th>
+                            <th style={{ padding: "8px 10px" }}>ANALYTICAL</th>
+                            <th style={{ padding: "8px 10px" }}>CFD-Surrogate Δ</th>
+                            <th style={{ padding: "8px 10px" }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(autonomousExperimentResult.report?.comparisons || {}).map(([q, comp]: [string, any]) => (
+                            <tr key={q} style={{ borderBottom: "1px solid #334155" }}>
+                              <td style={{ padding: "8px 10px", fontWeight: "bold", color: "#f8fafc" }}>{q}</td>
+                              <td style={{ padding: "8px 10px" }}>
+                                {comp.live_cfd?.value !== null && comp.live_cfd?.value !== undefined ? (
+                                  <span style={{ color: "#10b981", fontWeight: "bold" }}>{comp.live_cfd.value.toFixed(4)}</span>
+                                ) : (
+                                  <span style={{ color: "#f59e0b", fontSize: "0.7rem" }}>[Colab Staged]</span>
+                                )}
+                              </td>
+                              <td style={{ padding: "8px 10px", color: "#38bdf8", fontWeight: "bold" }}>
+                                {comp.database_real?.value?.toFixed(4) || "N/A"}
+                              </td>
+                              <td style={{ padding: "8px 10px", color: "#a855f7", fontWeight: "bold" }}>
+                                {comp.surrogate?.value?.toFixed(4) || "N/A"}
+                              </td>
+                              <td style={{ padding: "8px 10px", color: "#94a3b8" }}>
+                                {comp.analytical?.value?.toFixed(4) || "N/A"}
+                              </td>
+                              <td style={{ padding: "8px 10px", color: comp.cfd_surrogate_discrepancy ? "#cbd5e1" : "#64748b" }}>
+                                {comp.cfd_surrogate_discrepancy !== null && comp.cfd_surrogate_discrepancy !== undefined
+                                  ? (comp.cfd_surrogate_discrepancy > 0 ? `+${comp.cfd_surrogate_discrepancy}` : comp.cfd_surrogate_discrepancy)
+                                  : "Pending CFD run"}
+                              </td>
+                              <td style={{ padding: "8px 10px" }}>
+                                <span style={{
+                                  padding: "2px 6px",
+                                  borderRadius: "4px",
+                                  fontSize: "0.65rem",
+                                  fontWeight: "bold",
+                                  background: comp.validation_status === "VERIFIED" ? "rgba(16, 185, 129, 0.2)" : "rgba(56, 189, 248, 0.2)",
+                                  color: comp.validation_status === "VERIFIED" ? "#a7f3d0" : "#bae6fd",
+                                }}>
+                                  {comp.validation_status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Fidelity Decision & Provenance Summary */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
+                    <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", padding: "14px" }}>
+                      <div style={{ color: "#f59e0b", fontWeight: "bold", fontSize: "0.8rem", marginBottom: "6px" }}>
+                        ⚖️ FIDELITY DECISION DETAILS
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "#cbd5e1", lineHeight: "1.6" }}>
+                        <div>Decision: <strong style={{ color: "#38bdf8" }}>{autonomousExperimentResult.fidelity_decision?.selected_fidelity}</strong></div>
+                        <div>Database Distance: <code>{autonomousExperimentResult.fidelity_decision?.database_distance}</code> ({autonomousExperimentResult.fidelity_decision?.database_match_quality})</div>
+                        <div>Surrogate Uncertainty: <code>{autonomousExperimentResult.fidelity_decision?.surrogate_uncertainty}</code> ({autonomousExperimentResult.fidelity_decision?.uncertainty_quality})</div>
+                        <div>Backend: <code>{autonomousExperimentResult.fidelity_decision?.recommended_backend}</code></div>
+                      </div>
+                    </div>
+
+                    <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", padding: "14px" }}>
+                      <div style={{ color: "#10b981", fontWeight: "bold", fontSize: "0.8rem", marginBottom: "6px" }}>
+                        🛡️ SCIENTIFIC PROVENANCE &amp; HASHES
+                      </div>
+                      <div style={{ fontSize: "0.7rem", color: "#94a3b8", lineHeight: "1.6", fontFamily: "var(--font-mono, monospace)" }}>
+                        <div>Experiment ID: {autonomousExperimentResult.experiment_id}</div>
+                        <div>State: {autonomousExperimentResult.state_machine?.current_state}</div>
+                        <div>Colab State: {autonomousExperimentResult.colab_execution_state}</div>
+                        <div>Case Hash: {autonomousExperimentResult.report?.provenance?.case_hash?.slice(0, 16)}...</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* SUB-TAB 1: EXECUTIVE INTEGRITY AUDIT */}
           {phase25ActiveSubTab === "executive_summary" && (
