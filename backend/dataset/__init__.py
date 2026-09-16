@@ -21,6 +21,7 @@ from backend.dataset.catalog import CFDCatalog
 from backend.dataset.similarity import AerodynamicSimilarity
 from backend.dataset.retrieval import CFDRetrievalEngine
 from backend.dataset.provenance import DatasetProvenanceGuard
+from backend.dataset.ingestion import DatasetIngestor, TrustLevel
 
 __all__ = [
     "CFDRecord",
@@ -38,4 +39,7 @@ __all__ = [
     "AerodynamicSimilarity",
     "CFDRetrievalEngine",
     "DatasetProvenanceGuard",
+    "DatasetIngestor",
+    "TrustLevel",
 ]
+

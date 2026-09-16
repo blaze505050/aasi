@@ -392,3 +392,136 @@ def test_report_generator_multi_fidelity_discrepancies():
     # CFD - Analytical discrepancy = 0.4350 - 0.4386 = -0.0036
     assert cl_comp.cfd_analytical_discrepancy == -0.0036
     assert cl_comp.live_cfd.provenance == ProvenanceState.LIVE_CFD
+
+
+# ============================================================================
+# 11. Multi-Format Dataset Ingestion Tests
+# ============================================================================
+
+def test_dataset_ingest_csv_polar(tmp_path):
+    """Verify CSV aerodynamic polar ingestion with schema validation and trust levels."""
+    from backend.dataset.ingestion import DatasetIngestor, TrustLevel
+    from backend.dataset.catalog import CFDCatalog
+    from backend.dataset.storage import ObjectStorageBackend
+
+    catalog = CFDCatalog(workspace_root=tmp_path)
+    storage = ObjectStorageBackend(tmp_path / "artifacts")
+    ingestor = DatasetIngestor(catalog=catalog, storage=storage)
+
+    csv_content = """alpha,cl,cd,cm
+-4.0,-0.41,0.0065,0.0
+0.0,0.02,0.0055,0.0
+4.0,0.44,0.0068,0.0
+8.0,0.85,0.0092,0.0
+12.0,1.21,0.0145,0.0
+"""
+    result = ingestor.ingest_csv_polar(
+        csv_content=csv_content,
+        geometry_id="NACA 0012",
+        reynolds=3e6,
+        mach=0.15,
+        trust_level=TrustLevel.PEER_REVIEWED_BENCHMARK,
+    )
+
+    assert result.success is True
+    assert result.record_id.startswith("REC-CSV-")
+    assert result.content_hash is not None
+    assert result.trust_level == TrustLevel.PEER_REVIEWED_BENCHMARK
+    assert result.record.flow.reynolds == 3e6
+    assert result.record.results.cl is not None
+
+
+def test_dataset_ingest_json_benchmark(tmp_path):
+    """Verify JSON benchmark dataset ingestion with optional frozen benchmark tagging."""
+    from backend.dataset.ingestion import DatasetIngestor, TrustLevel
+    from backend.dataset.catalog import CFDCatalog
+    from backend.dataset.storage import ObjectStorageBackend
+
+    catalog = CFDCatalog(workspace_root=tmp_path)
+    storage = ObjectStorageBackend(tmp_path / "artifacts")
+    ingestor = DatasetIngestor(catalog=catalog, storage=storage)
+
+    benchmark_json = json.dumps({
+        "geometry": {"geometry_id": "NACA 4412"},
+        "flow": {"reynolds": 3000000.0, "mach": 0.15, "aoa_deg": 6.0},
+        "mesh": {"cell_count": 52000},
+        "solver": {"solver": "simpleFoam"},
+        "results": {"cl": 1.0820, "cd": 0.0125, "cm": -0.09},
+    })
+
+    result = ingestor.ingest_json_benchmark(
+        json_content=benchmark_json,
+        dataset_name="FROZEN-AERODYNAMICS-P25",
+        trust_level=TrustLevel.FROZEN_EVALUATION_BENCHMARK,
+        freeze_benchmark=True,
+    )
+
+    assert result.success is True
+    assert result.trust_level == TrustLevel.FROZEN_EVALUATION_BENCHMARK
+    assert result.record.provenance.reproduction_bundle_id == "FROZEN_BENCHMARK"
+
+
+def test_dataset_ingest_vtk_field(tmp_path):
+    """Verify VTK field parsing and lazy object storage retrieval."""
+    from backend.dataset.ingestion import DatasetIngestor
+    from backend.dataset.catalog import CFDCatalog
+    from backend.dataset.storage import ObjectStorageBackend
+
+    catalog = CFDCatalog(workspace_root=tmp_path)
+    storage = ObjectStorageBackend(tmp_path / "artifacts")
+    ingestor = DatasetIngestor(catalog=catalog, storage=storage)
+
+    valid_vtk = b"# vtk DataFile Version 3.0\nFlow velocity and pressure field\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS 3 float\n0 0 0\n1 0 0\n0 1 0\n"
+    result = ingestor.ingest_vtk_field(
+        vtk_bytes=valid_vtk,
+        geometry_id="NACA 0012",
+        field_name="U_field.vtk",
+    )
+
+    assert result.success is True
+    assert result.record_id.startswith("REC-VTK-")
+    assert "vtk_digest" in result.record.results.flow_field_artifacts
+
+
+def test_adversarial_corrupted_vtk_rejected(tmp_path):
+    """Verify corrupted or invalid VTK files fail ingestion."""
+    from backend.dataset.ingestion import DatasetIngestor
+    from backend.dataset.catalog import CFDCatalog
+    from backend.dataset.storage import ObjectStorageBackend
+
+    catalog = CFDCatalog(workspace_root=tmp_path)
+    storage = ObjectStorageBackend(tmp_path / "artifacts")
+    ingestor = DatasetIngestor(catalog=catalog, storage=storage)
+
+    corrupted_vtk = b"RANDOM_GARBAGE_WITHOUT_VTK_HEADER\nDATA\n"
+    result = ingestor.ingest_vtk_field(
+        vtk_bytes=corrupted_vtk,
+        geometry_id="NACA 0012",
+    )
+
+    assert result.success is False
+    assert "Invalid VTK file format" in result.error
+
+
+def test_adversarial_surrogate_mislabeled_as_cfd_rejected():
+    """Verify that surrogate inference values cannot be tagged as LIVE_CFD."""
+    from backend.agent.report_generator import ScientificReportGenerator
+
+    report = ScientificReportGenerator.generate(
+        experiment_id="EXP-SEC-001",
+        objective="Surrogate test",
+        geometry="NACA 0012",
+        alpha_deg=4.0,
+        reynolds=3e6,
+        mach=0.15,
+        live_cfd_results=None,  # Live solver was not run!
+        surrogate_results={"cl": 0.4350, "cd": 0.0084, "cm": 0.0},
+    )
+
+    # When live CFD is not run, live_cfd entry must remain None or UNVERIFIED
+    cl_comp = report.comparisons["CL"]
+    assert cl_comp.live_cfd is None
+    # Surrogate must carry SURROGATE provenance, never LIVE_CFD
+    assert cl_comp.surrogate.provenance == ProvenanceState.SURROGATE
+    assert cl_comp.surrogate.provenance != ProvenanceState.LIVE_CFD
+
