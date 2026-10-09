@@ -1,0 +1,235 @@
+{
+  "NACA 0012": {
+    "reference": "NASA TN-D-628 / Abbott & von Doenhoff (1959)",
+    "reynolds": 3000000.0,
+    "mach": 0.15,
+    "metrics": {
+      "mae_cl": 0.009,
+      "rmse_cl": 0.0151,
+      "mae_cd": 0.0019,
+      "rmse_cd": 0.0025
+    },
+    "derivatives": {
+      "cl_alpha_per_rad": 6.219,
+      "cl_alpha_per_deg": 0.1086,
+      "alpha_zero_lift_deg": 0.0,
+      "cd_0": 0.006,
+      "l_over_d_max": 83.3
+    },
+    "comparisons": [
+      {
+        "alpha_deg": 0.0,
+        "exp_cl": 0.0,
+        "pred_cl": 0.0,
+        "cl_abs_diff": 0.0,
+        "exp_cd": 0.0058,
+        "pred_cd": 0.006,
+        "cd_abs_diff": 0.0002
+      },
+      {
+        "alpha_deg": 2.0,
+        "exp_cl": 0.22,
+        "pred_cl": 0.2171,
+        "cl_abs_diff": 0.0029,
+        "exp_cd": 0.0068,
+        "pred_cd": 0.0063,
+        "cd_abs_diff": 0.0005
+      },
+      {
+        "alpha_deg": 4.0,
+        "exp_cl": 0.44,
+        "pred_cl": 0.4342,
+        "cl_abs_diff": 0.0058,
+        "exp_cd": 0.0082,
+        "pred_cd": 0.0071,
+        "cd_abs_diff": 0.0011
+      },
+      {
+        "alpha_deg": 6.0,
+        "exp_cl": 0.65,
+        "pred_cl": 0.6513,
+        "cl_abs_diff": 0.0013,
+        "exp_cd": 0.0105,
+        "pred_cd": 0.0085,
+        "cd_abs_diff": 0.002
+      },
+      {
+        "alpha_deg": 8.0,
+        "exp_cl": 0.86,
+        "pred_cl": 0.8684,
+        "cl_abs_diff": 0.0084,
+        "exp_cd": 0.0135,
+        "pred_cd": 0.0105,
+        "cd_abs_diff": 0.003
+      },
+      {
+        "alpha_deg": 10.0,
+        "exp_cl": 1.05,
+        "pred_cl": 1.0854,
+        "cl_abs_diff": 0.0354,
+        "exp_cd": 0.0178,
+        "pred_cd": 0.0131,
+        "cd_abs_diff": 0.0047
+      }
+    ]
+  },
+  "NACA 4412": {
+    "reference": "Abbott & von Doenhoff, Theory of Wing Sections",
+    "reynolds": 3000000.0,
+    "mach": 0.15,
+    "metrics": {
+      "mae_cl": 0.0363,
+      "rmse_cl": 0.0471,
+      "mae_cd": 0.0014,
+      "rmse_cd": 0.0015
+    },
+    "derivatives": {
+      "cl_alpha_per_rad": 6.219,
+      "cl_alpha_per_deg": 0.1085,
+      "alpha_zero_lift_deg": -4.0,
+      "cd_0": 0.0068,
+      "l_over_d_max": 115.7
+    },
+    "comparisons": [
+      {
+        "alpha_deg": -4.0,
+        "exp_cl": 0.0,
+        "pred_cl": 0.0,
+        "cl_abs_diff": 0.0,
+        "exp_cd": 0.0068,
+        "pred_cd": 0.008,
+        "cd_abs_diff": 0.0012
+      },
+      {
+        "alpha_deg": 0.0,
+        "exp_cl": 0.41,
+        "pred_cl": 0.4342,
+        "cl_abs_diff": 0.0242,
+        "exp_cd": 0.0075,
+        "pred_cd": 0.0068,
+        "cd_abs_diff": 0.0007
+      },
+      {
+        "alpha_deg": 4.0,
+        "exp_cl": 0.83,
+        "pred_cl": 0.8684,
+        "cl_abs_diff": 0.0384,
+        "exp_cd": 0.0094,
+        "pred_cd": 0.0079,
+        "cd_abs_diff": 0.0015
+      },
+      {
+        "alpha_deg": 8.0,
+        "exp_cl": 1.22,
+        "pred_cl": 1.3025,
+        "cl_abs_diff": 0.0825,
+        "exp_cd": 0.0135,
+        "pred_cd": 0.0114,
+        "cd_abs_diff": 0.0021
+      }
+    ]
+  },
+  "Eppler E387": {
+    "reference": "UIUC Low-Speed Airfoil Tests (Vol 1-5, Selig et al.)",
+    "reynolds": 200000.0,
+    "mach": 0.05,
+    "metrics": {
+      "mae_cl": 0.3869,
+      "rmse_cl": 0.3869,
+      "mae_cd": 0.0069,
+      "rmse_cd": 0.0076
+    },
+    "derivatives": {
+      "cl_alpha_per_rad": 6.219,
+      "cl_alpha_per_deg": 0.1085,
+      "alpha_zero_lift_deg": 0.0,
+      "cd_0": 0.009,
+      "l_over_d_max": 54.6
+    },
+    "comparisons": [
+      {
+        "alpha_deg": 0.0,
+        "exp_cl": 0.38,
+        "pred_cl": 0.0,
+        "cl_abs_diff": 0.38,
+        "exp_cd": 0.0125,
+        "pred_cd": 0.009,
+        "cd_abs_diff": 0.0035
+      },
+      {
+        "alpha_deg": 2.0,
+        "exp_cl": 0.61,
+        "pred_cl": 0.2171,
+        "cl_abs_diff": 0.3929,
+        "exp_cd": 0.014,
+        "pred_cd": 0.0093,
+        "cd_abs_diff": 0.0047
+      },
+      {
+        "alpha_deg": 4.0,
+        "exp_cl": 0.83,
+        "pred_cl": 0.4342,
+        "cl_abs_diff": 0.3958,
+        "exp_cd": 0.0175,
+        "pred_cd": 0.0103,
+        "cd_abs_diff": 0.0072
+      },
+      {
+        "alpha_deg": 6.0,
+        "exp_cl": 1.03,
+        "pred_cl": 0.6513,
+        "cl_abs_diff": 0.3787,
+        "exp_cd": 0.024,
+        "pred_cd": 0.0119,
+        "cd_abs_diff": 0.0121
+      }
+    ]
+  },
+  "RAE 2822": {
+    "reference": "AGARD Advisory Report AR-138 (Transonic)",
+    "reynolds": 6500000.0,
+    "mach": 0.676,
+    "metrics": {
+      "mae_cl": 0.2996,
+      "rmse_cl": 0.3031,
+      "mae_cd": 0.0066,
+      "rmse_cd": 0.007
+    },
+    "derivatives": {
+      "cl_alpha_per_rad": 6.219,
+      "cl_alpha_per_deg": 0.1086,
+      "alpha_zero_lift_deg": 0.0,
+      "cd_0": 0.0054,
+      "l_over_d_max": 54.7
+    },
+    "comparisons": [
+      {
+        "alpha_deg": 1.0,
+        "exp_cl": 0.35,
+        "pred_cl": 0.1085,
+        "cl_abs_diff": 0.2415,
+        "exp_cd": 0.0095,
+        "pred_cd": 0.0054,
+        "cd_abs_diff": 0.0041
+      },
+      {
+        "alpha_deg": 2.0,
+        "exp_cl": 0.52,
+        "pred_cl": 0.2171,
+        "cl_abs_diff": 0.3029,
+        "exp_cd": 0.0118,
+        "pred_cd": 0.0056,
+        "cd_abs_diff": 0.0062
+      },
+      {
+        "alpha_deg": 3.0,
+        "exp_cl": 0.68,
+        "pred_cl": 0.3256,
+        "cl_abs_diff": 0.3544,
+        "exp_cd": 0.0155,
+        "pred_cd": 0.006,
+        "cd_abs_diff": 0.0095
+      }
+    ]
+  }
+}

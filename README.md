@@ -1,12 +1,12 @@
 # AASI — Autonomous Aerospace Scientific Intelligence
 
-> **Flight-Grade Aerodynamic Database Generation, CFD Verification, & Certification Platform**
+> **Preliminary Aerodynamic Database Generation, Automated Verification, & Multi-Fidelity Investigation Platform**
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14+-black.svg)](https://nextjs.org/)
-[![ASME V&V 20-2009](https://img.shields.io/badge/ASME-V%26V%2020--2009-brightgreen.svg)](https://www.asme.org/codes-standards/find-codes-standards/v-v-20-standard-verification-validation-computational-fluid-dynamics-heat-transfer)
-[![NASA-STD-7009B](https://img.shields.io/badge/NASA--STD-7009B%20CAS-blue.svg)](https://standards.nasa.gov/standard/NASA/NASA-STD-7009)
+[![ASME V&V 20-2009](https://img.shields.io/badge/Methodology-ASME%20V%26V%2020--2009-brightgreen.svg)](https://www.asme.org/codes-standards/find-codes-standards/v-v-20-standard-verification-validation-computational-fluid-dynamics-heat-transfer)
+[![NASA-STD-7009B](https://img.shields.io/badge/Methodology-NASA--STD-7009B%20CAS-blue.svg)](https://standards.nasa.gov/standard/NASA/NASA-STD-7009)
 [![USAF DATCOM](https://img.shields.io/badge/Export-USAF%20DATCOM-red.svg)](#multi-standard-aerospace-exporters)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -14,9 +14,9 @@
 
 ## Executive Summary
 
-**AASI** is a flight-grade aerospace engineering software platform designed for aerodynamicists, eVTOL developers, UAV mission planners, and defense contractors. It transforms the traditionally fragmented, labor-intensive aerodynamic database workflow into an automated, verifiable, and certification-ready pipeline.
+**AASI** is an aerodynamic engineering and scientific investigation platform designed for UAV developers, aerodynamicists, eVTOL teams, and aerospace researchers. It transforms the traditionally fragmented, labor-intensive aerodynamic database workflow into an automated, verifiable pipeline for conceptual and preliminary design.
 
-Unlike generic AI assistants or black-box surrogate models, AASI operates under a **Strict Anti-Fabrication Guarantee**: every aerodynamic coefficient, stability derivative, and grid convergence metric is computed deterministically using verified first-principles physics (discrete vortex panel methods, Helmbold-Keune finite-span corrections, Karman-Tsien compressibility, Schlichting-Squire-Young boundary layer drag) and peer-reviewed standards (ASME V&V 20-2009 and NASA-STD-7009B).
+AASI computes aerodynamic coefficients, stability derivatives, and grid convergence metrics deterministically using verified first-principles physics (discrete vortex panel methods, Helmbold-Keune finite-span corrections, Karman-Tsien compressibility, Schlichting/Squire-Young boundary layer drag estimates) alongside structured verification frameworks following the methodologies of **ASME V&V 20-2009** and **NASA-STD-7009B**.
 
 ```
                                   ┌─────────────────────────────────────────┐
@@ -69,11 +69,11 @@ Export aerodynamic databases directly into industry-standard flight mechanics to
   - Fine-grid Grid Convergence Index ($GCI_{fine}$ with safety factor $F_s = 1.25$)
   - Asymptotic range of convergence verification ($R_{asymptotic} \approx 1.0$)
 
-### 4. Automated NASA-STD-7009B Certification Dossier Generator
-- Generates publication-ready, formal verification dossiers in both **HTML/PDF** and **JSON**:
+### 4. NASA-STD-7009B Credibility Assessment & Verification Dossier Generator
+- Generates structured, publication-ready verification dossiers in both **HTML/PDF** and **JSON**:
   - Full **Credibility Assessment Scale (CAS)** rubric scoring across Verification, Validation, Input Pedigree, and Results Uncertainty.
-  - Complete digital chain of custody with **SHA-256 cryptographic provenance hashing** of geometry, solver outputs, and verification metrics.
-  - Formatted for defense, FAA, and EASA compliance reviews.
+  - Complete digital chain of custody with **SHA-256 and Merkle DAG cryptographic provenance hashing** of geometry, solver outputs, and verification metrics.
+  - Formatted for engineering design reviews, technical audits, and data traceability.
 
 ### 5. Universal Airfoil Geometry Ingestion & Pre-Processing
 - **Supported Formats:** Selig (`.dat`, `.txt`), Lednicer (`.dat`), tabular CSV/TSV (`.csv`), or analytical 4-digit NACA profiles.
@@ -207,16 +207,36 @@ cd frontend && npx tsc --noEmit
 
 ---
 
+## Limitations & Operational Envelope
+
+AASI's fast aerodynamic database engine is optimized for **rapid conceptual trade studies and early-stage preliminary aircraft/UAV design**. Users should observe the following physics envelopes:
+
+| Parameter / Regime | Recommended Range | Limitations & High-Fidelity Recommendation |
+| :--- | :--- | :--- |
+| **Mach Number ($M$)** | $0.0 \le M \le 0.70$ | Subsonic attached flow. Transonic shock formation above $M_{crit}$ requires viscous compressible CFD (e.g., OpenFOAM / SU2). |
+| **Angle of Attack ($\alpha$)** | $-4^\circ \le \alpha \le 12^\circ$ | High-alpha non-linear stall and post-stall separation require Reynolds-Averaged Navier-Stokes (RANS) or empirical post-stall models. |
+| **Reynolds Number ($Re$)** | $10^5 \le Re \le 10^7$ | Low-$Re$ laminar separation bubbles ($Re < 10^5$) require transition modeling or wind tunnel calibration. |
+| **Geometry** | 2D Airfoils + 3D Planform Approximations | Complex 3D fuselage-wing-nacelle interference requires full 3D CFD or Vortex Lattice Methods (VLM). |
+
+---
+
+## Engineering Disclaimer
+
+> **IMPORTANT NOTICE:** All aerodynamic calculations, stability derivatives, and verification metrics produced by AASI are intended for preliminary engineering design, conceptual trade studies, educational research, and optimization workflows. They do not constitute certified flight test data. All aerodynamic characteristics must be independently validated through higher-fidelity computational methods, wind-tunnel experimentation, or flight testing prior to flight-critical hardware manufacturing or flight operations.
+
+---
+
 ## Technology Stack
 
 - **Physics & Verification Engine:** Python 3.12, NumPy, SciPy, SymPy, Astropy, RocketPy
 - **API & Service Layer:** FastAPI, Pydantic v2, Uvicorn, HTTPX
 - **Frontend Cockpit:** Next.js 14 (App Router), TypeScript, Vanilla CSS, SVG Vector Polars
 - **CFD & Mesh Dispatcher:** OpenFOAM `blockMeshDict` (6-block C-grid), SU2, XFOIL
-- **Compliance & Auditing:** ASME V&V 20-2009, NASA-STD-7009B, USAF DATCOM, NASA S/HABP
+- **Verification Methodologies:** ASME V&V 20-2009, NASA-STD-7009B, USAF DATCOM, NASA S/HABP
 
 ---
 
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
