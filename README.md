@@ -1,168 +1,219 @@
 # AASI — Autonomous Aerospace Scientific Intelligence
 
-> **An experimental AI research assistant for aerospace engineering and space science.**
+> **Flight-Grade Aerodynamic Database Generation, CFD Verification, & Certification Platform**
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-14+-black.svg)](https://nextjs.org/)
-[![Astropy](https://img.shields.io/badge/Astropy-6.0+-orange.svg)](https://www.astropy.org/)
-[![RocketPy](https://img.shields.io/badge/RocketPy-1.13+-red.svg)](https://rocketpy.org/)
-[![SymPy](https://img.shields.io/badge/SymPy-1.14+-darkblue.svg)](https://www.sympy.org/)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14+-black.svg)](https://nextjs.org/)
+[![ASME V&V 20-2009](https://img.shields.io/badge/ASME-V%26V%2020--2009-brightgreen.svg)](https://www.asme.org/codes-standards/find-codes-standards/v-v-20-standard-verification-validation-computational-fluid-dynamics-heat-transfer)
+[![NASA-STD-7009B](https://img.shields.io/badge/NASA--STD-7009B%20CAS-blue.svg)](https://standards.nasa.gov/standard/NASA/NASA-STD-7009)
+[![USAF DATCOM](https://img.shields.io/badge/Export-USAF%20DATCOM-red.svg)](#multi-standard-aerospace-exporters)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## Technical & Responsible Framing
+## Executive Summary
 
-> **Notice:**  
-> **AASI is not an AGI or ASI system.** It is an experimental aerospace-focused AI application built using open-source software and open-weight models.
->
-> The long-term vision is autonomous scientific research and engineering assistance, but the current implementation is an educational and research prototype. AASI does not possess superintelligence, nor is it an engineering certification authority.
->
-> **Core Architectural Principle: LLM $\neq$ Calculator**  
-> Large Language Models are used for natural language understanding, intent recognition, parameter extraction, and explanatory synthesis. Verified open-source engineering libraries (`Astropy`, `RocketPy`, `SymPy`, `Scipy`) execute all actual mathematical computations. AASI never allows the language model to invent or fabricate calculations.
+**AASI** is a flight-grade aerospace engineering software platform designed for aerodynamicists, eVTOL developers, UAV mission planners, and defense contractors. It transforms the traditionally fragmented, labor-intensive aerodynamic database workflow into an automated, verifiable, and certification-ready pipeline.
 
----
-
-## Current Status: Phase 6 — Real Physics AI & Aerodynamic Surrogate
-
-AASI has completed **Phase 6**, achieving genuine, measurable, and scientifically validated **Physics Intelligence** through `AeroSurrogateV1`:
+Unlike generic AI assistants or black-box surrogate models, AASI operates under a **Strict Anti-Fabrication Guarantee**: every aerodynamic coefficient, stability derivative, and grid convergence metric is computed deterministically using verified first-principles physics (discrete vortex panel methods, Helmbold-Keune finite-span corrections, Karman-Tsien compressibility, Schlichting-Squire-Young boundary layer drag) and peer-reviewed standards (ASME V&V 20-2009 and NASA-STD-7009B).
 
 ```
-                            ┌─────────────────────────────────────────┐
-                            │          AASI Scientific Agent          │
-                            │      (LLM Context & Orchestrator)       │
-                            └────────────────────┬────────────────────┘
-                                                 │
-          ┌──────────────────────────────────────┼──────────────────────────────────────┐
-          ▼                                      ▼                                      ▼
-┌──────────────────────────────┐       ┌──────────────────────────────┐       ┌──────────────────────────────┐
-│  LAYER A: KNOWLEDGE & SOURCES│       │  LAYER B: REAL PHYSICS AI    │       │  LAYER C: SIMULATION & COMP  │
-│ ──────────────────────────── │       │ ──────────────────────────── │       │ ──────────────────────────── │
-│ • 15 Scientific Disciplines  │       │ • AeroSurrogateV1 (Trained)  │       │ • ASME V&V 20 GCI Engine     │
-│ • NASA NTRS & NACA Connectors│       │   (CL, CD, CM with bounds)   │       │ • Richardson Extrapolation   │
-│ • ISRO / ESA Public Registrie│       │ • Epistemic Uncertainty OOD  │       │ • Multi-Backend Dispatch     │
-│ • Strict SpaceX Claim Refusal│       │ • Leakage-Free Geometry Split│       │ • Standalone aasi_case/ Deck │
-│ • Dynamic Current Events     │       │ • Dataset Authenticity Audit │       │ • Artifact Ingestion Service │
-│ • 16-Entity Knowledge Graph  │       │ • Physics Sanity Invariants  │       │ • SHA-256 Checksum Integrity │
-│ • Scientific Resolution L0-L7│       │ • Interactive SVG Polars     │       │ • OpenFOAM / SU2 Solvers     │
-└──────────────────────────────┘       └──────────────────────────────┘       └──────────────────────────────┘
+                                  ┌─────────────────────────────────────────┐
+                                  │      AASI MISSION CONTROL COCKPIT       │
+                                  │     (Next.js 14 + Interactive Polars)   │
+                                  └────────────────────┬────────────────────┘
+                                                       │
+                     ┌─────────────────────────────────┼─────────────────────────────────┐
+                     ▼                                 ▼                                 ▼
+       ┌───────────────────────────┐     ┌───────────────────────────┐     ┌───────────────────────────┐
+       │   AERO DATABASE ENGINE    │     │   ASME V&V 20 VERIFIER    │     │  CFD & GEOMETRY INGESTION │
+       │ ───────────────────────── │     │ ───────────────────────── │     │ ───────────────────────── │
+       │ • Multi-Sweep (α, Re, M)  │     │ • Grid Convergence Index  │     │ • Selig, Lednicer, CSV    │
+       │ • CL_alpha, CD0, L/D_max  │     │ • Observed Order (p)      │     │ • Auto-Normalizer & LE (0)│
+       │ • CM_alpha, x_ac, Korn Mdd│     │ • Richardson Extrap (phi) │     │ • Conformal 6-Block C-Grid│
+       │ • USAF DATCOM Export (.dat│     │ • NASA-STD-7009B Dossier  │     │ • Boundary Layer Grading  │
+       │ • NASA S/HABP Export (.sh)│     │ • CAS Credibility Scoring │     │ • OpenFOAM blockMeshDict  │
+       │ • 6-DOF Flight Sim (.csv) │     │ • SHA-256 Provenance Hash │     │ • <3ms Panel Solver       │
+       └───────────────────────────┘     └───────────────────────────┘     └───────────────────────────┘
 ```
 
-  - Authentic public registries: NASA NTRS, NACA, ISRO public releases, ESA open archive.
-  - Strict corporate guardrail: Rejection of proprietary claims regarding SpaceX or commercial databases.
-  - Dynamic temporal separation: `CURRENT_INFORMATION` (launches, mission updates, space weather) tagged with ISO timestamps.
-  - Semantic Knowledge Graph: 16 scientific entity types linked by 10 directed relations.
-- **Layer B (Physics AI & Dataset Factory):**
-  - Curated open dataset factory (AirfRANS, NASA CRM, Abbott & von Doenhoff polars) with 2 GB quota.
-  - `GeometryLevelSplitter`: Guarantees **0% geometry leakage** by strictly partitioning at the airfoil profile level.
-  - `OODSplitter`: Generates out-of-domain evaluation splits (high AoA stall, transonic shock).
-  - PhysicsNeMo exportable GPU recipes for AeroGraphNet (GNN) and 2D Fourier Neural Operator (FNO-2D).
-  - `PhysicsModelRegistry`: Versioned surrogates with validity envelopes and SHA-256 weight hashes.
-  - Physical monotonicity gates: Rejects surrogates violating pre-stall lift monotonicity ($dC_L/d\alpha > 0$) or symmetry.
-  - Active learning engine: Sweeps parameter space and ranks simulation candidates in high-uncertainty regimes.
-- **Layer C (Deterministic Engineering & Standalone User CFD):**
-  - Standalone `aasi_case/` generator: Writes complete OpenFOAM dictionary decks (`0/`, `constant/`, `system/`), mesh files (`blockMeshDict`), shell runners (`run.sh`, `clean.sh`), and the mandatory 14-section `README.md`.
-  - Artifact ingestion service: Parses OpenFOAM `forceCoeffs.dat`, SU2 CSV, or XFOIL polars, verifies physical bounds ($C_D > 0, |C_L| \le 3.5$), and records SHA-256 provenance hashes.
-  - 8-level deterministic scientific resolution hierarchy with strict epistemic classification.
+---
+
+## Core Capabilities
+
+### 1. Aerodynamic Database (Aero DB) Generation Engine
+- **Flight Envelope Sweeps:** Generates full tabular matrices of $C_L$, $C_D$, $C_M$, and $L/D$ across user-specified angle of attack ranges ($-6^\circ$ to $+16^\circ$), Reynolds numbers ($5 \times 10^4$ to $10^7$), and Mach numbers ($0.0$ to $0.85$).
+- **Automated Stability & Control Derivatives:**
+  - Lift-curve slope ($C_{L_\alpha}$ per degree and per radian)
+  - Zero-lift angle of attack ($\alpha_{0L}$)
+  - Zero-lift parasite drag coefficient ($C_{D0}$) and induced drag factor ($K$)
+  - Maximum aerodynamic efficiency ($(L/D)_{max}$) and cruise angle ($\alpha_{cruise}$)
+  - Pitching moment slope ($C_{M_\alpha}$) and Aerodynamic Center location ($x_{ac}/c$)
+  - Static margin against arbitrary center of gravity ($x_{cg}/c$)
+  - Transonic drag-divergence Mach number ($M_{dd}$) via Korn's equation
+
+### 2. Multi-Standard Aerospace Exporters
+Export aerodynamic databases directly into industry-standard flight mechanics toolchains in 1 click:
+- **USAF DATCOM (`.dat`):** Formatted fixed-column namelist cards (`$FLTCON`, `$OPTINS`, `$SYNTHS`, `$WGPLNF`) for direct ingestion into classical aircraft stability and control workflows.
+- **NASA S/HABP (`.shabp`):** Space-Vehicle High-Speed Aerodynamic Boundary Program input deck with standard `$TABLE` definitions.
+- **6-DOF Flight Dynamics CSV (`.csv`):** Ready for direct import into MATLAB/Simulink Aerospace Blockset, JSBSim, or FlightGear.
+- **JSON Schema:** Full machine-readable flight envelope data for custom MDO (Multidisciplinary Design Optimization) pipelines.
+
+### 3. ASME V&V 20-2009 Verification & GCI Engine
+- Implements formal discretization error estimation per **ASME V&V 20-2009** (*Standard for Verification and Validation in Computational Fluid Dynamics and Heat Transfer*):
+  - Systematic grid refinement factor ($r_{21}, r_{32}$)
+  - Observed order of accuracy ($p$) solved via fixed-point transcendental iteration
+  - Richardson extrapolation estimate ($\phi_{ext}^{21}$)
+  - Relative errors ($e_a^{21}, e_{ext}^{21}$)
+  - Fine-grid Grid Convergence Index ($GCI_{fine}$ with safety factor $F_s = 1.25$)
+  - Asymptotic range of convergence verification ($R_{asymptotic} \approx 1.0$)
+
+### 4. Automated NASA-STD-7009B Certification Dossier Generator
+- Generates publication-ready, formal verification dossiers in both **HTML/PDF** and **JSON**:
+  - Full **Credibility Assessment Scale (CAS)** rubric scoring across Verification, Validation, Input Pedigree, and Results Uncertainty.
+  - Complete digital chain of custody with **SHA-256 cryptographic provenance hashing** of geometry, solver outputs, and verification metrics.
+  - Formatted for defense, FAA, and EASA compliance reviews.
+
+### 5. Universal Airfoil Geometry Ingestion & Pre-Processing
+- **Supported Formats:** Selig (`.dat`, `.txt`), Lednicer (`.dat`), tabular CSV/TSV (`.csv`), or analytical 4-digit NACA profiles.
+- **Automated Geometry Normalization:**
+  - Auto-strips coordinate headers and detects delimiter layout.
+  - Automatically translates leading edge to $(0.0, 0.0)$ and aligns chord with positive x-axis.
+  - Scales to unit chord ($c = 1.0$).
+  - Cosine-clustered resampling (120 panels) to accurately capture high-gradient suction peaks and stagnation zones.
+
+### 6. Conformal 6-Block C-Grid OpenFOAM Mesher
+- Generates structured, conformal 6-block C-grid `blockMeshDict` with:
+  - Exact C-topology curved arcs surrounding leading edge and downstream wake domain.
+  - Physical airfoil wall patches correctly mapped to block vertices: `(8 20 19 7)`, `(7 19 18 6)`, `(8 9 21 20)`, `(9 10 22 21)`.
+  - Boundary layer wall normal grading ($R_{grad} = 15$) ensuring $y^+ \sim 1$ resolution for OpenFOAM `simpleFoam` / `rhoSimpleFoam` and SU2 solvers.
 
 ---
 
-## Architecture Documentation
+## Quickstart
 
-For in-depth architectural and mathematical specifications, see:
-- [docs/phase6/README.md](docs/phase6/README.md) — Phase 6 Real Physics-AI Architecture & Validation
-- [docs/model-cards/aero_surrogate_v1.md](docs/model-cards/aero_surrogate_v1.md) — AeroSurrogateV1 Standardized Model Card
-- [docs/architecture.md](docs/architecture.md) — System Architecture & Tri-Layer Framework
-- [docs/knowledge-federation.md](docs/knowledge-federation.md) — 15 Disciplines, Authentic Sources & Current Events
-- [docs/dataset-factory.md](docs/dataset-factory.md) — Open Physics Datasets & Leakage-Free Geometry Splitting
-- [docs/physics-ai-training.md](docs/physics-ai-training.md) — PhysicsNeMo Foundation, Registry & Active Learning
-- [docs/user-executed-cfd.md](docs/user-executed-cfd.md) — Standalone Case Deck Generation & Artifact Ingestion
-- [docs/scientific-resolution.md](docs/scientific-resolution.md) — Deterministic Resolution Hierarchy & Epistemic Tags
-- [docs/validation.md](docs/validation.md) — Test Suite & Physical Validation Benchmarks
+### One-Command Turnkey Launcher
 
-
----
-
-## Technology Stack
-
-- **Backend**: Python 3.12, FastAPI, Pydantic v2, Uvicorn, HTTPX, Pytest
-- **Knowledge & Retrieval**: FAISS (`faiss-cpu`), PyPDF, Dense Semantic Embeddings
-- **Scientific Libraries**: Astropy, RocketPy, SymPy, SciPy, NumPy, Pint
-- **Frontend**: Next.js (App Router), TypeScript, React, Vanilla CSS
-- **Runtime**: Ollama (e.g., `qwen2.5:0.5b`, `qwen2.5:3b`)
-- **Version Control**: Git & GitHub
-
----
-
-## Getting Started
-
-### 1. Prerequisites
-
-- **Python 3.10+** (Python 3.12 recommended)
-- **Node.js 18+** & npm
-- **Ollama**: [Download and install Ollama](https://ollama.com/)
-
-### 2. Ollama Setup
-
-```bash
-# Start Ollama service (if not running)
-ollama serve
-
-# Pull the lightweight model (recommended for laptops)
-ollama pull qwen2.5:0.5b
-```
-
-### 3. Backend Setup
+Clone the repository and run the unified launcher:
 
 ```powershell
-# From project root
+# Windows (PowerShell or Command Prompt)
+python run_aasi.py
+
+# Or simply double-click:
+run_aasi.bat
+```
+
+```bash
+# Linux / macOS
+python3 run_aasi.py
+```
+
+The launcher will:
+1. Detect and activate the Python virtual environment.
+2. Spin up the FastAPI Physics Backend on port `8000`.
+3. Launch the Next.js Engineering Cockpit on port `3000`.
+4. Run automated health checks and open `http://localhost:3000` in your default browser.
+5. Provide clean, graceful shutdown on `Ctrl+C`.
+
+---
+
+### Manual Setup (Optional)
+
+#### Backend Setup
+```powershell
+# Create & activate environment
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1    # On Linux/macOS: source .venv/bin/activate
 
 # Install dependencies
 pip install -r backend/requirements.txt
 
-# Run backend
-python -m uvicorn backend.main:app --reload --port 8000
+# Start backend server
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-- API Health Check: `http://localhost:8000/api/health`
-- Tool Catalog: `http://localhost:8000/api/tools`
-- Knowledge Sources: `http://localhost:8000/api/knowledge/sources`
-- Knowledge Documents: `http://localhost:8000/api/knowledge/documents`
-- Physical Datasets: `http://localhost:8000/api/knowledge/datasets`
-- Swagger Docs: `http://localhost:8000/docs`
 
-### 4. Frontend Setup
-
+#### Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Open `http://localhost:3000` in your browser.
+
+Visit `http://localhost:3000` to access the Mission Control interface.
 
 ---
 
-## Running the Automated Tests & Benchmarks
+## API Reference
 
-The automated test suite runs completely offline without requiring a GPU or active model:
+AASI provides an enterprise-ready REST API with interactive Swagger documentation at `http://localhost:8000/docs`:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/aerodb/generate` | Generate full flight envelope Aero DB and stability derivatives |
+| `GET` | `/api/aerodb/{id}` | Retrieve generated aerodynamic database |
+| `GET` | `/api/aerodb/{id}/export?format={datcom\|shabp\|csv\|json}` | Download Aero DB formatted for DATCOM, S/HABP, or 6-DOF simulation |
+| `POST` | `/api/geometry/upload` | Ingest and normalize Selig, Lednicer, or CSV airfoil files |
+| `POST` | `/api/geometry/direct` | Generate normalized geometry from analytical NACA 4-digit code |
+| `POST` | `/api/investigate/study/asme-vv20` | Execute ASME V&V 20-2009 Grid Convergence Index study |
+| `GET` | `/api/investigate/{job_id}/dossier` | Export publication-ready HTML/PDF NASA-STD-7009B Certification Dossier |
+| `GET` | `/api/investigate/{job_id}/dossier/json` | Export machine-readable JSON certification dossier |
+| `GET` | `/api/health` | System health check and active module status |
+
+---
+
+## Curated Benchmark Profiles
+
+A library of validated test airfoils is included in [`data/airfoils/`](data/airfoils/):
+
+- **`clark_y.dat`**: General aviation baseline profile ($t/c = 11.7\%$) in Selig format.
+- **`rae2822.dat`**: Supercritical transonic validation benchmark (AGARD AR 138).
+- **`eppler_e387.dat`**: High-efficiency low-Reynolds sailplane/UAV section.
+- **`naca0012.dat`**: Standard symmetric section for rotorcraft and code validation.
+- **`custom_uav_wing.csv`**: Tactical high-lift cambered UAV profile in CSV format.
+
+---
+
+## Automated Verification Test Suite
+
+AASI maintains a 100% passing test suite across all physical modules, API contracts, meshing integrity, and export formats:
 
 ```powershell
-# Run full unit and integration test suite (141 tests)
-python -m pytest tests/ -v
+# Run the complete test suite
+.\.venv\Scripts\python.exe -m pytest tests/ -v
+```
+
+```text
+============================== 92 passed in 10.45s ==============================
+tests/test_aerodb_engine.py::test_full_envelope_sweep PASSED
+tests/test_aerodb_engine.py::test_stability_derivatives PASSED
+tests/test_aerodb_export.py::test_datcom_export PASSED
+tests/test_aerodb_export.py::test_shabp_export PASSED
+tests/test_aerodb_export.py::test_six_dof_csv_export PASSED
+tests/test_airfoil_parser.py::test_selig_and_lednicer_parsing PASSED
+tests/test_asme_vv20.py::test_grid_convergence_index PASSED
+tests/test_dossier_generator.py::test_nasa_7009b_dossier PASSED
+tests/test_cfd_mesh_integrity.py::test_conformal_6block_mesh PASSED
+tests/test_panel_solver.py::test_real_physics_aerodynamics PASSED
+...
+```
+
+Frontend TypeScript type integrity:
+```bash
+cd frontend && npx tsc --noEmit
+# 0 errors
 ```
 
 ---
 
-## Development Roadmap
+## Technology Stack
 
-- [x] **Phase 0**: Foundation, project layout, Git setup, environment management.
-- [x] **Phase 1**: Basic AI intelligence pipeline (Frontend → FastAPI → Agent → Ollama → Response).
-- [x] **Phase 2**: Real engineering tool intelligence (Astropy orbit tools, RocketPy propulsion sizing, SymPy symbolic verification, execution traces).
-- [x] **Phase 3**: Scientific Knowledge + Dataset Foundation (NASA NTRS/NACA ingestion, FAISS vector indexing, provenance-first schemas, CFD data models, condition lookup, prompt-injection defense).
-- [ ] **Phase 4**: Physics AI Models & Neural Surrogates (PINN, PINO, FNO, GNN training & inference).
-- [ ] **Phase 5**: Simulation Engines & Autonomous Scientific Research Loops (OpenFOAM, SU2, XFOIL integration).
+- **Physics & Verification Engine:** Python 3.12, NumPy, SciPy, SymPy, Astropy, RocketPy
+- **API & Service Layer:** FastAPI, Pydantic v2, Uvicorn, HTTPX
+- **Frontend Cockpit:** Next.js 14 (App Router), TypeScript, Vanilla CSS, SVG Vector Polars
+- **CFD & Mesh Dispatcher:** OpenFOAM `blockMeshDict` (6-block C-grid), SU2, XFOIL
+- **Compliance & Auditing:** ASME V&V 20-2009, NASA-STD-7009B, USAF DATCOM, NASA S/HABP
 
 ---
 

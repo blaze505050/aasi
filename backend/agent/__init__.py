@@ -13,6 +13,13 @@ from backend.agent.scientific_state import (
     ScientificStateMachine,
     StateTransitionRecord,
 )
+from backend.agent.investigation_lifecycle import (
+    AutonomyLevel,
+    AutonomyEnvelope,
+    LifecycleStage,
+    InvestigationLifecycleManager,
+    LifecycleEvent,
+)
 from backend.agent.planner import (
     ScientificPlanner,
     ExperimentSpecification,
@@ -47,6 +54,26 @@ from backend.agent.report_generator import (
 from backend.agent.execution_controller import (
     AutonomousExecutionController,
 )
+from backend.agent.orchestrator import (
+    ProductionOrchestrator,
+    OrchestratorState,
+    OrchestratorTransition,
+    OrchestratorSession,
+)
+from backend.agent.scientific_answer import (
+    ScientificAnswerEngine,
+    ScientificExplanation,
+    ScientificStatement,
+    EpistemicLabel,
+)
+from backend.agent.investigation_graph import (
+    InvestigationGraph,
+    InquiryNode,
+    InquiryNodeType,
+    AutonomousDiscoveryEngine,
+    DiscoveryRecommendation,
+)
+
 
 # Legacy AASIAgent backwards compatibility
 try:

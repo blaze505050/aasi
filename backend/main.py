@@ -39,6 +39,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Phase 27 & 28: Control Plane Modular API Routers
+from backend.api import api_router, api_v1_router
+app.include_router(api_router)
+app.include_router(api_v1_router)
+
+
 
 # --- Pydantic Schemas ---
 
@@ -134,6 +140,7 @@ class SimulationRunRequest(BaseModel):
 
 # --- API Routes ---
 
+@app.get("/health", response_model=HealthResponse, include_in_schema=False)
 @app.get("/api/health", response_model=HealthResponse, summary="System Health Check")
 async def get_health():
     """
@@ -350,6 +357,23 @@ async def get_simulation_manifest(case_id: str):
     if not case_path.exists():
         raise HTTPException(status_code=404, detail=f"Simulation case manifest '{case_id}' not found.")
     return json.loads(case_path.read_text(encoding="utf-8"))
+
+
+@app.get("/api/simulations/{case_id}/residuals", summary="Get Navier-Stokes Residual Convergence History")
+async def get_simulation_residuals(case_id: str):
+    """Retrieves iterative L2 residual convergence trajectory (p, Ux, Uy, k, omega) for case."""
+    from pathlib import Path
+    import json
+    res_path = Path("data/simulations") / case_id / "residuals_history.json"
+    if not res_path.exists():
+        case_path = Path("data/simulations") / case_id / f"EXP-{case_id}.manifest.json"
+        if not case_path.exists():
+            raise HTTPException(status_code=404, detail=f"Simulation case '{case_id}' not found.")
+        manifest = json.loads(case_path.read_text(encoding="utf-8"))
+        return {"case_id": case_id, "iterations": 1, "history": [manifest.get("residuals", {})]}
+    data = json.loads(res_path.read_text(encoding="utf-8"))
+    return {"case_id": case_id, "iterations": len(data), "history": data}
+
 
 
 
@@ -2850,5 +2874,166 @@ async def get_dataset_catalog():
     }
 
 
+# ---------------------------------------------------------------------------
+# Phase 26: End-to-End Autonomous Remote CFD Execution APIs
+# ---------------------------------------------------------------------------
+
+class SessionInitRequest(BaseModel):
+    objective: str
+    geometry: Optional[str] = "NACA 4412"
+    alpha_deg: Optional[float] = 6.0
+    reynolds: Optional[float] = 3000000.0
+    mach: Optional[float] = 0.15
 
 
+class SessionTransitionRequest(BaseModel):
+    to_state: str
+    trigger: str
+    detail: Optional[str] = None
+    artifacts: Optional[Dict[str, str]] = None
+
+
+class QuestionRequest(BaseModel):
+    question: str
+    geometry: Optional[str] = "NACA 4412"
+    alpha_deg: Optional[float] = 6.0
+    live_cfd_cd: Optional[float] = None
+    surrogate_cd: Optional[float] = None
+    database_cd: Optional[float] = None
+
+
+class ColabPrepareRequest(BaseModel):
+    job_id: str
+    geometry_id: str
+    alpha_deg: float
+    reynolds: float
+    mach: Optional[float] = 0.15
+
+
+_active_orchestrator_sessions: Dict[str, Any] = {}
+
+
+@app.post("/api/orchestrator/session", summary="Initialize or get orchestrator session")
+async def create_orchestrator_session(req: SessionInitRequest):
+    from backend.agent.orchestrator import ProductionOrchestrator
+    import hashlib
+    session_id = f"SESS-{hashlib.sha256((req.objective + str(req.alpha_deg)).encode('utf-8')).hexdigest()[:10].upper()}"
+    orch = ProductionOrchestrator(session_id=session_id, objective=req.objective)
+    orch.session.geometry = req.geometry
+    orch.session.alpha_deg = req.alpha_deg
+    orch.session.reynolds = req.reynolds
+    orch.session.mach = req.mach
+    _active_orchestrator_sessions[session_id] = orch
+    return orch.session.model_dump()
+
+
+@app.get("/api/orchestrator/session/{session_id}", summary="Get orchestrator session")
+async def get_orchestrator_session(session_id: str):
+    orch = _active_orchestrator_sessions.get(session_id)
+    if not orch:
+        from backend.agent.orchestrator import ProductionOrchestrator
+        orch = ProductionOrchestrator(session_id=session_id, objective="Autonomous Investigation")
+        _active_orchestrator_sessions[session_id] = orch
+    return orch.session.model_dump()
+
+
+@app.post("/api/orchestrator/session/{session_id}/transition", summary="Advance orchestrator state")
+async def advance_orchestrator_state(session_id: str, req: SessionTransitionRequest):
+    orch = _active_orchestrator_sessions.get(session_id)
+    if not orch:
+        from backend.agent.orchestrator import ProductionOrchestrator
+        orch = ProductionOrchestrator(session_id=session_id, objective="Autonomous Investigation")
+        _active_orchestrator_sessions[session_id] = orch
+    from backend.agent.orchestrator import OrchestratorState
+    try:
+        target_state = OrchestratorState(req.to_state)
+        t = orch.transition_to(target_state, trigger=req.trigger, detail=req.detail, artifacts_to_add=req.artifacts)
+        return {"success": True, "current_state": orch.session.current_state.value, "transition": t.model_dump()}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/execution/{job_id}", summary="Get execution monitor status")
+async def get_execution_monitor_status(job_id: str):
+    from backend.compute.monitor import RemoteExecutionMonitor
+    status = RemoteExecutionMonitor.get_job_status(job_id)
+    if not status:
+        status = RemoteExecutionMonitor.register_job(job_id)
+    return status.model_dump()
+
+
+@app.get("/api/execution/{job_id}/events", summary="Get execution monitor event stream")
+async def get_execution_events(job_id: str):
+    from backend.compute.monitor import RemoteExecutionMonitor
+    events = RemoteExecutionMonitor.get_events(job_id)
+    return {"job_id": job_id, "events": [e.model_dump() for e in events]}
+
+
+@app.get("/api/execution/{job_id}/artifacts", summary="Get execution artifacts")
+async def get_execution_artifacts(job_id: str):
+    from backend.compute.monitor import RemoteExecutionMonitor
+    artifacts = RemoteExecutionMonitor.get_artifacts(job_id)
+    return {"job_id": job_id, "artifacts": artifacts}
+
+
+@app.post("/api/answer/explain", summary="Explain scientific discrepancy or question")
+async def explain_scientific_question(req: QuestionRequest):
+    from backend.agent.scientific_answer import ScientificAnswerEngine
+    explanation = ScientificAnswerEngine.explain_discrepancy(
+        geometry=req.geometry or "NACA 4412",
+        alpha_deg=req.alpha_deg or 6.0,
+        live_cfd_cd=req.live_cfd_cd,
+        surrogate_cd=req.surrogate_cd,
+        database_cd=req.database_cd,
+    )
+    return explanation.model_dump()
+
+
+@app.post("/api/investigation/graph", summary="Generate natural language inquiry graph")
+async def generate_inquiry_graph(req: QuestionRequest):
+    from backend.agent.investigation_graph import InvestigationGraph
+    graph = InvestigationGraph.create_from_question(
+        question_text=req.question,
+        geometry=req.geometry or "NACA 4412",
+        alpha_deg=req.alpha_deg or 6.0,
+    )
+    return graph.model_dump()
+
+
+@app.get("/api/discovery/recommend", summary="Get next high-value experiment recommendation")
+async def get_discovery_recommendation():
+    from backend.agent.investigation_graph import AutonomousDiscoveryEngine
+    rec = AutonomousDiscoveryEngine.propose_next_experiment()
+    return rec.model_dump()
+
+
+@app.post("/api/colab/prepare", summary="Prepare 1-click Colab bundle")
+async def prepare_colab_bundle(req: ColabPrepareRequest):
+    from backend.compute.colab_session import ColabSessionPackager
+    bundle = ColabSessionPackager.create_session_bundle(
+        job_id=req.job_id,
+        geometry_id=req.geometry_id,
+        alpha_deg=req.alpha_deg,
+        reynolds=req.reynolds,
+        mach=req.mach or 0.15,
+    )
+    from backend.compute.monitor import RemoteExecutionMonitor, ExecutionMilestone
+    RemoteExecutionMonitor.register_job(
+        req.job_id,
+        backend="GOOGLE_COLAB",
+        artifacts=[bundle["manifest_path"], bundle["case_path"], bundle["notebook_path"]],
+    )
+    RemoteExecutionMonitor.record_event(
+        req.job_id,
+        ExecutionMilestone.PACKAGING,
+        f"Colab execution package generated for {req.geometry_id}.",
+        progress_pct=25,
+    )
+    return bundle
+
+
+# Mount Phase 27 Modular Control Plane Routers
+from backend.api import api_router, api_v1_router
+
+app.include_router(api_router)
+app.include_router(api_v1_router)

@@ -20,6 +20,21 @@ class ProvenanceState(str, Enum):
     FAILED = "FAILED"                   # Simulation or validation failed
 
 
+class EpistemicTier(str, Enum):
+    """Epistemic classification tiers for calculations and results."""
+    DATABASE_REAL = "DATABASE_REAL"
+    LIVE_CFD = "LIVE_CFD"
+    SURROGATE = "SURROGATE"
+    ANALYTICAL = "ANALYTICAL"
+    USER_PROVIDED = "USER_PROVIDED"
+    DERIVED = "DERIVED"
+    SYNTHETIC = "SYNTHETIC"
+    ESTIMATED = "ESTIMATED"
+    UNVERIFIED = "UNVERIFIED"
+    NOT_EXECUTED = "NOT_EXECUTED"
+    STAGED_ONLY = "STAGED_ONLY"
+
+
 class CFDResultState(str, Enum):
     """Strict CFD result progression state machine."""
     PLANNED = "PLANNED"

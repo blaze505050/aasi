@@ -1,6 +1,6 @@
 """
-AASI Automatic CFD Repair Engine.
-Generates cryptographically distinct candidate configurations for failed simulations.
+AASI Phase 26 Automatic CFD Repair Engine.
+Generates cryptographically distinct candidate configurations for failed simulations across all 11 error classes.
 Enforces that original configurations remain immutable and retries are hard-capped at 3.
 """
 
@@ -21,6 +21,8 @@ class RepairCandidate(BaseModel):
     modifications: Dict[str, Any]
     reason: str
     preflight_passed: bool = False
+    parent_job_id: Optional[str] = None
+    parent_attempt_hash: Optional[str] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
@@ -82,6 +84,53 @@ class CFDRepairEngine:
                 "max_iterations": 3000,
             }
             reason = "Residual stagnation detected. Tightened GAMG linear solver tolerances and increased max iterations."
+
+        elif diagnosis.error_class == CFDErrorClass.COURANT_INSTABILITY:
+            modifications = {
+                "controlDict_deltaT": 0.0005,
+                "controlDict_adjustTimeStep": True,
+                "controlDict_maxCo": 0.8,
+            }
+            reason = "Courant-number instability detected. Reduced deltaT by 50% and clamped maxCo to 0.8."
+
+        elif diagnosis.error_class == CFDErrorClass.TIME_STEP_INSTABILITY:
+            modifications = {
+                "controlDict_deltaT": 0.001,
+                "controlDict_adjustTimeStep": False,
+            }
+            reason = "Time-step instability detected. Locked deltaT to fixed conservative value."
+
+        elif diagnosis.error_class == CFDErrorClass.LINEAR_SOLVER_FAILURE:
+            modifications = {
+                "fvSolution_solvers_p": "PCG",
+                "fvSolution_preconditioner_p": "DIC",
+                "fvSolution_maxIter": 500,
+                "fvSolution_nPreSweeps": 2,
+                "fvSolution_nPostSweeps": 2,
+            }
+            reason = "Linear matrix solver failure. Switched pressure equation solver to PCG with DIC preconditioner and increased max iterations."
+
+        elif diagnosis.error_class == CFDErrorClass.TURBULENCE_INSTABILITY:
+            modifications = {
+                "fvSolution_relaxation": {"k": 0.4, "omega": 0.4},
+                "fvSchemes_turbulence": "bounded Gauss upwind",
+                "inlet_k_clamped": True,
+            }
+            reason = "Turbulence equation instability detected. Damped k and omega relaxation factors to 0.4 and bounded divergence schemes."
+
+        elif diagnosis.error_class == CFDErrorClass.MISSING_FIELD:
+            modifications = {
+                "generate_missing_field": True,
+                "default_field_values": {"nut": "calculated", "k": 0.01, "omega": 10.0},
+            }
+            reason = "Missing 0/ field detected. Generated standard wall-function boundary fields."
+
+        elif diagnosis.error_class == CFDErrorClass.INVALID_BOUNDARY_CONDITION:
+            modifications = {
+                "harmonize_patches": True,
+                "boundary_patch_corrections": {"airfoil": "wall", "inlet": "patch", "outlet": "patch"},
+            }
+            reason = "Boundary condition patch type mismatch. Harmonized patch names with polyMesh/boundary."
 
         elif diagnosis.error_class == CFDErrorClass.MESH_QUALITY_FAILURE:
             modifications = {

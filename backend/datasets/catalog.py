@@ -13,6 +13,8 @@ from backend.datasets.adapters.base import DatasetAdapter
 from backend.datasets.adapters.naca0012 import NACA0012DatasetAdapter
 from backend.datasets.adapters.airfrans import AirfRANSDatasetAdapter
 from backend.datasets.adapters.tmr2d import NASATMR2DDatasetAdapter
+from backend.datasets.adapters.authentic_airfoils import AuthenticAirfoilsDatasetAdapter
+from backend.datasets.adapters.universal import UniversalAerospaceDatasetAdapter
 
 
 class DatasetCatalog:
@@ -28,8 +30,12 @@ class DatasetCatalog:
         self.register_adapter(NACA0012DatasetAdapter())
         self.register_adapter(AirfRANSDatasetAdapter())
         self.register_adapter(NASATMR2DDatasetAdapter())
+        self.register_adapter(AuthenticAirfoilsDatasetAdapter())
+        self.register_adapter(UniversalAerospaceDatasetAdapter())
         # Also alias DATASET-AIRFRANS-1K if referenced
         self.adapters["DATASET-AIRFRANS-1K"] = self.adapters["DATASET-AIRFRANS-1K"]
+
+
 
     def register_adapter(self, adapter: DatasetAdapter) -> None:
         """Pluggable registration of an authoritative CFD dataset adapter."""

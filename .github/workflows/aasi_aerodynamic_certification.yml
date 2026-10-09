@@ -1,0 +1,52 @@
+name: AASI Aerospace Aerodynamic Certification & V&V 20 Verification
+
+on:
+  push:
+    branches: [ "main", "release/**" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  aerodynamic-certification:
+    name: ASME V&V 20 Certification & Cryptographic Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies & AASI SDK
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e sdk/python
+
+      - name: Launch AASI Verification Platform
+        run: |
+          nohup python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
+          sleep 6
+
+      - name: Verify Backend Health & Model Zoo
+        run: |
+          curl -f http://127.0.0.1:8000/api/health || exit 1
+
+      - name: Run ASME V&V 20 Benchmark Verification (NASA LTPT NACA 0012)
+        run: |
+          aasi cert verify --geometry "NACA 0012" --threshold 0.05
+
+      - name: Run ASME V&V 20 Transonic Benchmark Verification (AGARD 138 RAE 2822)
+        run: |
+          aasi cert verify --geometry "RAE 2822" --threshold 0.05
+
+      - name: Verify Cryptographic SHA-256 Audit Trail
+        run: |
+          aasi audit verify --org-id "default"
+
+      - name: Generate Mission Polar Sweep
+        run: |
+          aasi polar --airfoil "RAE 2822" --reynolds 6500000 --mach 0.729

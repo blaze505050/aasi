@@ -14,6 +14,8 @@ import shutil
 import re
 from typing import Dict, Any, List
 from backend.compute.models import ComputeRequest, GeneratedCaseDeck
+from backend.cfd.mesh_generator import CGridBlockMeshGenerator
+from backend.physics.panel_solver import generate_naca4_coordinates
 
 SAFE_IDENTIFIER_REGEX = re.compile(r"^[a-zA-Z0-9_\-\. ]+$")
 
@@ -333,42 +335,14 @@ relaxationFactors
 }
 """)
 
-        # system/blockMeshDict
+        # system/blockMeshDict (Conformal C-grid with physical airfoil boundary faces)
+        coords = generate_naca4_coordinates(getattr(request, "geometry_id", "0012"), 60).tolist()
+        blockmesh_text = CGridBlockMeshGenerator.generate_blockmesh_dict(
+            coordinates=coords,
+            airfoil_name=getattr(request, "geometry_id", "NACA_0012"),
+        )
         with open(os.path.join(sys_dir, "blockMeshDict"), "w", encoding="utf-8") as f:
-            f.write("""/*--------------------------------*- C++ -*----------------------------------*\\
-FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    location    "system";
-    object      blockMeshDict;
-}}
-scale   1;
-vertices
-(
-    (-10 -10 -0.1)
-    ( 15 -10 -0.1)
-    ( 15  10 -0.1)
-    (-10  10 -0.1)
-    (-10 -10  0.1)
-    ( 15 -10  0.1)
-    ( 15  10  0.1)
-    (-10  10  0.1)
-);
-blocks
-(
-    hex (0 1 2 3 4 5 6 7) (150 100 1) simpleGrading (1 1 1)
-);
-edges ();
-boundary
-(
-    inlet { type patch; faces ((0 4 7 3)); }
-    outlet { type patch; faces ((1 2 6 5)); }
-    airfoil { type wall; faces ((0 1 5 4)); }
-    frontAndBack { type empty; faces ((0 3 2 1) (4 5 6 7)); }
-);
-""")
+            f.write(blockmesh_text)
 
         # 3. Write Helper Scripts in scripts/
         run_script = os.path.join(scripts_dir, "run.sh")

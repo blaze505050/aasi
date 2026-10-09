@@ -6,7 +6,6 @@ import re
 from typing import Any, Dict, List, Optional
 from .dataset_registry import DatasetRegistry
 from .retriever import HybridRetriever
-from backend.science.service import get_science_service
 
 
 class ResultResolutionDispatcher:
@@ -23,7 +22,15 @@ class ResultResolutionDispatcher:
     ):
         self.dataset_registry = dataset_registry
         self.retriever = retriever
-        self.science_service = get_science_service()
+        self._science_service = None
+
+    @property
+    def science_service(self):
+        if self._science_service is None:
+            from backend.science.service import get_science_service
+            self._science_service = get_science_service()
+        return self._science_service
+
 
     def extract_conditions(self, query: str) -> Dict[str, Any]:
         """Extract and normalize physical flow conditions and geometry from natural language."""

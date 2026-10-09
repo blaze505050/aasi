@@ -68,3 +68,28 @@ __all__ = [
     "FutureRemoteHPCBackend",
     "ComputeFabricManager",
 ]
+
+# Phase 27 Compute Providers & Queue
+from backend.compute.providers.colab_provider import ColabProvider
+from backend.compute.providers.remote_hpc import RemoteHPCProvider
+from backend.compute.providers.local_openfoam import LocalOpenFOAMProvider
+from backend.compute.provider_manager import ComputeProviderManager, ProviderManager, provider_manager
+from backend.compute.queue import PersistentJobQueue, JobRecord, QueueJob, JobState, job_queue
+
+# Milestone 2 Compute Router
+from backend.compute.router import (
+    ComputeDestination,
+    ComputeRequirements,
+    RoutingAudit,
+    ComputeRouterDecision,
+    DeterministicComputeRouter,
+)
+
+__all__ += [
+    "ComputeDestination",
+    "ComputeRequirements",
+    "RoutingAudit",
+    "ComputeRouterDecision",
+    "DeterministicComputeRouter",
+]
+

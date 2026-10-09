@@ -247,15 +247,19 @@ dependencies:
   - scipy
 """, encoding="utf-8")
 
-        # 7. Generate clean 18-step Jupyter notebook (notebook.ipynb)
+        # 7. Generate clean 18-step Jupyter notebook (notebook.ipynb and AASI_Colab_<JOB>.ipynb)
         notebook_path = job_dir / "notebook.ipynb"
         notebook_json = self._generate_colab_notebook(job_manifest)
-        notebook_path.write_text(json.dumps(notebook_json, indent=2), encoding="utf-8")
+        notebook_text = json.dumps(notebook_json, indent=2)
+        notebook_path.write_text(notebook_text, encoding="utf-8")
+
+        named_nb_path = job_dir / f"AASI_Colab_{job_manifest.job_id}.ipynb"
+        named_nb_path.write_text(notebook_text, encoding="utf-8")
 
         # Update manifest state
         job_manifest.transition_to(
             ExecutionState.DISPATCHED,
-            detail=f"Staged Colab bundle with notebook.ipynb and case.tar.gz at {job_dir.name}"
+            detail=f"Staged Colab bundle with AASI_Colab_{job_manifest.job_id}.ipynb and case.tar.gz at {job_dir.name}"
         )
         job_manifest.save(job_dir / "job_manifest.json")
         return job_manifest
@@ -274,7 +278,10 @@ dependencies:
                     f"# AASI Phase 24: Operational OpenFOAM CFD Solver Execution\n",
                     f"**Job ID:** `{manifest.job_id}` | **Experiment ID:** `{manifest.experiment_id}`  \n",
                     f"**Airfoil Geometry:** `{manifest.geometry_name}` | **Solver:** `{manifest.solver}`  \n",
-                    f"**Governing Rule:** Absolute Anti-Fabrication Rule (Authentic execution only; zero synthetic fallback)."
+                    f"**Governing Rule:** Absolute Anti-Fabrication Rule (Authentic execution only; zero synthetic fallback).\n\n",
+                    f"> ### ⚖ CRITICAL SCIENTIFIC INTEGRITY RULE\n",
+                    f"> This notebook executes OpenFOAM on Google Colab hardware. Status is strictly **`EXECUTED / UNVERIFIED`**.\n",
+                    f"> **The notebook must NEVER declare `VERIFIED`.** Verification is exclusively performed by AASI server verification upon archive ingestion.\n",
                 ]
             },
             {
@@ -549,22 +556,24 @@ dependencies:
                 for member in tar.getmembers():
                     if member.name.startswith("/") or ".." in member.name:
                         return {"success": False, "error": f"Insecure path in archive: {member.name}"}
-                tar.extractall(path=imported_dir)
+                tar.extractall(path=imported_dir, filter='data')
         except Exception as e:
             manifest.transition_to(ExecutionState.FAILED, detail=f"Corrupted results archive: {e}")
             manifest.save(job_manifest_path)
             return {"success": False, "error": f"Corrupted or invalid tar archive: {e}"}
 
-        # 1. Inspect results_manifest.json
+        # 1. Inspect results_manifest.json or job_manifest.json
         manifest_file = imported_dir / "results_manifest.json"
         if not manifest_file.exists():
-            found = list(imported_dir.glob("**/results_manifest.json"))
+            manifest_file = imported_dir / "job_manifest.json"
+        if not manifest_file.exists():
+            found = list(imported_dir.glob("**/results_manifest.json")) or list(imported_dir.glob("**/job_manifest.json"))
             if found:
                 manifest_file = found[0]
             else:
-                manifest.transition_to(ExecutionState.FAILED, detail="Missing results_manifest.json in archive")
+                manifest.transition_to(ExecutionState.FAILED, detail="Missing results manifest in archive")
                 manifest.save(job_manifest_path)
-                return {"success": False, "error": "Missing results_manifest.json in bundle"}
+                return {"success": False, "error": "Missing results_manifest.json or job_manifest.json in bundle"}
 
         try:
             res_meta = json.loads(manifest_file.read_text(encoding="utf-8"))

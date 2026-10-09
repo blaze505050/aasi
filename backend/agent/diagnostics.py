@@ -1,6 +1,17 @@
 """
-AASI Automatic CFD Error Diagnosis Engine.
-Classifies simulation and mesh failures into deterministic diagnostic categories.
+AASI Phase 26 Automatic CFD Error Diagnosis Engine.
+Classifies simulation and mesh failures into deterministic diagnostic categories across all 11 error classes:
+1. Residual divergence
+2. Floating point exception
+3. Bad mesh quality
+4. Non-convergence / residual stagnation
+5. Courant-number instability
+6. Boundary-condition inconsistency
+7. Missing field
+8. Solver executable missing
+9. Time-step instability
+10. Linear solver failure
+11. Turbulence-model instability
 """
 
 from enum import Enum
@@ -24,6 +35,14 @@ class CFDErrorClass(str, Enum):
     EXECUTION_TIMEOUT = "EXECUTION_TIMEOUT"
     RUNTIME_TERMINATION = "RUNTIME_TERMINATION"
     PHYSICS_GATE_VIOLATION = "PHYSICS_GATE_VIOLATION"
+
+    # New Phase 26 Recoverable Failure Classes
+    COURANT_INSTABILITY = "COURANT_INSTABILITY"
+    TIME_STEP_INSTABILITY = "TIME_STEP_INSTABILITY"
+    LINEAR_SOLVER_FAILURE = "LINEAR_SOLVER_FAILURE"
+    TURBULENCE_INSTABILITY = "TURBULENCE_INSTABILITY"
+    MISSING_FIELD = "MISSING_FIELD"
+
     UNKNOWN = "UNKNOWN"
 
 
@@ -67,7 +86,45 @@ class CFDDiagnosticsEngine:
                 ],
             )
 
-        # 2. Floating point failure
+        # 2. Missing field file in 0/
+        if solver_log and ("cannot find file" in solver_log.lower() or "file does not exist" in solver_log.lower()):
+            missing_m = re.search(r"cannot find file\s+[\"']?([^\s\"']+)[\"']?", solver_log, re.IGNORECASE)
+            fname = missing_m.group(1) if missing_m else "field file"
+            evidence.append(f"Solver failed because required field file is missing: {fname}.")
+            return DiagnosticReport(
+                error_class=CFDErrorClass.MISSING_FIELD,
+                evidence=evidence,
+                diagnosis=f"Required initial boundary condition field is missing from 0/: {fname}.",
+                confidence=0.98,
+                repair_candidates=[
+                    f"Synthesize default boundary condition for {fname} based on transport model.",
+                    "Regenerate complete initial fields in 0/ directory.",
+                ],
+            )
+
+        # 3. Courant-number instability
+        if solver_log and ("courant number" in solver_log.lower()):
+            courant_m = re.search(r"courant\s*number\s*(?:mean:?\s*[0-9\.\-eE]+\s*)?max:?\s*([0-9\.\-eE]+)", solver_log, re.IGNORECASE)
+            if courant_m:
+                try:
+                    c_val = float(courant_m.group(1))
+                    if c_val > 5.0:
+                        evidence.append(f"Maximum Courant number exceeded stability limit: Co={c_val:.2f} > 1.0.")
+                        return DiagnosticReport(
+                            error_class=CFDErrorClass.COURANT_INSTABILITY,
+                            evidence=evidence,
+                            diagnosis=f"Courant-Friedrichs-Lewy (CFL) condition violated with Co={c_val:.2f}.",
+                            confidence=0.95,
+                            repair_candidates=[
+                                "Decrease time step deltaT by 50% in system/controlDict.",
+                                "Enable adjustTimeStep with maxCo = 0.8.",
+                                "Refine or smooth cells with high velocity gradients.",
+                            ],
+                        )
+                except ValueError:
+                    pass
+
+        # 4. Floating point failure
         if solver_log and ("floating point exception" in solver_log.lower() or "nan" in solver_log.lower()):
             evidence.append("Solver log contains 'Floating point exception' or NaN values.")
             return DiagnosticReport(
@@ -82,7 +139,51 @@ class CFDDiagnosticsEngine:
                 ],
             )
 
-        # 3. Divergence in residuals
+        # 5. Turbulence-model instability (bounding k or omega)
+        if solver_log and ("bounding k" in solver_log.lower() or "bounding omega" in solver_log.lower() or "bounding epsilon" in solver_log.lower()):
+            evidence.append("Solver reported negative turbulence quantities clamped by limiter: 'bounding k/omega'.")
+            return DiagnosticReport(
+                error_class=CFDErrorClass.TURBULENCE_INSTABILITY,
+                evidence=evidence,
+                diagnosis="Turbulence kinetic energy or dissipation rate destabilized during iteration.",
+                confidence=0.92,
+                repair_candidates=[
+                    "Reduce relaxation factors for k and omega to 0.4 in fvSolution.",
+                    "Switch turbulence discretization schemes to bounded Gauss upwind.",
+                    "Check inlet turbulence intensity and length scale boundary values.",
+                ],
+            )
+
+        # 6. Linear solver failure (GAMG / PCG failed to reach tolerance)
+        if solver_log and ("gamg: failed to converge" in solver_log.lower() or "smoothsolver: maximum number of iterations exceeded" in solver_log.lower()):
+            evidence.append("Matrix linear solver exceeded maximum iterations without reaching tolerance.")
+            return DiagnosticReport(
+                error_class=CFDErrorClass.LINEAR_SOLVER_FAILURE,
+                evidence=evidence,
+                diagnosis="Iterative matrix solver failed to resolve linear system.",
+                confidence=0.90,
+                repair_candidates=[
+                    "Switch pressure solver from GAMG to PCG with DIC preconditioner.",
+                    "Increase maxIter from 100 to 500 in fvSolution.",
+                    "Add nPreSweeps and nPostSweeps smoothing passes.",
+                ],
+            )
+
+        # 7. Time-step instability
+        if solver_log and ("time step too large" in solver_log.lower() or "deltat reduced to zero" in solver_log.lower()):
+            evidence.append("Adaptive time stepper aborted: deltaT reduced below numerical threshold.")
+            return DiagnosticReport(
+                error_class=CFDErrorClass.TIME_STEP_INSTABILITY,
+                evidence=evidence,
+                diagnosis="Time-stepping algorithm failed to maintain temporal stability.",
+                confidence=0.94,
+                repair_candidates=[
+                    "Set fixed conservative deltaT in system/controlDict.",
+                    "Lower maxDeltaT upper bound.",
+                ],
+            )
+
+        # 8. Divergence in residuals
         if residuals:
             for field_name, vals in residuals.items():
                 if vals and (vals[-1] > 10.0 or any(v > 100.0 for v in vals[-10:])):
@@ -99,7 +200,7 @@ class CFDDiagnosticsEngine:
                         ],
                     )
 
-        # 4. Residual stagnation
+        # 9. Residual stagnation
         if residuals:
             p_res = residuals.get("p", [])
             if len(p_res) > 300 and p_res[-1] > 1e-2 and abs(p_res[-1] - p_res[-50]) < 1e-4:
@@ -116,7 +217,7 @@ class CFDDiagnosticsEngine:
                     ],
                 )
 
-        # 5. Mesh quality / generation failure
+        # 10. Mesh quality / generation failure
         if mesh_log:
             if "error in blockMesh" in mesh_log.lower() or "blockMesh error" in mesh_log.lower() or "segmentation fault" in mesh_log.lower():
                 evidence.append("blockMesh exited with errors.")
@@ -143,8 +244,8 @@ class CFDDiagnosticsEngine:
                     ],
                 )
 
-        # 6. Invalid boundary condition
-        if solver_log and ("patch not found" in solver_log.lower() or "cannot find file" in solver_log.lower() or "incompatible dimensions" in solver_log.lower()):
+        # 11. Invalid boundary condition
+        if solver_log and ("patch not found" in solver_log.lower() or "incompatible dimensions" in solver_log.lower()):
             evidence.append("Boundary dictionary patch mismatch or dimensional inconsistency.")
             return DiagnosticReport(
                 error_class=CFDErrorClass.INVALID_BOUNDARY_CONDITION,
@@ -157,7 +258,7 @@ class CFDDiagnosticsEngine:
                 ],
             )
 
-        # 7. Missing force coefficients
+        # 12. Missing force coefficients
         if forces is None or len(forces) == 0:
             if solver_log and "simplefoam" in solver_log.lower():
                 evidence.append("Solver finished but postProcessing/forceCoeffs is missing or unreadable.")
@@ -172,10 +273,9 @@ class CFDDiagnosticsEngine:
                     ],
                 )
 
-        # 8. Physical gate violation: negative drag or excessive Bernoulli Cp
+        # 13. Physical gate violation: negative drag or excessive Bernoulli Cp
         if forces:
             cd = forces.get("cd", 0.0)
-            cl = forces.get("cl", 0.0)
             if cd <= 0.0:
                 evidence.append(f"Physical impossibility: CD={cd:.6f} <= 0.0.")
                 return DiagnosticReport(
@@ -189,7 +289,7 @@ class CFDDiagnosticsEngine:
                     ],
                 )
 
-        # 9. Incomplete result archive / exit code failure
+        # 14. Process exit code
         if exit_code and exit_code != 0:
             evidence.append(f"Process terminated with non-zero exit code: {exit_code}.")
             return DiagnosticReport(

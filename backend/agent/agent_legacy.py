@@ -139,10 +139,10 @@ class AASIAgent:
         """
         msg_lower = message.lower().strip()
 
-        # Pure conceptual checks - if user explicitly asks for explanation/definition without specific numbers
-        if re.search(r"\b(what is|explain|define|describe|how does|how do|why do|why is|overview of)\b", msg_lower):
+        # Pure conceptual and literature checks - if user explicitly asks for explanation/definition/literature without specific numbers
+        if re.search(r"\b(what is|what are|what does|what do|what did|explain|define|describe|how does|how do|why do|why is|overview of|summary of)\b", msg_lower) or any(term in msg_lower for term in ["report", "paper", "literature", "publication", "study", "history of", "background on"]):
             has_numbers = bool(re.search(r"\b\d+(\.\d+)?\s*(km|m/s|kg|s|deg)\b", msg_lower))
-            if not has_numbers and not re.search(r"\b(calculate|compute|solve|find the numerical)\b", msg_lower):
+            if not has_numbers and not re.search(r"\b(calculate|compute|solve|find the numerical|evaluate|simulate)\b", msg_lower):
                 return None
 
         # Ambiguous calculation questions missing parameters -> clarify rather than hallucinate
@@ -339,6 +339,31 @@ class AASIAgent:
                     "equation_str": eq_str,
                     "variable_str": var_str,
                 }
+
+        # 7. Aerodynamics / Airfoil Polars
+        if any(term in msg_lower for term in ["airfoil", "naca", "lift coefficient", "drag coefficient", "polar", "cl and cd", "aoa"]):
+            naca_match = re.search(r"\b(naca\s*\d{4})\b", msg_lower)
+            geom = naca_match.group(1).upper() if naca_match else "NACA 0012"
+
+            alpha_match = re.search(r"(?:alpha|aoa|angle\s*of\s*attack)\s*(?:=|of|is|:|\s)\s*([-+]?\d+(?:\.\d+)?)", msg_lower)
+            if not alpha_match:
+                deg_match = re.search(r"(?:at|for)\s*([-+]?\d+(?:\.\d+)?)\s*(?:deg|degrees|°)", msg_lower)
+                alpha_val = float(deg_match.group(1)) if deg_match else 4.0
+            else:
+                alpha_val = float(alpha_match.group(1))
+
+            re_match = re.search(r"(?:re|reynolds)\s*(?:=|of|is|:|\s)\s*(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)", msg_lower)
+            re_val = float(re_match.group(1)) if re_match else 3000000.0
+
+            mach_match = re.search(r"(?:mach|m)\s*(?:=|of|is|:|\s)\s*(0\.\d+)", msg_lower)
+            mach_val = float(mach_match.group(1)) if mach_match else 0.15
+
+            return "aerodynamics", "airfoil_polar", {
+                "geometry": geom,
+                "alpha_deg": alpha_val,
+                "reynolds": re_val,
+                "mach": mach_val,
+            }
 
         return None
 

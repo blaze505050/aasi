@@ -178,3 +178,5 @@ class ComputeFabricManager:
             "anti_circumvention_notice": "AASI operates under zero account automation and zero platform policy circumvention."
         }
 
+
+from backend.compute.provider_manager import ProviderManager, ComputeProviderManager

@@ -16,6 +16,7 @@ from backend.cfd.case_validator import CFDCaseValidator
 from backend.cfd.convergence import CFDConvergenceEvaluator
 from backend.cfd.environment_probe import CFDEnvironmentProbe
 from backend.cfd.force_parser import CFDForceParser
+from backend.cfd.mesh_generator import CGridBlockMeshGenerator
 from backend.cfd.provenance import CFDProvenanceEngine
 from backend.cfd.residual_parser import CFDResidualParser
 from backend.cfd.result_ingestor import CFDResultIngestor
@@ -357,7 +358,14 @@ boundaryField
             encoding="utf-8",
         )
 
-        # 10. Execution README instructions
+        # 10. system/blockMeshDict
+        blockmesh_content = CGridBlockMeshGenerator.generate_blockmesh_dict(
+            coordinates=coordinates,
+            airfoil_name=airfoil_name,
+        )
+        (case_dir / "system/blockMeshDict").write_text(blockmesh_content, encoding="utf-8")
+
+        # 11. Execution README instructions
         (case_dir / "README.md").write_text(
             f"""# OpenFOAM Simulation Case: {case_name}
 Airfoil: {airfoil_name}

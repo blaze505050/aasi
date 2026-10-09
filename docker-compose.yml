@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  aasi-backend:
+    build:
+      context: .
+      dockerfile: backend/deployment/Dockerfile.backend
+    container_name: aasi-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - AASI_ENV=production
+      - AASI_DEV_MODE=false
+      - AASI_SECRET_KEY=${AASI_SECRET_KEY:-aasi-production-key-change-in-prod}
+      - AASI_STORAGE_BACKEND=local
+      - AASI_STORAGE_DIR=/app/data/storage
+      - REDIS_URL=redis://aasi-redis:6379/0
+    volumes:
+      - aasi-data:/app/data
+    depends_on:
+      - aasi-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  aasi-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aasi-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - aasi-backend
+    restart: unless-stopped
+
+  aasi-redis:
+    image: redis:7-alpine
+    container_name: aasi-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  aasi-data:
+    driver: local
+  redis-data:
+    driver: local

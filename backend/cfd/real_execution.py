@@ -20,6 +20,7 @@ from backend.cfd.case_validator import CFDCaseValidator
 from backend.cfd.convergence import CFDConvergenceEvaluator
 from backend.cfd.environment_probe import CFDEnvironmentProbe
 from backend.cfd.force_parser import CFDForceParser
+from backend.cfd.mesh_generator import CGridBlockMeshGenerator
 from backend.cfd.provenance import CFDProvenanceEngine
 from backend.cfd.residual_parser import CFDResidualParser
 from backend.cfd.result_ingestor import CFDResultIngestor
@@ -488,86 +489,12 @@ relaxationFactors
             encoding="utf-8",
         )
 
-        # 6. system/blockMeshDict (2D C-grid bounding box)
-        (case_dir / "system/blockMeshDict").write_text(
-            f"""/* Canonical 2D C-grid blockMesh for {airfoil_name} */
-FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    location    "system";
-    object      blockMeshDict;
-}}
-
-convertToMeters 1;
-
-vertices
-(
-    (-5 -5 -0.1)
-    ( 15 -5 -0.1)
-    ( 15  5 -0.1)
-    (-5  5 -0.1)
-    (-5 -5  0.1)
-    ( 15 -5  0.1)
-    ( 15  5  0.1)
-    (-5  5  0.1)
-);
-
-blocks
-(
-    hex (0 1 2 3 4 5 6 7) (120 80 1) simpleGrading (1 1 1)
-);
-
-edges ();
-
-boundary
-(
-    inlet
-    {{
-        type patch;
-        faces
-        (
-            (0 4 7 3)
-        );
-    }}
-    outlet
-    {{
-        type patch;
-        faces
-        (
-            (1 2 6 5)
-        );
-    }}
-    topAndBottom
-    {{
-        type patch;
-        faces
-        (
-            (3 7 6 2)
-            (0 1 5 4)
-        );
-    }}
-    airfoil
-    {{
-        type wall;
-        faces ();
-    }}
-    frontAndBack
-    {{
-        type empty;
-        faces
-        (
-            (0 3 2 1)
-            (4 5 6 7)
-        );
-    }}
-);
-
-mergePatchPairs ();
-""",
-            encoding="utf-8",
+        # 6. system/blockMeshDict (Conformal 2D C-grid with physical airfoil boundary faces)
+        blockmesh_text = CGridBlockMeshGenerator.generate_blockmesh_dict(
+            coordinates=coordinates,
+            airfoil_name=airfoil_name,
         )
+        (case_dir / "system/blockMeshDict").write_text(blockmesh_text, encoding="utf-8")
 
         # 7. constant/transportProperties
         (case_dir / "constant/transportProperties").write_text(

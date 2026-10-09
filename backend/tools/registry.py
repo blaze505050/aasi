@@ -22,6 +22,15 @@ from backend.tools.math_utils import (
     verify_calculation,
 )
 from backend.tools.units import convert_unit
+from backend.physics.panel_solver import calculate_airfoil_aerodynamics
+from backend.tools.contracts import (
+    ToolContract,
+    ToolDomain,
+    ToolExecutionResult,
+    UncertaintyModel,
+    ComputationalCostModel,
+    EpistemicTier,
+)
 
 
 class ToolRegistry:
@@ -29,6 +38,7 @@ class ToolRegistry:
 
     def __init__(self):
         self._tools: Dict[str, Dict[str, Any]] = {}
+        self._contracts: Dict[str, ToolContract] = {}
         self._register_default_tools()
 
     def register_tool(
@@ -118,6 +128,38 @@ class ToolRegistry:
 
         return fn(**bound_args)
 
+    def register_contract(self, contract: ToolContract) -> None:
+        """Register a strongly typed tool contract."""
+        key = f"{contract.tool_id}.{contract.operation}"
+        self._contracts[key] = contract
+
+    def get_contract(self, tool_id: str, operation: str) -> Optional[ToolContract]:
+        """Retrieve a registered tool contract."""
+        return self._contracts.get(f"{tool_id}.{operation}")
+
+    def list_contracts(self) -> List[Dict[str, Any]]:
+        """List metadata for all formal tool contracts."""
+        res = []
+        for key, c in self._contracts.items():
+            res.append({
+                "contract_id": key,
+                "tool_id": c.tool_id,
+                "operation": c.operation,
+                "domain": c.domain.value,
+                "epistemic_tier": c.epistemic_tier.value,
+                "description": c.description,
+                "uncertainty": c.uncertainty.model_dump(),
+                "cost": c.cost.model_dump(),
+            })
+        return res
+
+    def execute_contract(self, tool_id: str, operation: str, **params) -> ToolExecutionResult:
+        """Execute a tool through its formal contract with provenance verification."""
+        contract = self.get_contract(tool_id, operation)
+        if not contract:
+            raise ValueError(f"No formal contract registered for '{tool_id}.{operation}'")
+        return contract.execute(**params)
+
     def _register_default_tools(self) -> None:
         """Register the built-in Phase 2 tools."""
         # 1. Orbital Mechanics
@@ -178,6 +220,121 @@ class ToolRegistry:
             operation_descriptions={
                 "convert": "Convert a numerical quantity from one unit to another across consistent physical dimensions.",
             },
+        )
+
+        # 5. Fast Aerodynamics
+        self.register_tool(
+            name="aerodynamics",
+            description="Subsonic 2D airfoil aerodynamic coefficient calculations (CL, CD, CM) using the discrete vortex panel method.",
+            operations={
+                "airfoil_polar": calculate_airfoil_aerodynamics,
+            },
+            operation_descriptions={
+                "airfoil_polar": "Compute lift, drag, and moment coefficients for an airfoil at given AoA, Reynolds, and Mach.",
+            },
+        )
+
+        # Register Formal Tool Contracts
+        def _adapt_airfoil_polar(
+            geometry: str = "NACA 0012",
+            airfoil: Optional[str] = None,
+            alpha: Optional[float] = None,
+            alpha_deg: float = 4.0,
+            reynolds: float = 3e6,
+            mach: float = 0.15,
+        ) -> Dict[str, Any]:
+            geom = airfoil or geometry
+            aoa = alpha if alpha is not None else alpha_deg
+            res = calculate_airfoil_aerodynamics(geometry=geom, alpha_deg=aoa, reynolds=reynolds, mach=mach)
+            return {
+                "cl": res["results"]["CL"],
+                "cd": res["results"]["CD"],
+                "cm": res["results"]["CM"],
+                "raw": res,
+            }
+
+        self.register_contract(
+            ToolContract(
+                tool_id="aerodynamics",
+                operation="airfoil_polar",
+                domain=ToolDomain.AERODYNAMICS,
+                epistemic_tier=EpistemicTier.ANALYTICAL,
+                description="Subsonic discrete vortex panel solver with Karman-Tsien compressibility correction.",
+                handler=_adapt_airfoil_polar,
+                input_parameters={
+                    "geometry": {"type": "str", "required": False, "default": "NACA 0012"},
+                    "airfoil": {"type": "str", "required": False},
+                    "alpha": {"type": "float", "required": False, "default": 0.0},
+                    "alpha_deg": {"type": "float", "required": False, "default": 0.0},
+                    "reynolds": {"type": "float", "required": False, "default": 1e6},
+                    "mach": {"type": "float", "required": False, "default": 0.0},
+                },
+                output_description="Aerodynamic force coefficients (cl, cd, cm) and raw calculations",
+                uncertainty=UncertaintyModel(
+                    typical_relative_error=0.03,
+                    confidence_level=0.95,
+                    validity_envelope={"alpha": [-12.0, 12.0], "alpha_deg": [-12.0, 12.0], "mach": [0.0, 0.7]},
+                    known_limitations=["Inviscid potential flow with boundary-layer approximations; cannot predict deep stall or shock waves"],
+                ),
+                cost=ComputationalCostModel(typical_latency_ms=8.0, memory_mb=32.0, device_requirement="CPU"),
+            )
+        )
+
+        self.register_contract(
+            ToolContract(
+                tool_id="orbit",
+                operation="circular_orbit",
+                domain=ToolDomain.ORBITAL,
+                epistemic_tier=EpistemicTier.ANALYTICAL,
+                description="Closed-form Keplerian circular velocity and orbital period.",
+                handler=calculate_circular_orbit,
+                input_parameters={"altitude_km": {"type": "float", "required": True}},
+                output_description="Orbital velocity in km/s and period in minutes",
+                uncertainty=UncertaintyModel(
+                    typical_relative_error=0.001,
+                    confidence_level=0.99,
+                    validity_envelope={"altitude_km": [100.0, 100000.0]},
+                ),
+                cost=ComputationalCostModel(typical_latency_ms=2.0, memory_mb=16.0),
+            )
+        )
+
+        self.register_contract(
+            ToolContract(
+                tool_id="rocket",
+                operation="rocket_equation",
+                domain=ToolDomain.PROPULSION,
+                epistemic_tier=EpistemicTier.ANALYTICAL,
+                description="Tsiolkovsky rocket equation calculation.",
+                handler=rocket_equation,
+                input_parameters={
+                    "isp": {"type": "float", "required": True},
+                    "m0": {"type": "float", "required": True},
+                    "mf": {"type": "float", "required": True},
+                },
+                output_description="Delta-v, mass ratio, and propellant mass",
+                uncertainty=UncertaintyModel(typical_relative_error=0.0001),
+                cost=ComputationalCostModel(typical_latency_ms=1.0, memory_mb=16.0),
+            )
+        )
+
+        self.register_contract(
+            ToolContract(
+                tool_id="units",
+                operation="convert",
+                domain=ToolDomain.UNITS,
+                epistemic_tier=EpistemicTier.ANALYTICAL,
+                description="Pint-verified physical unit conversion.",
+                handler=convert_unit,
+                input_parameters={
+                    "value": {"type": "float", "required": True},
+                    "from_unit": {"type": "str", "required": True},
+                    "to_unit": {"type": "str", "required": True},
+                },
+                output_description="Converted numerical value and dimensionality",
+                uncertainty=UncertaintyModel(typical_relative_error=1e-6),
+                cost=ComputationalCostModel(typical_latency_ms=2.0, memory_mb=16.0),
+            )
         )
 
 

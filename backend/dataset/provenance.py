@@ -42,14 +42,22 @@ class DatasetProvenanceGuard:
         return current_layer[0]
 
     @classmethod
-    def validate_archive_path_safety(cls, file_names: List[str]) -> bool:
+    def validate_archive_path_safety(cls, file_names: Any) -> bool:
         """
         Prevents path traversal attacks ('../' or absolute paths) in dataset tarballs.
         """
-        for name in file_names:
+        if hasattr(file_names, "getnames"):
+            names = file_names.getnames()
+        elif hasattr(file_names, "getmembers"):
+            names = [m.name for m in file_names.getmembers()]
+        else:
+            names = [m.name if hasattr(m, "name") else str(m) for m in file_names]
+
+        for name in names:
             if ".." in name or name.startswith("/") or name.startswith("\\"):
                 return False
             # Check for Windows absolute path drive letters like C:
             if len(name) >= 2 and name[1] == ":":
                 return False
         return True
+

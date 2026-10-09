@@ -1,4 +1,4 @@
-"""Vector index abstraction and FAISS-backed implementation."""
+"""Vector index abstraction and FAISS-backed implementation with pure NumPy fallback."""
 
 from __future__ import annotations
 
@@ -45,21 +45,13 @@ class VectorIndex(ABC):
         pass
 
 
-class FAISSVectorIndex(VectorIndex):
-    """FAISS-powered vector index utilizing normalized inner product (cosine similarity)."""
+class NumpyVectorIndex(VectorIndex):
+    """Pure NumPy vector index fallback utilizing normalized inner product (cosine similarity)."""
 
     def __init__(self, dimension: int = 384):
         self._dimension = dimension
         self._metadata: List[Dict[str, Any]] = []
-        try:
-            import faiss
-            self._faiss = faiss
-            # IndexFlatIP calculates inner product, equivalent to cosine similarity for L2-normalized vectors
-            self._index = faiss.IndexFlatIP(dimension)
-        except ImportError:
-            raise ImportError(
-                "faiss is required for FAISSVectorIndex. Install faiss-cpu."
-            )
+        self._vectors: Optional[np.ndarray] = None
 
     @property
     def dimension(self) -> int:
@@ -67,7 +59,7 @@ class FAISSVectorIndex(VectorIndex):
 
     @property
     def total_vectors(self) -> int:
-        return self._index.ntotal
+        return len(self._metadata) if self._vectors is not None else 0
 
     def add(self, vectors: np.ndarray, metadata_list: List[Dict[str, Any]]):
         if len(vectors) == 0:
@@ -79,7 +71,86 @@ class FAISSVectorIndex(VectorIndex):
         if len(vectors) != len(metadata_list):
             raise ValueError("Number of vectors and metadata items must match")
 
-        # Ensure float32 contiguous array
+        vecs = np.ascontiguousarray(vectors, dtype=np.float32)
+        if self._vectors is None:
+            self._vectors = vecs
+        else:
+            self._vectors = np.vstack([self._vectors, vecs])
+        self._metadata.extend(metadata_list)
+
+    def search(
+        self, query_vector: np.ndarray, k: int = 5
+    ) -> List[Tuple[Dict[str, Any], float]]:
+        if self._vectors is None or len(self._metadata) == 0:
+            return []
+
+        q = np.ascontiguousarray(query_vector.reshape(-1), dtype=np.float32)
+        sims = np.dot(self._vectors, q)
+        top_k_indices = np.argsort(-sims)[: min(k, len(self._metadata))]
+
+        results: List[Tuple[Dict[str, Any], float]] = []
+        for idx in top_k_indices:
+            results.append((self._metadata[idx], float(sims[idx])))
+        return results
+
+    def save(self, directory: str):
+        os.makedirs(directory, exist_ok=True)
+        if self._vectors is not None:
+            np.save(os.path.join(directory, "vectors.npy"), self._vectors)
+        with open(os.path.join(directory, "metadata.json"), "w", encoding="utf-8") as f:
+            json.dump(self._metadata, f, indent=2, default=str)
+
+    def load(self, directory: str):
+        vec_file = os.path.join(directory, "vectors.npy")
+        meta_file = os.path.join(directory, "metadata.json")
+
+        if os.path.exists(vec_file):
+            self._vectors = np.load(vec_file)
+            self._dimension = self._vectors.shape[1]
+        if os.path.exists(meta_file):
+            with open(meta_file, "r", encoding="utf-8") as f:
+                self._metadata = json.load(f)
+
+
+class FAISSVectorIndex(VectorIndex):
+    """FAISS-powered vector index with automatic pure NumPy fallback if faiss cannot be loaded."""
+
+    def __init__(self, dimension: int = 384):
+        self._dimension = dimension
+        self._metadata: List[Dict[str, Any]] = []
+        self._fallback: Optional[NumpyVectorIndex] = None
+        try:
+            import faiss
+            self._faiss = faiss
+            self._index = faiss.IndexFlatIP(dimension)
+        except Exception:
+            self._faiss = None
+            self._index = None
+            self._fallback = NumpyVectorIndex(dimension)
+
+    @property
+    def dimension(self) -> int:
+        return self._dimension
+
+    @property
+    def total_vectors(self) -> int:
+        if self._fallback:
+            return self._fallback.total_vectors
+        return self._index.ntotal
+
+    def add(self, vectors: np.ndarray, metadata_list: List[Dict[str, Any]]):
+        if self._fallback:
+            return self._fallback.add(vectors, metadata_list)
+
+        if len(vectors) == 0:
+            return
+        if vectors.shape[1] != self._dimension:
+            raise ValueError(
+                f"Vector dimension {vectors.shape[1]} does not match index dimension {self._dimension}"
+            )
+        if len(vectors) != len(metadata_list):
+            raise ValueError("Number of vectors and metadata items must match")
+
         vecs = np.ascontiguousarray(vectors, dtype=np.float32)
         self._index.add(vecs)
         self._metadata.extend(metadata_list)
@@ -87,6 +158,9 @@ class FAISSVectorIndex(VectorIndex):
     def search(
         self, query_vector: np.ndarray, k: int = 5
     ) -> List[Tuple[Dict[str, Any], float]]:
+        if self._fallback:
+            return self._fallback.search(query_vector, k)
+
         if self._index.ntotal == 0:
             return []
 
@@ -104,6 +178,9 @@ class FAISSVectorIndex(VectorIndex):
         return results
 
     def save(self, directory: str):
+        if self._fallback:
+            return self._fallback.save(directory)
+
         os.makedirs(directory, exist_ok=True)
         index_file = os.path.join(directory, "faiss.index")
         meta_file = os.path.join(directory, "metadata.json")
@@ -113,6 +190,9 @@ class FAISSVectorIndex(VectorIndex):
             json.dump(self._metadata, f, indent=2, default=str)
 
     def load(self, directory: str):
+        if self._fallback:
+            return self._fallback.load(directory)
+
         index_file = os.path.join(directory, "faiss.index")
         meta_file = os.path.join(directory, "metadata.json")
 
