@@ -101,6 +101,8 @@ class EmpiricalValidationLedger:
                 pass
 
     def _save(self):
+        import uuid
+        import time
         self._path.parent.mkdir(parents=True, exist_ok=True)
         data = {k: v.model_dump() for k, v in self._entries.items()}
         content = json.dumps(data, indent=2, default=str)
@@ -111,10 +113,23 @@ class EmpiricalValidationLedger:
                 bak_path.write_text(self._path.read_text(encoding="utf-8"), encoding="utf-8")
             except Exception:
                 pass
-        # Atomic write via temp file
-        temp_path = self._path.with_suffix(".json.tmp")
-        temp_path.write_text(content, encoding="utf-8")
-        temp_path.replace(self._path)
+        # Atomic write via temp file with retry loop for Windows file-lock resilience
+        for attempt in range(5):
+            temp_path = self._path.with_name(f"{self._path.stem}_{uuid.uuid4().hex[:6]}.tmp")
+            try:
+                temp_path.write_text(content, encoding="utf-8")
+                temp_path.replace(self._path)
+                return
+            except PermissionError:
+                if temp_path.exists():
+                    try:
+                        temp_path.unlink()
+                    except Exception:
+                        pass
+                if attempt == 4:
+                    self._path.write_text(content, encoding="utf-8")
+                    return
+                time.sleep(0.05)
 
     def record(self, entry: LedgerEntry) -> LedgerEntry:
         """Record or update a ledger entry. Validates state transitions and enforces immutability."""
