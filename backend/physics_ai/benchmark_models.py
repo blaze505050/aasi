@@ -65,8 +65,10 @@ class AeroSurrogateBase(ABC):
         ss_res = np.sum(residuals ** 2, axis=0)
         ss_tot = np.sum((y - np.mean(y, axis=0)) ** 2, axis=0)
 
-        # Handle zero variance targets
-        r2_per_dim = np.where(ss_tot > 1e-9, 1.0 - (ss_res / ss_tot), 0.0)
+        # Handle zero variance targets safely without evaluating division by zero
+        r2_per_dim = np.zeros_like(ss_tot)
+        valid_mask = ss_tot > 1e-9
+        r2_per_dim[valid_mask] = 1.0 - (ss_res[valid_mask] / ss_tot[valid_mask])
         mean_r2 = float(np.mean(r2_per_dim))
         rmse = float(np.sqrt(np.mean(residuals ** 2)))
         mae = float(np.mean(np.abs(residuals)))

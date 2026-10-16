@@ -250,11 +250,51 @@ class AerodynamicDatabaseEngine:
         )
 
         _AERO_DATABASES[db_id] = aero_db
+        try:
+            from backend.storage.aerodb_store import aerodb_store
+            aerodb_store.save(aero_db.model_dump())
+        except Exception as e:
+            pass
         return aero_db
 
     @classmethod
     def get_aero_db(cls, db_id: str) -> Optional[AeroDatabase]:
-        return _AERO_DATABASES.get(db_id)
+        if db_id in _AERO_DATABASES:
+            return _AERO_DATABASES[db_id]
+        try:
+            from backend.storage.aerodb_store import aerodb_store
+            payload = aerodb_store.get(db_id)
+            if payload:
+                db = AeroDatabase.model_validate(payload)
+                _AERO_DATABASES[db_id] = db
+                return db
+        except Exception:
+            pass
+        return None
+
+    @classmethod
+    def list_aero_dbs(cls) -> List[Dict[str, Any]]:
+        try:
+            from backend.storage.aerodb_store import aerodb_store
+            stored = aerodb_store.list_all()
+            for s in stored:
+                if s["db_id"] not in _AERO_DATABASES:
+                    cls.get_aero_db(s["db_id"])
+        except Exception:
+            pass
+
+        items = []
+        for db_id, db in _AERO_DATABASES.items():
+            items.append({
+                "db_id": db.db_id,
+                "geometry_name": db.geometry_name,
+                "created_at_utc": db.created_at_utc,
+                "num_conditions": len(db.polars),
+                "total_points": db.envelope_summary.get("total_points_evaluated", 0),
+                "max_glide_efficiency": db.envelope_summary.get("max_glide_efficiency", 0.0),
+                "max_lift_capability": db.envelope_summary.get("max_lift_capability", 0.0),
+            })
+        return items
 
     @staticmethod
     def _calculate_stability_derivatives(

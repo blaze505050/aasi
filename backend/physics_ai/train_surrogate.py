@@ -64,4 +64,6 @@ if __name__ == "__main__":
     print("[AASI] Initiating deterministic AeroSurrogateV1 CPU training...")
     res = train_and_export_surrogate()
     print(f"[AASI] Training complete. Checksum: {res.get('checksum')}")
-    print(f"[AASI] Test R2: {res.get('test_metrics', {}).get('cl_r2', 'N/A')}")
+    tm = res.get('test_metrics')
+    cl_r2 = getattr(tm, 'cl_r2', tm.get('cl_r2') if isinstance(tm, dict) else 'N/A')
+    print(f"[AASI] Test R2: {cl_r2}")

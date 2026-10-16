@@ -11,7 +11,7 @@ services:
     environment:
       - AASI_ENV=production
       - AASI_DEV_MODE=false
-      - AASI_SECRET_KEY=${AASI_SECRET_KEY:-aasi-production-key-change-in-prod}
+      - AASI_SECRET_KEY=${AASI_SECRET_KEY:?Error: AASI_SECRET_KEY must be set in environment}
       - AASI_STORAGE_BACKEND=local
       - AASI_STORAGE_DIR=/app/data/storage
       - REDIS_URL=redis://aasi-redis:6379/0

@@ -238,8 +238,8 @@ class SurrogateTrainer:
 
         # 7. Benchmarks against Baselines
         # Flatten geometry contours + condition for tabular baselines
-        X_tab_train = np.concatenate([X_geom_train.reshape(n_train, -1), train_ds.raw_conditions], axis=1)
-        X_tab_test = np.concatenate([X_geom_test.reshape(len(test_ds), -1), test_ds.raw_conditions], axis=1)
+        X_tab_train = np.concatenate([X_geom_train.reshape(n_train, -1), train_ds.norm_conditions], axis=1)
+        X_tab_test = np.concatenate([X_geom_test.reshape(len(test_ds), -1), test_ds.norm_conditions], axis=1)
         baselines = AerodynamicBaselines(random_state=self.config.seed)
         baseline_results = baselines.fit_and_evaluate(
             X_train=X_tab_train,

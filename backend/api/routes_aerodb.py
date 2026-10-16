@@ -63,20 +63,9 @@ async def generate_aerodynamic_database(
 @router.get("", summary="List Generated Aerodynamic Databases")
 async def list_aerodynamic_databases(user: User = Depends(get_current_user)):
     """
-    Lists metadata summaries of all generated aerodynamic databases in memory.
+    Lists metadata summaries of all generated aerodynamic databases (memory + persisted SQLite).
     """
-    items = []
-    for db_id, db in _AERO_DATABASES.items():
-        items.append({
-            "db_id": db.db_id,
-            "geometry_name": db.geometry_name,
-            "created_at_utc": db.created_at_utc,
-            "num_conditions": len(db.polars),
-            "total_points": db.envelope_summary.get("total_points_evaluated", 0),
-            "max_glide_efficiency": db.envelope_summary.get("max_glide_efficiency", 0.0),
-            "max_lift_capability": db.envelope_summary.get("max_lift_capability", 0.0),
-        })
-    return items
+    return AerodynamicDatabaseEngine.list_aero_dbs()
 
 
 @router.get("/{db_id}", response_model=AeroDatabase, summary="Get Full Aerodynamic Database by ID")
