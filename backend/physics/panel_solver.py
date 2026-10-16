@@ -259,6 +259,8 @@ def calculate_airfoil_aerodynamics(
             "CL": res["CL"],
             "CD": res["CD"],
             "CM": res["CM"],
+            "cp_distribution": res.get("cp_distribution", []),
+            "control_points_x": res.get("control_points_x", []),
             "solver": res["solver"],
             "thickness_ratio": res.get("thickness_ratio", 0.12),
             "camber_ratio": res.get("camber_ratio", 0.0),
