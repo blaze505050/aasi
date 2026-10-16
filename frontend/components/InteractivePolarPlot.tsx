@@ -37,6 +37,7 @@ interface InteractivePolarPlotProps {
   mach?: number;
   onAlphaSelect?: (alpha: number) => void;
   cfdPoints?: Array<{ alpha: number; cl: number; cd: number }>;
+  apiBase?: string;
 }
 
 export const InteractivePolarPlot: React.FC<InteractivePolarPlotProps> = ({
@@ -46,6 +47,7 @@ export const InteractivePolarPlot: React.FC<InteractivePolarPlotProps> = ({
   mach = 0.15,
   onAlphaSelect,
   cfdPoints = [],
+  apiBase = process.env.NEXT_PUBLIC_API_URL || "",
 }) => {
   const [activePlotType, setActivePlotType] = useState<"CL_ALPHA" | "CD_ALPHA" | "CL_CD" | "CM_ALPHA" | "LOD_ALPHA">("CL_ALPHA");
   const [showAnalytical, setShowAnalytical] = useState(true);
@@ -65,7 +67,7 @@ export const InteractivePolarPlot: React.FC<InteractivePolarPlotProps> = ({
     let isMounted = true;
     const fetchExp = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/aerodb/experimental/${encodeURIComponent(geometry)}?reynolds=${reynolds}&mach=${mach}`);
+        const res = await fetch(`${apiBase}/api/aerodb/experimental/${encodeURIComponent(geometry)}?reynolds=${reynolds}&mach=${mach}`);
         if (res.ok) {
           const data = await res.json();
           if (isMounted && data.points && data.points.length > 0) {

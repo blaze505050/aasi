@@ -58,6 +58,16 @@ interface AeroDatabase {
   provenance_hash: string;
 }
 
+interface AeroDbSummary {
+  db_id: string;
+  geometry_name: string;
+  created_at_utc: string;
+  num_conditions: number;
+  total_points: number;
+  max_glide_efficiency: number;
+  max_lift_capability: number;
+}
+
 interface AeroDbPanelProps {
   apiBase?: string;
   initialGeometry?: string;
@@ -75,13 +85,63 @@ export const AeroDbPanel: React.FC<AeroDbPanelProps> = ({
   const [mach, setMach] = useState(0.15);
   const [generating, setGenerating] = useState(false);
   const [aeroDb, setAeroDb] = useState<AeroDatabase | null>(null);
+  const [savedDbs, setSavedDbs] = useState<AeroDbSummary[]>([]);
+  const [selectedDbId, setSelectedDbId] = useState<string>("");
   const [selectedCondIdx, setSelectedCondIdx] = useState(0);
   const [hoveredPoint, setHoveredPoint] = useState<AeroPolarPoint | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Generate initial database on load
+  const fetchSavedDatabases = async () => {
+    try {
+      const res = await fetch(`${apiBase}/api/aerodb`);
+      if (res.ok) {
+        const list: AeroDbSummary[] = await res.json();
+        setSavedDbs(list);
+        return list;
+      }
+    } catch {
+      // offline fallback
+    }
+    return [];
+  };
+
+  const handleLoadDb = async (dbId: string) => {
+    if (!dbId) return;
+    setGenerating(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`${apiBase}/api/aerodb/${dbId}`);
+      if (!res.ok) {
+        throw new Error(`Failed to load database ${dbId}`);
+      }
+      const data: AeroDatabase = await res.json();
+      setAeroDb(data);
+      setSelectedCondIdx(0);
+      setGeometry(data.geometry_name);
+      setSelectedDbId(data.db_id);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to load aerodynamic database.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  // On mount, load latest saved database from SQLite or generate initial
   useEffect(() => {
-    handleGenerateDb();
+    let isMounted = true;
+    const initialize = async () => {
+      const list = await fetchSavedDatabases();
+      if (!isMounted) return;
+      if (list && list.length > 0) {
+        await handleLoadDb(list[0].db_id);
+      } else {
+        await handleGenerateDb();
+      }
+    };
+    initialize();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleGenerateDb = async () => {
@@ -110,6 +170,8 @@ export const AeroDbPanel: React.FC<AeroDbPanelProps> = ({
       const data: AeroDatabase = await res.json();
       setAeroDb(data);
       setSelectedCondIdx(0);
+      setSelectedDbId(data.db_id);
+      await fetchSavedDatabases();
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to generate aerodynamic database.");
     } finally {
@@ -277,7 +339,37 @@ export const AeroDbPanel: React.FC<AeroDbPanelProps> = ({
             </p>
           </div>
 
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+            {savedDbs.length > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginRight: "6px" }}>
+                <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 600 }}>
+                  AeroDB Store:
+                </span>
+                <select
+                  value={selectedDbId}
+                  onChange={(e) => handleLoadDb(e.target.value)}
+                  style={{
+                    background: "#0f172a",
+                    border: "1px solid #334155",
+                    color: "#38bdf8",
+                    fontSize: "0.72rem",
+                    borderRadius: "6px",
+                    padding: "6px 10px",
+                    cursor: "pointer",
+                    outline: "none",
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: 600,
+                  }}
+                  title="Select previously computed and persisted aerodynamic flight envelope database"
+                >
+                  {savedDbs.map((db) => (
+                    <option key={db.db_id} value={db.db_id}>
+                      {db.geometry_name} ({db.db_id.slice(-8)}) — {db.total_points} pts
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             {aeroDb && (
               <>
                 <a
@@ -442,6 +534,46 @@ export const AeroDbPanel: React.FC<AeroDbPanelProps> = ({
       {errorMsg && (
         <div className="error-alert animate-fade-in" style={{ marginBottom: "14px" }}>
           <span>⚠ {errorMsg}</span>
+        </div>
+      )}
+
+      {/* ─── Multi-Condition Flight Envelope Switcher Tabs ─── */}
+      {aeroDb && aeroDb.polars && aeroDb.polars.length > 1 && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          marginBottom: "14px",
+          flexWrap: "wrap",
+          padding: "8px 14px",
+          background: "rgba(15, 23, 42, 0.75)",
+          borderRadius: "8px",
+          border: "1px solid rgba(255, 255, 255, 0.08)"
+        }}>
+          <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            FLIGHT CONDITIONS ({aeroDb.polars.length}):
+          </span>
+          {aeroDb.polars.map((p, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setSelectedCondIdx(idx)}
+              style={{
+                fontSize: "0.72rem",
+                padding: "4px 10px",
+                borderRadius: "6px",
+                fontFamily: "var(--font-mono)",
+                fontWeight: selectedCondIdx === idx ? 700 : 500,
+                background: selectedCondIdx === idx ? "#0284c7" : "rgba(30, 41, 59, 0.7)",
+                color: selectedCondIdx === idx ? "#ffffff" : "#94a3b8",
+                border: selectedCondIdx === idx ? "1px solid #38bdf8" : "1px solid #334155",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              M = {p.mach.toFixed(2)} · Re = {p.reynolds.toExponential(1)} ({p.points.length} pts)
+            </button>
+          ))}
         </div>
       )}
 

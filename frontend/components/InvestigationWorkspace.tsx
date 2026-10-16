@@ -1312,6 +1312,7 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
                 reynolds={reynolds}
                 mach={mach}
                 onAlphaSelect={(a) => setAlphaDeg(a)}
+                apiBase={apiBase}
               />
             </div>
           )}
