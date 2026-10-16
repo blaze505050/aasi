@@ -7,26 +7,75 @@ on:
     branches: [ "main" ]
 
 jobs:
-  aerodynamic-certification:
-    name: ASME V&V 20 Certification & Cryptographic Audit
+  backend-quality-and-tests:
+    name: Backend Regression Suite (948 Physics & Epistemic Tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Codebase
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: "pip"
 
       - name: Install Dependencies & AASI SDK
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r backend/requirements.txt
+          pip install -e sdk/python
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run Full Pytest Suite
+        run: |
+          pytest -v
+
+  frontend-build-and-typecheck:
+    name: Frontend Build & TypeScript Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          npm --prefix frontend ci
+
+      - name: Next.js Production Build
+        run: |
+          npm --prefix frontend run build
+
+  aerodynamic-certification:
+    name: ASME V&V 20 Certification & Cryptographic Audit
+    needs: [backend-quality-and-tests, frontend-build-and-typecheck]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies & AASI SDK
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
           pip install -e sdk/python
 
       - name: Launch AASI Verification Platform
+        env:
+          AASI_SECRET_KEY: "ci-ephemeral-secret-key-for-automated-verification-test"
         run: |
           nohup python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
           sleep 6
