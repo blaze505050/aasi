@@ -73,7 +73,7 @@ export const ReportExportModal: React.FC<ReportExportModalProps> = ({
   const handleDownloadPdf = async () => {
     setDownloadingPdf(true);
     try {
-      const base = apiBase || "http://127.0.0.1:8000";
+      const base = apiBase || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
       const geom = encodeURIComponent(investigation.geometry);
       const url = `${base}/api/export/pdf/${investigation.job_id}?geometry=${geom}&alpha=${investigation.alpha_deg}&reynolds=${investigation.reynolds}&mach=${investigation.mach}`;
       const res = await fetch(url);

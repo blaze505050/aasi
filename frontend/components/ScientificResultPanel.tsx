@@ -33,7 +33,7 @@ export const ScientificResultPanel: React.FC<ScientificResultPanelProps> = ({
   provenanceHash,
   meshInfo = { cellCount: 48000, yPlus: 0.85 },
   solverInfo = { solver: "simpleFoam", turbulenceModel: "kOmegaSST" },
-  apiBase = "http://127.0.0.1:8000",
+  apiBase = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
 }) => {
   const [selectedQuestion, setSelectedQuestion] = useState<string>("Why is drag higher than the surrogate prediction?");
   const [explanation, setExplanation] = useState<any | null>(null);

@@ -474,6 +474,7 @@ export default function AASIApp() {
         isOpen={auditModalOpen}
         onClose={() => setAuditModalOpen(false)}
         orgId={authUser?.org_id || "default"}
+        apiBase={API_BASE}
       />
 
       {/* ─── Enterprise Overview & V&V Certification Modal ─── */}

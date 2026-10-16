@@ -40,12 +40,14 @@ interface AuditTrailModalProps {
   isOpen: boolean;
   onClose: () => void;
   orgId?: string;
+  apiBase?: string;
 }
 
 export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({
   isOpen,
   onClose,
   orgId = "default",
+  apiBase = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
 }) => {
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -55,7 +57,7 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({
   const fetchAuditLog = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/observability/audit-log?org_id=${orgId}&limit=50`);
+      const res = await fetch(`${apiBase}/api/observability/audit-log?org_id=${orgId}&limit=50`);
       if (res.ok) {
         const data = await res.json();
         setEntries(data.entries || []);
@@ -70,7 +72,7 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({
   const handleVerifyChain = async () => {
     setVerifying(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/observability/audit-log/verify", {
+      const res = await fetch(`${apiBase}/api/observability/audit-log/verify`, {
         method: "POST",
       });
       if (res.ok) {

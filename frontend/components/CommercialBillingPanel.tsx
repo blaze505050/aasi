@@ -26,7 +26,7 @@ interface CommercialBillingPanelProps {
 }
 
 export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
-  apiBase = "http://127.0.0.1:8000",
+  apiBase = process.env.NEXT_PUBLIC_API_URL || "",
   activeGeometry = "NACA 0012",
   activeJobId = "JOB-DEFAULT",
 }) => {

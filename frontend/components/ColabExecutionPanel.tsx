@@ -27,7 +27,7 @@ export const ColabExecutionPanel: React.FC<ColabExecutionPanelProps> = ({
   notebookHash,
   colabLaunchUrl = "https://colab.research.google.com",
   onImportSuccess,
-  apiBase = "http://127.0.0.1:8000",
+  apiBase = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
 }) => {
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
