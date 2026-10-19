@@ -7,24 +7,42 @@ services:
       dockerfile: backend/deployment/Dockerfile.backend
     container_name: aasi-backend
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
       - AASI_ENV=production
       - AASI_DEV_MODE=false
       - AASI_SECRET_KEY=${AASI_SECRET_KEY:?Error: AASI_SECRET_KEY must be set in environment}
       - AASI_STORAGE_BACKEND=local
       - AASI_STORAGE_DIR=/app/data/storage
+      - AASI_CORS_ORIGINS=${AASI_CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      - AASI_FORBID_SYNTHETIC_SUBSTITUTION=true
+      - AASI_STAGE_10_GATE_ENFORCED=true
       - REDIS_URL=redis://aasi-redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - aasi-data:/app/data
     depends_on:
-      - aasi-redis
+      aasi-redis:
+        condition: service_healthy
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
       timeout: 10s
+      start_period: 15s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
 
   aasi-frontend:
     build:
@@ -32,29 +50,61 @@ services:
       dockerfile: Dockerfile
     container_name: aasi-frontend
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NODE_ENV=production
     depends_on:
-      - aasi-backend
+      aasi-backend:
+        condition: service_healthy
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "25m"
+        max-file: "3"
 
   aasi-redis:
     image: redis:7-alpine
     container_name: aasi-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
       - redis-data:/data
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
 
 volumes:
   aasi-data:
     driver: local
   redis-data:
     driver: local
+
+networks:
+  default:
+    name: aasi-network

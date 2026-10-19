@@ -1,34 +1,125 @@
 """
 FastAPI application for AASI — Autonomous Aerospace Scientific Intelligence.
-Phase 2: Engineering Tool Intelligence.
+
+Production-grade aerospace engineering intelligence platform with:
+- Deterministic physics engine (panel solver, ASME V&V 20 verification)
+- Multi-fidelity surrogate models with epistemic classification
+- Cryptographic SHA-256 audit trails and Merkle DAG provenance
+- USAF DATCOM, NASA S/HABP, and 6-DOF export pipelines
 """
 
 import logging
 import json
 import hashlib
+import time
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException, status, UploadFile, File
+from fastapi import FastAPI, HTTPException, Request, Response, status, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel, Field
 
 from backend.config import settings
 from backend.agent import AASIAgent, OllamaUnavailableError, OllamaRuntimeError, default_agent
 from backend.tools.registry import tool_registry
 
-# Configure logging
+# Configure structured logging
 logging.basicConfig(
     level=getattr(logging, settings.log_level.upper(), logging.INFO),
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("aasi.backend")
 
+# ─── OpenAPI Tag Metadata ───
+OPENAPI_TAGS = [
+    {"name": "System", "description": "Health checks, version info, and operational status"},
+    {"name": "Aerodynamics", "description": "Panel solver, polar sweeps, and flight envelope generation"},
+    {"name": "AeroDB", "description": "Aerodynamic database generation, storage, and export"},
+    {"name": "Geometry", "description": "Airfoil geometry ingestion, normalization, and CFD mesh generation"},
+    {"name": "Verification", "description": "ASME V&V 20-2009 GCI studies and NASA-STD-7009B certification"},
+    {"name": "Investigation", "description": "Multi-fidelity investigation lifecycle and epistemic management"},
+    {"name": "Knowledge", "description": "Scientific literature search, RAG, and dataset federation"},
+    {"name": "Models", "description": "Neural surrogate model zoo, training, and inference"},
+    {"name": "Compute", "description": "Compute fabric routing, Colab integration, and HPC dispatch"},
+    {"name": "Auth", "description": "Authentication, session management, and RBAC"},
+    {"name": "Commercial", "description": "Subscription tiers, billing, and enterprise quota management"},
+    {"name": "Export", "description": "DATCOM, S/HABP, 6-DOF CSV, and certification dossier export"},
+    {"name": "Audit", "description": "Cryptographic provenance, Merkle DAG, and compliance audit trails"},
+]
+
+
+# ─── Request Timing Middleware ───
+class RequestTimingMiddleware(BaseHTTPMiddleware):
+    """Adds X-Process-Time header and logs request latency for observability."""
+
+    async def dispatch(self, request: Request, call_next):
+        start = time.perf_counter()
+        response = await call_next(request)
+        elapsed_ms = (time.perf_counter() - start) * 1000.0
+        response.headers["X-Process-Time-Ms"] = f"{elapsed_ms:.2f}"
+        if elapsed_ms > 5000:
+            logger.warning(
+                "Slow request: %s %s took %.1fms",
+                request.method, request.url.path, elapsed_ms
+            )
+        return response
+
+
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Log deployment readiness, validate production configuration, and ensure graceful shutdown."""
+    logger.info("═══════════════════════════════════════════════════════════")
+    logger.info("  AASI v%s — Autonomous Aerospace Scientific Intelligence", settings.app_version)
+    logger.info("  Environment: %s | Log Level: %s", "production", settings.log_level)
+    logger.info("  CORS Origins: %s", settings.cors_origin_list)
+    logger.info("═══════════════════════════════════════════════════════════")
+
+    try:
+        from backend.deployment.config import get_deployment_config
+        deploy_cfg = get_deployment_config()
+        audit = deploy_cfg.validate_production_readiness()
+        if audit.get("blockers"):
+            for b in audit["blockers"]:
+                logger.error("DEPLOYMENT BLOCKER: %s", b)
+        if audit.get("warnings"):
+            for w in audit["warnings"]:
+                logger.warning("DEPLOYMENT WARNING: %s", w)
+        if audit.get("is_launch_ready"):
+            logger.info("✓ Deployment readiness: ALL CHECKS PASSED")
+    except Exception as e:
+        logger.warning("Deployment config validation skipped: %s", e)
+
+    yield
+
+    logger.info("AASI backend shutting down gracefully.")
+
+
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="Backend API for AASI: Experimental AI Research Assistant for Aerospace Engineering & Space Science.",
+    description=(
+        "Production API for AASI: Autonomous Aerospace Scientific Intelligence. "
+        "Deterministic aerodynamic computation, multi-fidelity validation, "
+        "and cryptographic provenance for aerospace engineering workflows."
+    ),
+    openapi_tags=OPENAPI_TAGS,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
+    contact={
+        "name": "AASI Engineering",
+        "url": "https://github.com/blaze505050/aasi",
+        "email": "engineering@projectpolaris.in",
+    },
+    lifespan=lifespan,
 )
+
+# Production middleware stack
+app.add_middleware(RequestTimingMiddleware)
 
 # CORS configuration for frontend
 app.add_middleware(
@@ -38,6 +129,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Phase 27 & 28: Control Plane Modular API Routers
 from backend.api import api_router, api_v1_router

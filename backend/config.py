@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "AASI — Autonomous Aerospace Scientific Intelligence"
-    app_version: str = "0.2.0"
+    app_version: str = "1.0.0"
     
     # Ollama runtime settings
     ollama_base_url: str = "http://127.0.0.1:11434"

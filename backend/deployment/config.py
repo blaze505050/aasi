@@ -78,14 +78,24 @@ class DeploymentConfig(BaseModel):
 
         # 2. Secret key cannot use default development placeholder in production
         DEFAULT_PLACEHOLDERS = [
+            "aasi-dev-key-CHANGE-IN-PRODUCTION",
             "aasi-secret-key-phase27-production-secure",
             "aasi-production-key-change-in-prod",
             "secret",
             "changeme",
+            "change-this-to-a-cryptographically-secure-random-64-char-token",
         ]
         if is_prod and self.secret_key in DEFAULT_PLACEHOLDERS:
+            audit["secret_key"] = "BLOCKED"
+            audit["blockers"].append(
+                "CRITICAL: AASI_SECRET_KEY is using a default placeholder. "
+                "Generate a secure key: python -c \"import secrets; print(secrets.token_hex(32))\""
+            )
+        elif is_prod and len(self.secret_key) < 32:
             audit["secret_key"] = "REQUIRES_CONFIGURATION"
-            audit["warnings"].append("AASI_SECRET_KEY is using a default placeholder. Set a strong secret key in production environment.")
+            audit["warnings"].append(
+                "AASI_SECRET_KEY is shorter than 32 characters. Use a minimum 32-byte random hex string."
+            )
 
         # 3. CORS origins should not allow wildcard '*' in production
         if is_prod and "*" in self.cors_origins:

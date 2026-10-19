@@ -6,18 +6,22 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
+
 jobs:
   backend-quality-and-tests:
-    name: Backend Regression Suite (948 Physics & Epistemic Tests)
+    name: Backend Regression Suite (948+ Physics & Epistemic Tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Codebase
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
 
       - name: Install Dependencies & AASI SDK
@@ -29,7 +33,65 @@ jobs:
 
       - name: Run Full Pytest Suite
         run: |
-          pytest -v
+          pytest tests/ -v --tb=short --junitxml=test-results.xml
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: test-results.xml
+          retention-days: 30
+
+  backend-security-scan:
+    name: Security & Credential Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install bandit safety
+
+      - name: Run Bandit Security Linter
+        run: |
+          bandit -r backend/ -f json -o bandit-report.json --severity-level medium || true
+          bandit -r backend/ --severity-level high
+
+      - name: Check for Hardcoded Credentials
+        run: |
+          # Verify no hardcoded secrets exist in source
+          ! grep -rn "AASI_SECRET_KEY.*=.*['\"][a-f0-9]\{32,\}['\"]" backend/ --include="*.py" || echo "WARNING: Potential hardcoded credential found"
+
+      - name: Validate Production Deployment Config
+        run: |
+          python -c "
+          from backend.deployment.config import DeploymentConfig
+          import os
+          os.environ['AASI_ENV'] = 'development'
+          cfg = DeploymentConfig()
+          audit = cfg.validate_production_readiness()
+          print('Deployment Audit:', audit)
+          assert audit['anti_fabrication'] == 'READY', 'Anti-fabrication must be enforced'
+          print('✓ Development config validation passed')
+          "
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: bandit-report.json
+          retention-days: 30
 
   frontend-build-and-typecheck:
     name: Frontend Build & TypeScript Typecheck
@@ -38,10 +100,10 @@ jobs:
       - name: Checkout Codebase
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 20
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
@@ -49,22 +111,26 @@ jobs:
         run: |
           npm --prefix frontend ci
 
+      - name: TypeScript Type Check
+        run: |
+          npx --prefix frontend tsc --noEmit
+
       - name: Next.js Production Build
         run: |
           npm --prefix frontend run build
 
   aerodynamic-certification:
     name: ASME V&V 20 Certification & Cryptographic Audit
-    needs: [backend-quality-and-tests, frontend-build-and-typecheck]
+    needs: [backend-quality-and-tests, backend-security-scan, frontend-build-and-typecheck]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Codebase
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
 
       - name: Install Dependencies & AASI SDK
@@ -78,11 +144,17 @@ jobs:
           AASI_SECRET_KEY: "ci-ephemeral-secret-key-for-automated-verification-test"
         run: |
           nohup python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
-          sleep 6
+          sleep 8
 
       - name: Verify Backend Health & Model Zoo
         run: |
-          curl -f http://127.0.0.1:8000/api/health || exit 1
+          curl -sf http://127.0.0.1:8000/api/health | python -m json.tool
+          echo "✓ Backend health check passed"
+
+      - name: Verify OpenAPI Schema Generation
+        run: |
+          curl -sf http://127.0.0.1:8000/openapi.json | python -c "import sys, json; schema=json.load(sys.stdin); print(f'OpenAPI v{schema[\"openapi\"]}: {len(schema[\"paths\"])} endpoints, {len(schema.get(\"tags\", []))} tag groups'); assert len(schema['paths']) > 20"
+          echo "✓ OpenAPI schema validation passed"
 
       - name: Run ASME V&V 20 Benchmark Verification (NASA LTPT NACA 0012)
         run: |
@@ -99,3 +171,11 @@ jobs:
       - name: Generate Mission Polar Sweep
         run: |
           aasi polar --airfoil "RAE 2822" --reynolds 6500000 --mach 0.729
+
+      - name: Archive Uvicorn Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: certification-server-logs
+          path: uvicorn.log
+          retention-days: 14

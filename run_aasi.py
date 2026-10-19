@@ -72,7 +72,7 @@ def wait_for_service(url: str, timeout: int = 30, desc: str = "Service") -> bool
 def main():
     print(f"\n{CYAN}{BOLD}" + "=" * 70)
     print("       AASI — AUTONOMOUS AEROSPACE SCIENTIFIC INTELLIGENCE")
-    print("              Flight-Grade Simulation & Aero DB Platform")
+    print("      Preliminary Aerodynamic Database & ASME V&V 20 Verification")
     print("=" * 70 + f"{RESET}\n")
 
     py_exe = get_python_executable()
