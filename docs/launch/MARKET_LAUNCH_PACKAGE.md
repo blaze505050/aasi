@@ -3,6 +3,7 @@
 > **Autonomous Aerospace Scientific Intelligence (AASI)**  
 > *Deterministic Aerodynamic Database Generation, Automated ASME V&V 20 Verification, & Enterprise Aerospace Engineering Platform*  
 > **Release:** v1.0.0 Peak Production  
+> **Live Public Cockpit:** https://frontend-blush-eta-19.vercel.app  
 > **Repository:** https://github.com/blaze505050/aasi  
 > **Founder:** S Gnana Aditya  
 
@@ -30,8 +31,7 @@ We built AASI to solve this:
 - **Cryptographic Provenance:** Every run computes a SHA-256 Merkle DAG hash capturing exact geometric parameters, flow conditions, and code revision.
 - **Modern Mission Control UI:** Built with Next.js 14, Three.js 3D WebGL surface pressure (Cp) visualization, keyboard shortcuts (Cmd+K), and zero-DLL pure NumPy physics engine (948/948 tests passing).
 
-The core engine is open-source (MIT). We also offer Docker containerization and enterprise API quotas.
-
+Live Web App: https://frontend-blush-eta-19.vercel.app
 GitHub: https://github.com/blaze505050/aasi
 Documentation & Architecture: https://github.com/blaze505050/aasi#readme
 
