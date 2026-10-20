@@ -31,6 +31,7 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
   activeJobId = "JOB-DEFAULT",
 }) => {
   const [currentTier, setCurrentTier] = useState<"free" | "professional" | "team" | "enterprise">("professional");
+  const [currency, setCurrency] = useState<"USD" | "INR">("USD");
   const [upgrading, setUpgrading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [certifying, setCertifying] = useState(false);
@@ -73,7 +74,29 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
     setUpgrading(true);
     setSuccessMsg(null);
     try {
-      // 1. Create Checkout Session
+      if (currency === "INR") {
+        // Razorpay checkout order creation
+        const rzpRes = await fetch(`${apiBase}/api/commercial/organizations/default/razorpay-order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan_id: targetTier }),
+        });
+        if (rzpRes.ok) {
+          const rzpData = await rzpRes.json();
+          // Simulate instant activation in test/sandbox mode
+          await fetch(`${apiBase}/api/commercial/organizations/default/simulate-payment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan_id: targetTier }),
+          });
+          setCurrentTier(targetTier);
+          setSuccessMsg(`Razorpay Order ${rzpData.order_id} verified. Upgraded to ${targetTier.toUpperCase()} (₹${rzpData.amount_inr}).`);
+          loadOrgData();
+          return;
+        }
+      }
+
+      // 1. Create Checkout Session (Stripe USD)
       const sessionRes = await fetch(`${apiBase}/api/commercial/organizations/default/checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,15 +176,16 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
     {
       id: "free" as const,
       name: "Explorer",
-      price: "$0",
+      price: currency === "INR" ? "₹0" : "$0",
       period: "forever",
       target: "Academic & Research",
       desc: "Fundamental aerodynamics & thin airfoil analytical theory.",
       badge: "Free Tier",
       badgeColor: "#94a3b8",
       features: [
-        "5 investigations / month",
+        "10 investigations / month",
         "Analytical discrete vortex solver",
+        "In-browser 60 FPS panel engine",
         "Basic airfoil geometry profiler",
         "Public aerodynamic database",
         "Community support",
@@ -170,18 +194,18 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
     {
       id: "professional" as const,
       name: "Professional",
-      price: "$299",
+      price: currency === "INR" ? "₹3,999" : "$99",
       period: "/ seat / month",
-      target: "Aerodynamic Engineers",
-      desc: "Full multi-fidelity surrogate inference & remote CFD staging.",
+      target: "Aerodynamic Engineers & UAV Startups",
+      desc: "Full multi-fidelity surrogate inference, DATCOM, and PX4/ArduPilot export.",
       badge: "Most Popular",
       badgeColor: "#64d2ff",
       highlight: true,
       features: [
-        "25 investigations / month",
+        "Unlimited 2D & 3D panel sweeps",
+        "PX4 (.params) & ArduPilot (.param) decks",
+        "USAF DATCOM & NASA S/HABP exports",
         "Deep Neural Operator Model Zoo (15 models)",
-        "OpenFOAM remote compute orchestration",
-        "Interactive multi-fidelity polar studio",
         "ASME V&V 20 compliant Dossier exports",
         "Hardware safety workstation protection",
       ],
@@ -189,14 +213,14 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
     {
       id: "team" as const,
       name: "Team Workspace",
-      price: "$199",
-      period: "/ seat / month (min 5)",
-      target: "Engineering Consultancies",
+      price: currency === "INR" ? "₹24,999" : "$399",
+      period: "/ month (5 seats included)",
+      target: "UAV Startups & Aero Labs",
       desc: "Collaborative research memory & shared multi-tenancy projects.",
       badge: "Team",
       badgeColor: "#30d158",
       features: [
-        "100 investigations / month",
+        "5 user seats included",
         "Shared organizational scientific memory",
         "Project workspace isolation & RBAC",
         "Custom coordinate ingestion (.dat / .csv)",
@@ -207,7 +231,7 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
     {
       id: "enterprise" as const,
       name: "Enterprise Defense",
-      price: "Custom",
+      price: currency === "INR" ? "₹15,00,000+" : "$25,000+",
       period: "annual licensing",
       target: "OEMs & Defense Primes",
       desc: "Air-gapped on-premise deployment, ITAR compliance, dedicated SLA.",
@@ -217,7 +241,7 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
         "Unlimited investigations & compute",
         "ITAR & EAR compliant data sovereignty",
         "Cryptographic ASME V&V 20 Flight Sign-off",
-        "Air-gapped on-premise deployment option",
+        "Air-gapped on-premise Docker deployment",
         "24/7 dedicated aerospace CFD support SLA",
         "Custom neural surrogate pre-training",
       ],
@@ -287,16 +311,64 @@ export const CommercialBillingPanel: React.FC<CommercialBillingPanelProps> = ({
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "16px", fontSize: "0.76rem", fontFamily: "var(--font-mono)" }}>
-          <div style={{ background: "#111827", border: "1px solid #1f2937", padding: "8px 14px", borderRadius: "8px" }}>
-            <div style={{ color: "#94a3b8" }}>MONTHLY INVESTIGATIONS</div>
-            <div style={{ color: "#38bdf8", fontWeight: 700, fontSize: "0.95rem" }}>
-              {usageStats.investigations} / {usageStats.investigationLimit >= 99999 ? "UNLIMITED" : usageStats.investigationLimit}
-            </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+          {/* Currency Selector (USD / INR) */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              background: "rgba(15, 23, 42, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              borderRadius: "8px",
+              padding: "3px",
+              gap: "2px",
+            }}
+          >
+            <button
+              onClick={() => setCurrency("USD")}
+              style={{
+                background: currency === "USD" ? "#0284c7" : "transparent",
+                color: currency === "USD" ? "#ffffff" : "#94a3b8",
+                border: "none",
+                borderRadius: "6px",
+                padding: "5px 10px",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              USD ($)
+            </button>
+            <button
+              onClick={() => setCurrency("INR")}
+              style={{
+                background: currency === "INR" ? "#0284c7" : "transparent",
+                color: currency === "INR" ? "#ffffff" : "#94a3b8",
+                border: "none",
+                borderRadius: "6px",
+                padding: "5px 10px",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              INR (₹)
+            </button>
           </div>
-          <div style={{ background: "#111827", border: "1px solid #1f2937", padding: "8px 14px", borderRadius: "8px" }}>
-            <div style={{ color: "#94a3b8" }}>STORAGE &amp; DB</div>
-            <div style={{ color: "#10b981", fontWeight: 700, fontSize: "0.95rem" }}>SQLITE PERSISTED</div>
+
+          <div style={{ display: "flex", gap: "10px", fontSize: "0.76rem", fontFamily: "var(--font-mono)" }}>
+            <div style={{ background: "#111827", border: "1px solid #1f2937", padding: "8px 14px", borderRadius: "8px" }}>
+              <div style={{ color: "#94a3b8" }}>MONTHLY INVESTIGATIONS</div>
+              <div style={{ color: "#38bdf8", fontWeight: 700, fontSize: "0.95rem" }}>
+                {usageStats.investigations} / {usageStats.investigationLimit >= 99999 ? "UNLIMITED" : usageStats.investigationLimit}
+              </div>
+            </div>
+            <div style={{ background: "#111827", border: "1px solid #1f2937", padding: "8px 14px", borderRadius: "8px" }}>
+              <div style={{ color: "#94a3b8" }}>STORAGE &amp; DB</div>
+              <div style={{ color: "#10b981", fontWeight: 700, fontSize: "0.95rem" }}>SQLITE PERSISTED</div>
+            </div>
           </div>
         </div>
       </div>

@@ -339,3 +339,94 @@ async def download_dossier_pdf(
             "Cache-Control": "no-cache",
         },
     )
+
+
+# ─── UAV Autopilot Tuning Parameter Exporters (PX4 & ArduPilot) ───
+
+from backend.export.autopilot_exporter import (
+    AutopilotExporter,
+    AirframeFlightConditions,
+    AutopilotTuningResult,
+)
+from fastapi.responses import PlainTextResponse
+
+
+@router.post(
+    "/autopilot",
+    response_model=AutopilotTuningResult,
+    summary="Compute Autopilot Flight Controller Tuning Parameters (PX4 & ArduPilot)",
+)
+async def compute_autopilot_tuning(
+    geometry: str = Query("NACA 0012", description="Wing/Airfoil profile"),
+    cl_alpha: float = Query(0.105, description="Lift curve slope per degree"),
+    cm_alpha: float = Query(-0.025, description="Pitching moment slope per degree"),
+    cl_max: float = Query(1.35, description="Maximum lift coefficient"),
+    cd0: float = Query(0.008, description="Parasitic zero-lift drag coefficient"),
+    x_ac: float = Query(0.25, description="Aerodynamic center position (x/c)"),
+    alpha_0: float = Query(0.0, description="Zero-lift angle of attack in degrees"),
+    airframe: Optional[AirframeFlightConditions] = None,
+):
+    """
+    Computes flight dynamics parameters and generates ready-to-flash tuning decks
+    for PX4 and ArduPilot flight controllers directly from aerodynamic data.
+    """
+    res = AutopilotExporter.compute_autopilot_parameters(
+        geometry_name=geometry,
+        cl_alpha_per_deg=cl_alpha,
+        cm_alpha_per_deg=cm_alpha,
+        cl_max=cl_max,
+        cd0=cd0,
+        x_ac=x_ac,
+        alpha_zero_lift_deg=alpha_0,
+        airframe=airframe or AirframeFlightConditions(),
+    )
+    return res
+
+
+@router.get(
+    "/autopilot/download",
+    summary="Download PX4 .params or ArduPilot .param Flight Controller Deck",
+)
+async def download_autopilot_deck(
+    format: str = Query("px4", pattern="^(px4|ardupilot)$", description="Target autopilot format"),
+    geometry: str = Query("NACA 0012", description="Wing/Airfoil profile"),
+    mass_kg: float = Query(2.5, description="Airframe takeoff mass in kg"),
+    span_m: float = Query(1.6, description="Wingspan in meters"),
+    area_m2: float = Query(0.38, description="Wing area in m²"),
+    cl_alpha: float = Query(0.105),
+    cm_alpha: float = Query(-0.025),
+    cl_max: float = Query(1.35),
+    cd0: float = Query(0.008),
+):
+    """Downloads formatted .params (PX4 QGroundControl) or .param (ArduPilot Mission Planner) card deck."""
+    af = AirframeFlightConditions(
+        mass_kg=mass_kg,
+        wing_span_m=span_m,
+        wing_area_m2=area_m2,
+        mean_chord_m=area_m2 / max(0.1, span_m),
+    )
+    res = AutopilotExporter.compute_autopilot_parameters(
+        geometry_name=geometry,
+        cl_alpha_per_deg=cl_alpha,
+        cm_alpha_per_deg=cm_alpha,
+        cl_max=cl_max,
+        cd0=cd0,
+        airframe=af,
+    )
+
+    clean_geom = geometry.replace(" ", "_")
+    if format == "px4":
+        content = res.px4_params_deck
+        filename = f"AASI_{clean_geom}_PX4_Tuning.params"
+        media_type = "text/plain"
+    else:
+        content = res.ardupilot_param_deck
+        filename = f"AASI_{clean_geom}_ArduPilot_Tuning.param"
+        media_type = "text/plain"
+
+    return PlainTextResponse(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+

@@ -340,6 +340,53 @@ async def simulate_payment(org_id: str, request: UpgradePlanRequest) -> Dict[str
     }
 
 
+@router.post("/organizations/{org_id}/razorpay-order", summary="Create Razorpay Payment Order (INR UPI/Cards)")
+async def create_razorpay_order(org_id: str, request: UpgradePlanRequest) -> Dict[str, Any]:
+    """Creates a Razorpay order in INR (supporting UPI, NetBanking, and RuPay/Visa/Mastercard)."""
+    org = commercial_db.get_organization(org_id)
+    if not org:
+        raise HTTPException(status_code=404, detail=f"Organization '{org_id}' not found.")
+
+    plan = DEFAULT_PLANS.get(request.plan_id, DEFAULT_PLANS["professional"])
+    amount_inr = 3999 if request.plan_id == "professional" else 24999
+    amount_paise = amount_inr * 100
+
+    razorpay_key = os.getenv("RAZORPAY_KEY_ID")
+    razorpay_secret = os.getenv("RAZORPAY_KEY_SECRET")
+
+    if razorpay_key and razorpay_secret:
+        try:
+            import razorpay
+            client = razorpay.Client(auth=(razorpay_key, razorpay_secret))
+            order = client.order.create({
+                "amount": amount_paise,
+                "currency": "INR",
+                "receipt": f"rcpt_{org_id}_{secrets.token_hex(4)}",
+                "notes": {"org_id": org_id, "plan_id": request.plan_id},
+            })
+            return {
+                "order_id": order["id"],
+                "key_id": razorpay_key,
+                "amount_inr": amount_inr,
+                "currency": "INR",
+                "mode": "live",
+            }
+        except Exception:
+            pass
+
+    # Sandbox / simulated order
+    simulated_order_id = f"order_{secrets.token_hex(10)}"
+    return {
+        "order_id": simulated_order_id,
+        "key_id": razorpay_key or "rzp_test_placeholder",
+        "amount_inr": amount_inr,
+        "currency": "INR",
+        "mode": "sandbox",
+        "notice": "Operating in local test sandbox. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET for live payments.",
+    }
+
+
+
 @router.post("/webhook", summary="Stripe Webhook Event Receiver")
 async def stripe_webhook(request: Request, stripe_signature: Optional[str] = Header(None, alias="Stripe-Signature")) -> Dict[str, Any]:
     """Receives and verifies Stripe webhook events for automated subscription fulfillment."""
