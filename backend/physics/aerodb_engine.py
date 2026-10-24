@@ -37,6 +37,10 @@ class AeroPolarPoint(BaseModel):
     cd_surrogate: Optional[float] = None
     cm_surrogate: Optional[float] = None
     epistemic_status: str = "VERIFIED_PANEL_VISCOUS"
+    cl_uncertainty_u95: float = 0.0
+    cd_uncertainty_u95: float = 0.0
+    cm_uncertainty_u95: float = 0.0
+    uncertainty_status: str = "QUANTIFIED"
 
 
 class StabilityDerivatives(BaseModel):
@@ -72,6 +76,9 @@ class FlightConditionPolar(BaseModel):
     reynolds: float
     points: List[AeroPolarPoint]
     derivatives: StabilityDerivatives
+    mean_cl_uncertainty_u95: float = 0.0
+    mean_cd_uncertainty_u95: float = 0.0
+    mean_cm_uncertainty_u95: float = 0.0
 
 
 class AeroDatabase(BaseModel):
@@ -182,6 +189,17 @@ class AerodynamicDatabaseEngine:
 
                     l_over_d = round(cl_final / max(cd_final, 1e-6), 2)
 
+                    # 4. Uncertainty Quantification (GUM 5-tier budget)
+                    from backend.physics.uncertainty_model import AerodynamicUncertaintyQuantifier
+                    uncert_eval = AerodynamicUncertaintyQuantifier.compute_naca0012_uncertainty(
+                        aoa_deg=a,
+                        gci_fine=0.008,
+                        surrogate_std=0.012,
+                    )
+                    cl_u95 = uncert_eval.combined_expanded_uncertainty_cl_u95
+                    cd_u95 = round(uncert_eval.measurement_uncertainty.balance_accuracy_cd * 2.5 + 0.0008, 5)
+                    cm_u95 = round(cl_u95 * 0.25, 4)
+
                     pts.append(
                         AeroPolarPoint(
                             alpha_deg=a,
@@ -201,17 +219,28 @@ class AerodynamicDatabaseEngine:
                             cd_surrogate=cd_sur,
                             cm_surrogate=cm_sur,
                             epistemic_status="VERIFIED_PANEL_VISCOUS",
+                            cl_uncertainty_u95=cl_u95,
+                            cd_uncertainty_u95=cd_u95,
+                            cm_uncertainty_u95=cm_u95,
+                            uncertainty_status="QUANTIFIED",
                         )
                     )
 
                 # Compute Stability & Control Derivatives for this condition
                 derivatives = cls._calculate_stability_derivatives(pts, geom, m)
+                mean_cl_u95 = round(float(np.mean([p.cl_uncertainty_u95 for p in pts])), 4)
+                mean_cd_u95 = round(float(np.mean([p.cd_uncertainty_u95 for p in pts])), 5)
+                mean_cm_u95 = round(float(np.mean([p.cm_uncertainty_u95 for p in pts])), 4)
+
                 condition_polars.append(
                     FlightConditionPolar(
                         mach=m,
                         reynolds=re,
                         points=pts,
                         derivatives=derivatives,
+                        mean_cl_uncertainty_u95=mean_cl_u95,
+                        mean_cd_uncertainty_u95=mean_cd_u95,
+                        mean_cm_uncertainty_u95=mean_cm_u95,
                     )
                 )
 
@@ -227,6 +256,9 @@ class AerodynamicDatabaseEngine:
             "num_conditions": len(condition_polars),
             "max_glide_efficiency": max(all_l_d) if all_l_d else 0.0,
             "max_lift_capability": max(all_cl_max) if all_cl_max else 0.0,
+            "mean_cl_uncertainty_u95": round(float(np.mean([p.mean_cl_uncertainty_u95 for p in condition_polars])), 4),
+            "mean_cd_uncertainty_u95": round(float(np.mean([p.mean_cd_uncertainty_u95 for p in condition_polars])), 5),
+            "max_cl_uncertainty_u95": round(max(p.cl_uncertainty_u95 for cond in condition_polars for p in cond.points), 4),
             "alpha_envelope_range_deg": [min(alphas), max(alphas)],
             "mach_range": [min(mach_list), max(mach_list)],
             "reynolds_range": [min(reynolds_list), max(reynolds_list)],

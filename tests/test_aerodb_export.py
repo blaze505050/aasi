@@ -21,7 +21,7 @@ def sample_db():
 
 
 def test_datcom_export_syntax(sample_db):
-    """Verify DATCOM output adheres to standard namelist cards."""
+    """Verify DATCOM output adheres to standard namelist cards and includes UQ."""
     datcom_text = AeroDBExporter.export_datcom(sample_db)
     assert isinstance(datcom_text, str)
     assert "DIM M" in datcom_text
@@ -33,10 +33,12 @@ def test_datcom_export_syntax(sample_db):
     assert "NACA-4-0012" in datcom_text
     assert "NEXT CASE" in datcom_text
     assert "ALPHA        CL          CD          CM" in datcom_text
+    assert "UNCERTAINTY (95% CONFIDENCE" in datcom_text
+    assert "U95_CL" in datcom_text
 
 
 def test_shabp_export_syntax(sample_db):
-    """Verify NASA S/HABP tabulated output contains required blocks."""
+    """Verify NASA S/HABP tabulated output contains required blocks and UQ values."""
     shabp_text = AeroDBExporter.export_shabp(sample_db)
     assert isinstance(shabp_text, str)
     assert "NASA S/HABP" in shabp_text
@@ -44,11 +46,13 @@ def test_shabp_export_syntax(sample_db):
     assert "CL_ALPHA" in shabp_text
     assert "ALPHA_0L" in shabp_text
     assert "CD_0" in shabp_text
+    assert "U95_CL_MEAN" in shabp_text
+    assert "U95_CL" in shabp_text
     assert "$ENDTABLE" in shabp_text
 
 
 def test_6dof_csv_export(sample_db):
-    """Verify 6-DOF simulation CSV table contains correct column headers and valid rows."""
+    """Verify 6-DOF simulation CSV table contains correct column headers, UQ metrics, and valid rows."""
     csv_text = AeroDBExporter.export_6dof_csv(sample_db)
     lines = [line.strip() for line in csv_text.strip().splitlines() if line.strip()]
     assert len(lines) >= 6  # 1 header + 5 points
@@ -60,4 +64,7 @@ def test_6dof_csv_export(sample_db):
     assert "cd" in header
     assert "cm" in header
     assert "l_over_d" in header
+    assert "cl_uncertainty_u95" in header
+    assert "cd_uncertainty_u95" in header
+    assert "cm_uncertainty_u95" in header
     assert "cl_alpha_per_rad" in header

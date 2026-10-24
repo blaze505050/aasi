@@ -1,23 +1,26 @@
 # AASI — Autonomous Aerospace Scientific Intelligence
 
-> **Deterministic Aerodynamic Database Generation, Automated ASME V&V 20 Verification, Multi-Fidelity Investigation, & Enterprise Aerospace Engineering Platform**
+> **Deterministic Aerodynamic Database Generation, Automated ASME V&V 20 Verification Artifacts, Multi-Fidelity Investigation, & 30-Problem Aerospace Engineering Platform Roadmap**
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14+-black.svg)](https://nextjs.org/)
-[![ASME V&V 20-2009](https://img.shields.io/badge/Methodology-ASME%20V%26V%2020--2009-brightgreen.svg)](https://www.asme.org/codes-standards/find-codes-standards/v-v-20-standard-verification-validation-computational-fluid-dynamics-heat-transfer)
-[![NASA-STD-7009B](https://img.shields.io/badge/Methodology-NASA--STD-7009B%20CAS-blue.svg)](https://standards.nasa.gov/standard/NASA/NASA-STD-7009B)
+[![ASME V&V 20-2009](https://img.shields.io/badge/Verification_Artifacts-ASME%20V%26V%2020--2009-brightgreen.svg)](https://www.asme.org/codes-standards/find-codes-standards/v-v-20-standard-verification-validation-computational-fluid-dynamics-heat-transfer)
+[![NASA-STD-7009B Aligned](https://img.shields.io/badge/Evidence_Artifacts-NASA--STD-7009B%20Aligned-blue.svg)](https://standards.nasa.gov/standard/NASA/NASA-STD-7009B)
 [![USAF DATCOM](https://img.shields.io/badge/Export-USAF%20DATCOM-red.svg)](#multi-standard-aerospace-exporters)
-[![Tests](https://img.shields.io/badge/Tests-948%2B%20Passing-success.svg)](#automated-verification-test-suite)
+[![Tests](https://img.shields.io/badge/Tests-Passing-success.svg)](#automated-verification-test-suite)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
 ## Executive Summary
 
-**AASI** is a production-grade aerodynamic engineering and scientific investigation platform designed for UAV developers, aerodynamicists, eVTOL teams, and aerospace researchers. It transforms the traditionally fragmented, labor-intensive aerodynamic database workflow into an automated, verifiable pipeline for conceptual and preliminary design.
+**AASI (Autonomous Aerospace Scientific Intelligence)** is an aerodynamic engineering, verification, and scientific evidence platform designed for UAV developers, aerodynamicists, eVTOL teams, and aerospace researchers. Optimized for **conceptual and preliminary design trade studies**, AASI transforms the traditionally fragmented, labor-intensive aerodynamic database workflow into an automated, verifiable pipeline.
 
-AASI computes aerodynamic coefficients, stability derivatives, and grid convergence metrics deterministically using verified first-principles physics (discrete vortex panel methods, Helmbold-Keune finite-span corrections, Karman-Tsien compressibility, Schlichting/Squire-Young boundary layer drag estimates) alongside structured verification frameworks following the methodologies of **ASME V&V 20-2009** and **NASA-STD-7009B**.
+The core thesis of AASI:
+$$\text{AASI} = \text{Physics Kernel} + \text{Verification Layer} + \text{Autonomous Orchestrator}$$
+
+**Every number comes with its proof.** Rather than producing unverified numbers, AASI outputs deterministic first-principles physics (discrete vortex panel methods, 3D vortex lattice methods, Karman-Tsien compressibility, Schlichting/Squire-Young boundary layer drag estimates) accompanied by formal 5-tier Guide to the Expression of Uncertainty in Measurement (GUM) uncertainty intervals and verification evidence artifacts aligned with the methodologies of **ASME V&V 20-2009** and **NASA-STD-7009B** CAS credibility guidelines.
 
 ```
                                   ┌─────────────────────────────────────────┐
@@ -41,9 +44,34 @@ AASI computes aerodynamic coefficients, stability derivatives, and grid converge
 
 ---
 
+## 30-Problem Aerospace Platform Architecture
+
+AASI is designed as a modular 30-problem aerospace engineering platform across three progressive tiers:
+
+### 1. The Plug-in Module Contract
+Every physical problem module implements a strict four-part interface:
+1. `solve(inputs, fidelity)` $\to$ deterministic calculation
+2. `uncertainty(inputs)` $\to$ formal 95% confidence intervals (GUM / ASME V&V 20)
+3. `benchmarks()` $\to$ published reference cases with literature data (NASA TM, AGARD, AIAA)
+4. `evidence(results)` $\to$ immutable cryptographic SHA-256 provenance record
+
+### 2. The Three-Level Fidelity Ladder
+- **L0 (Analytic / Empirical):** Closed-form equations for millisecond trade space exploration (e.g. Thin Airfoil Theory, Diederich 3D Swept Wing).
+- **L1 (Reduced-Order Physics):** Discrete vortex panel methods and 3D Vortex Lattice Methods (VLM) for seconds-scale preliminary design.
+- **L2 (High-Fidelity CFD/FEA):** Automated mesh dispatch for OpenFOAM (`simpleFoam`) and SU2 Navier-Stokes solvers with wall-normal grading ($y^+ \sim 1$).
+
+### 3. Tiered Roadmap & Priority Wedges
+- **Tier 1 (Aerodynamics Core, Months 0-6):** 3D Wing VLM, Transonic Shock, Boundary Layer Transition ($e^N$), Stall Correction, Airfoil Inverse Design, Propeller/Rotor BEMT, Aeroelastic Flutter, 6-DOF Handling Qualities (MIL-STD-1797), Polynomial Chaos UQ, Autonomous CFD Agent.
+- **Tier 2 (Vehicle Systems & Propulsion, Months 6-12):** Rocket Trajectory & Dispersion (RocketPy), Atmospheric Reentry Heating (Sutton-Graves / Fay-Riddell), Thermal Protection System Sizing, Cantera Rocket Engine Maps, Structural FEA (CalculiX/FEniCS), Fatigue Life (Paris Law), Composites (Tsai-Wu), Avionics Thermal, eVTOL Powertrain & Battery Sizing, Predictive Maintenance (NASA C-MAPSS).
+- **Tier 3 (Astrodynamics & Space Operations, Months 12-18):** High-Fidelity Orbit Propagation (SGP4 + J2-J6), Conjunction Assessment, Interplanetary Trajectory Optimization (Lambert / GTOP), RPO Dynamics, ADCS (Quaternion EKF), Constellation Walker Patterns, Space Weather Drag, Deorbit Risk, Cislunar CR3BP / NRHO, Telemetry Anomaly Detection.
+
+**Priority Go-to-Market Wedge (Wedge A):** eVTOL and UAV developers (Items 1, 3, 6, 8, 9, 19). Fast sales cycles, critical weight/power trade-offs, and immediate need for verifiable aerodynamic databases without large dedicated in-house CFD teams.
+
+---
+
 ## Core Capabilities
 
-### 1. Aerodynamic Database (Aero DB) Generation Engine
+### 1. Aerodynamic Database (Aero DB) Generation Engine with Formal UQ
 - **Flight Envelope Sweeps:** Generates full tabular matrices of $C_L$, $C_D$, $C_M$, and $L/D$ across user-specified angle of attack ranges ($-6^\circ$ to $+16^\circ$), Reynolds numbers ($5 \times 10^4$ to $10^7$), and Mach numbers ($0.0$ to $0.85$).
 - **Automated Stability & Control Derivatives:**
   - Lift-curve slope ($C_{L_\alpha}$ per degree and per radian)
@@ -53,30 +81,35 @@ AASI computes aerodynamic coefficients, stability derivatives, and grid converge
   - Pitching moment slope ($C_{M_\alpha}$) and Aerodynamic Center location ($x_{ac}/c$)
   - Static margin against arbitrary center of gravity ($x_{cg}/c$)
   - Transonic drag-divergence Mach number ($M_{dd}$) via Korn's equation
+- **Formal 5-Tier Uncertainty Quantification:** Propagates input tolerances, discretization GCI, model discrepancy, and experimental balance limits into 95% expanded uncertainty intervals ($U_{95}$) for every polar point.
 
-### 2. Multi-Standard Aerospace Exporters
-Export aerodynamic databases directly into industry-standard flight mechanics toolchains in 1 click:
-- **USAF DATCOM (`.dat`):** Formatted fixed-column namelist cards (`$FLTCON`, `$OPTINS`, `$SYNTHS`, `$WGPLNF`) for direct ingestion into classical aircraft stability and control workflows.
-- **NASA S/HABP (`.shabp`):** Space-Vehicle High-Speed Aerodynamic Boundary Program input deck with standard `$TABLE` definitions.
-- **6-DOF Flight Dynamics CSV (`.csv`):** Ready for direct import into MATLAB/Simulink Aerospace Blockset, JSBSim, or FlightGear.
-- **JSON Schema:** Full machine-readable flight envelope data for custom MDO (Multidisciplinary Design Optimization) pipelines.
+### 2. 3D Wing Aerodynamics via Vortex Lattice Method (VLM)
+- Discretizes arbitrary trapezoidal and swept wings with span, taper, sweep, dihedral, and twist.
+- Evaluates 3D circulation distribution $\Gamma(y)$, spanwise lift, Trefftz-plane induced drag $C_{Di}$, Oswald efficiency factor $e$, and 3D Prandtl-Glauert compressibility scaling.
+- Validated against the classic AGARD AR-138 ONERA M6 reference wing benchmark.
 
-### 3. ASME V&V 20-2009 Verification & GCI Engine
-- Implements formal discretization error estimation per **ASME V&V 20-2009** (*Standard for Verification and Validation in Computational Fluid Dynamics and Heat Transfer*):
-  - Systematic grid refinement factor ($r_{21}, r_{32}$)
-  - Observed order of accuracy ($p$) solved via fixed-point transcendental iteration
-  - Richardson extrapolation estimate ($\phi_{ext}^{21}$)
-  - Relative errors ($e_a^{21}, e_{ext}^{21}$)
-  - Fine-grid Grid Convergence Index ($GCI_{fine}$ with safety factor $F_s = 1.25$)
-  - Asymptotic range of convergence verification ($R_{asymptotic} \approx 1.0$)
+### 3. Multi-Standard Aerospace Exporters
+Export aerodynamic databases directly into industry-standard flight mechanics toolchains with embedded uncertainty:
+- **USAF DATCOM (`.dat`):** Formatted fixed-column namelist cards (`$FLTCON`, `$OPTINS`, `$SYNTHS`, `$WGPLNF`) with condition-by-condition GUM uncertainty comments.
+- **NASA S/HABP (`.shabp`):** Space-Vehicle High-Speed Aerodynamic Boundary Program input deck with standard `$TABLE` definitions and expanded $U_{95}$ columns.
+- **6-DOF Flight Dynamics CSV (`.csv`):** Includes explicit `cl_uncertainty_u95`, `cd_uncertainty_u95`, and `cm_uncertainty_u95` columns ready for robust control design in MATLAB/Simulink Aerospace Blockset, JSBSim, PX4, or ArduPilot.
+- **JSON Schema:** Full machine-readable flight envelope data with cryptographic SHA-256 provenance hash.
 
-### 4. NASA-STD-7009B Credibility Assessment & Verification Dossier Generator
+### 4. Continuous Benchmark Validation Registry
+- Automated CI validation gate running reference test suites against published literature:
+  - **NACA 0012:** Thin airfoil theory and NASA LTPT experimental data (Abbott & von Doenhoff, 1959).
+  - **RAE 2822:** Supercritical transonic section baseline (AGARD AR-138 Case 6).
+  - **Eppler E387:** High-efficiency low-Reynolds UAV section (NASA TM-4102).
+  - **ONERA M6:** Finite swept wing subsonic/compressible aerodynamics (AGARD AR-138).
+- Fails the build if any calculation regresses beyond published physical error bounds.
+
+### 5. Evidence Artifacts Aligned with ASME V&V 20 & NASA-STD-7009B
 - Generates structured, publication-ready verification dossiers in both **HTML/PDF** and **JSON**:
-  - Full **Credibility Assessment Scale (CAS)** rubric scoring across Verification, Validation, Input Pedigree, and Results Uncertainty.
-  - Complete digital chain of custody with **SHA-256 and Merkle DAG cryptographic provenance hashing** of geometry, solver outputs, and verification metrics.
-  - Formatted for engineering design reviews, technical audits, and data traceability.
+  - Formal discretization error estimation per **ASME V&V 20-2009** ($GCI_{fine}$, observed order $p$, Richardson extrapolation).
+  - Credibility scoring aligned with **NASA-STD-7009B Credibility Assessment Scale (CAS)** across Verification, Validation, Input Pedigree, and Results Uncertainty.
+  - Complete digital chain of custody with **SHA-256 cryptographic provenance hashing** of geometry, solver configurations, and results.
 
-### 5. Universal Airfoil Geometry Ingestion & Pre-Processing
+### 6. Universal Airfoil Geometry Ingestion & Pre-Processing
 - **Supported Formats:** Selig (`.dat`, `.txt`), Lednicer (`.dat`), tabular CSV/TSV (`.csv`), or analytical 4-digit NACA profiles.
 - **Automated Geometry Normalization:**
   - Auto-strips coordinate headers and detects delimiter layout.
@@ -84,19 +117,19 @@ Export aerodynamic databases directly into industry-standard flight mechanics to
   - Scales to unit chord ($c = 1.0$).
   - Cosine-clustered resampling (120 panels) to accurately capture high-gradient suction peaks and stagnation zones.
 
-### 6. Conformal 6-Block C-Grid OpenFOAM Mesher
+### 7. Conformal 6-Block C-Grid OpenFOAM Mesher
 - Generates structured, conformal 6-block C-grid `blockMeshDict` with:
   - Exact C-topology curved arcs surrounding leading edge and downstream wake domain.
   - Physical airfoil wall patches correctly mapped to block vertices: `(8 20 19 7)`, `(7 19 18 6)`, `(8 9 21 20)`, `(9 10 22 21)`.
   - Boundary layer wall normal grading ($R_{grad} = 15$) ensuring $y^+ \sim 1$ resolution for OpenFOAM `simpleFoam` / `rhoSimpleFoam` and SU2 solvers.
 
-### 7. Multi-Fidelity Investigation & Epistemic Classification
+### 8. Multi-Fidelity Investigation & Epistemic Classification
 - Every computation result carries an epistemic classification: `CALCULATED`, `PREDICTED`, `ESTIMATED`, `ASSUMED`, or `UNVERIFIED`.
 - Surrogate model predictions carry out-of-domain (OOD) status: `IN_DOMAIN`, `EXTRAPOLATION`, or `OUT_OF_DOMAIN`.
 - Panel solver results are correctly labeled `VERIFIED_PANEL_VISCOUS` — never fabricated as "CFD" or "experimental".
 - Cryptographic SHA-256 audit trail with append-only Merkle DAG provenance chain.
 
-### 8. Enterprise Commercial Tiers
+### 9. Enterprise Commercial Tiers
 - **Community** (free): 50 polar sweeps/month, core panel solver, basic exports
 - **Professional** ($290/mo): Unlimited polars, full DATCOM/S-HABP export, surrogate inference
 - **Team** ($1,200/mo): Multi-seat, shared investigations, priority compute

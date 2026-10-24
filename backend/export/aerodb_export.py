@@ -89,11 +89,13 @@ class AeroDBExporter:
             lines.append(f"* DERIVATIVES: CL_ALPHA={derivs.cl_alpha_per_rad:.3f}/RAD, ALPHA_0L={derivs.alpha_zero_lift_deg:.2f} DEG")
             lines.append(f"*              CD0={derivs.cd_0:.5f}, L/D_MAX={derivs.l_over_d_max:.2f} (AT ALPHA={derivs.alpha_cruise_deg:.1f} DEG)")
             lines.append(f"*              CM_ALPHA={derivs.cm_alpha_per_rad:.4f}/RAD, X_AC/C={derivs.aerodynamic_center_x_over_c:.3f}")
+            lines.append(f"* UNCERTAINTY (95% CONFIDENCE, GUM / ASME V&V 20):")
+            lines.append(f"*              MEAN U95: CL=+/-{cond.mean_cl_uncertainty_u95:.4f}, CD=+/-{cond.mean_cd_uncertainty_u95:.5f}, CM=+/-{cond.mean_cm_uncertainty_u95:.4f}")
             lines.append(f"*")
-            lines.append(f"*    ALPHA        CL          CD          CM         L/D")
+            lines.append(f"*    ALPHA        CL          CD          CM         L/D       U95_CL      U95_CD")
             for p in pts:
                 lines.append(
-                    f"   {p.alpha_deg:7.2f}    {p.cl:8.4f}    {p.cd:9.5f}    {p.cm:8.4f}    {p.l_over_d:7.2f}"
+                    f"   {p.alpha_deg:7.2f}    {p.cl:8.4f}    {p.cd:9.5f}    {p.cm:8.4f}    {p.l_over_d:7.2f}    {p.cl_uncertainty_u95:8.4f}    {p.cd_uncertainty_u95:9.5f}"
                 )
             lines.append(f"*")
 
@@ -128,11 +130,13 @@ class AeroDBExporter:
             lines.append(f"CM_ALPHA = {d.cm_alpha_per_rad:.4f}  # per radian")
             lines.append(f"X_AC = {d.aerodynamic_center_x_over_c:.3f}  # fraction of chord")
             lines.append(f"STABILITY = '{d.longitudinal_stability}'")
+            lines.append(f"U95_CL_MEAN = {cond.mean_cl_uncertainty_u95:.4f}")
+            lines.append(f"U95_CD_MEAN = {cond.mean_cd_uncertainty_u95:.5f}")
             lines.append(f"POINTS = {len(cond.points)}")
-            lines.append(f"#  ALPHA_DEG       CL          CD          CM         L_OVER_D   EPISTEMIC_STATUS")
+            lines.append(f"#  ALPHA_DEG       CL          CD          CM         L_OVER_D   U95_CL      U95_CD      EPISTEMIC_STATUS")
             for p in cond.points:
                 lines.append(
-                    f"  {p.alpha_deg:9.3f}   {p.cl:10.5f}  {p.cd:10.6f}  {p.cm:10.5f}   {p.l_over_d:9.2f}   {p.epistemic_status}"
+                    f"  {p.alpha_deg:9.3f}   {p.cl:10.5f}  {p.cd:10.6f}  {p.cm:10.5f}   {p.l_over_d:9.2f}   {p.cl_uncertainty_u95:8.4f}   {p.cd_uncertainty_u95:9.5f}   {p.epistemic_status}"
                 )
             lines.append(f"$ENDTABLE")
             lines.append(f"#")
@@ -144,6 +148,7 @@ class AeroDBExporter:
         """
         Exports clean CSV lookup tables formatted for 6-DOF simulation models
         (Simulink Aerospace Blockset, MATLAB, ArduPilot, PX4, JSBSim).
+        Includes 95% expanded uncertainty bounds for robust control and dispersion analysis.
         """
         output = io.StringIO()
         headers = [
@@ -155,6 +160,9 @@ class AeroDBExporter:
             "cd",
             "cm",
             "l_over_d",
+            "cl_uncertainty_u95",
+            "cd_uncertainty_u95",
+            "cm_uncertainty_u95",
             "cl_alpha_per_rad",
             "cm_alpha_per_rad",
             "cd_0",
@@ -176,6 +184,9 @@ class AeroDBExporter:
                     f"{p.cd:.5f}",
                     f"{p.cm:.4f}",
                     f"{p.l_over_d:.2f}",
+                    f"{p.cl_uncertainty_u95:.4f}",
+                    f"{p.cd_uncertainty_u95:.5f}",
+                    f"{p.cm_uncertainty_u95:.4f}",
                     f"{d.cl_alpha_per_rad:.3f}",
                     f"{d.cm_alpha_per_rad:.4f}",
                     f"{d.cd_0:.5f}",

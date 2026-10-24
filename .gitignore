@@ -46,6 +46,8 @@ venv.bak/
 htmlcov/
 .tox/
 .nox/
+.playwright-mcp/
+current_home_viewport.png
 
 # Node & Next.js
 node_modules/
