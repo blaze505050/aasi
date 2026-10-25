@@ -25,6 +25,7 @@ import {
   Lock,
   Box,
   Sparkles,
+  Rocket,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -32,6 +33,8 @@ import { EnterpriseOverviewModal } from "../components/EnterpriseOverviewModal";
 import { ThreeDimensionalPressureMesh } from "../components/ThreeDimensionalPressureMesh";
 import { AirfoilOptimizationStudio } from "../components/AirfoilOptimizationStudio";
 import { EnterpriseTelemetryDashboard } from "../components/EnterpriseTelemetryDashboard";
+import { GovernorTaskHarnessPanel } from "../components/GovernorTaskHarnessPanel";
+import { DigitalTwinStudio } from "../components/DigitalTwinStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -129,6 +132,15 @@ export default function AASIApp() {
       badge: "EXP 3",
       icon: <Zap size={16} />,
       action: () => setActiveNavMode("INVESTIGATION"),
+    },
+    {
+      id: "cmd-ws-digitaltwin",
+      category: "Workspaces",
+      title: "Launch Aerospace Digital Twin Studio",
+      description: "Interactive 3D simulation for Rocket, Drone/eVTOL, Commercial Jet, and Satellite with real-time fault injection.",
+      badge: "Flagship",
+      icon: <Rocket size={16} />,
+      action: () => setActiveNavMode("DIGITAL_TWIN"),
     },
     {
       id: "cmd-ws-pipeline",
@@ -362,6 +374,21 @@ export default function AASIApp() {
               <span className="flight-tool-label">Dossier</span>
             </button>
 
+            {/* Digital Twin Studio Quick Trigger */}
+            <button
+              onClick={() => setActiveNavMode("DIGITAL_TWIN")}
+              className="flight-action-btn"
+              style={{
+                borderColor: activeNavMode === "DIGITAL_TWIN" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
+                background: activeNavMode === "DIGITAL_TWIN" ? "rgba(56, 189, 248, 0.12)" : "rgba(18, 26, 44, 0.6)",
+                color: activeNavMode === "DIGITAL_TWIN" ? "#38bdf8" : "#94a3b8",
+              }}
+              title="Open Aerospace Digital Twin Studio (Rocket, Drone, Jet, Satellite)"
+            >
+              <Rocket size={12} color="#38bdf8" />
+              <span className="flight-tool-label">Digital Twin</span>
+            </button>
+
             {/* Analysis Console Trigger */}
             <button
               onClick={() => setChatOpen(true)}
@@ -407,15 +434,23 @@ export default function AASIApp() {
 
         {/* ─── Main Content Canvas ─── */}
         <main className="mission-control-main">
-          <InvestigationWorkspace
-            apiBase={API_BASE}
-            externalMode={activeNavMode}
-            onModeChange={(mode) => setActiveNavMode(mode)}
-            externalExportOpen={exportOpen}
-            onExportClose={() => setExportOpen(false)}
-            externalTourOpen={tourOpen}
-            onTourClose={() => setTourOpen(false)}
-          />
+          {activeNavMode === "GOVERNOR_HARNESS" ? (
+            <div className="p-6 max-w-7xl mx-auto w-full">
+              <GovernorTaskHarnessPanel />
+            </div>
+          ) : activeNavMode === "DIGITAL_TWIN" ? (
+            <DigitalTwinStudio apiBase={API_BASE} />
+          ) : (
+            <InvestigationWorkspace
+              apiBase={API_BASE}
+              externalMode={activeNavMode}
+              onModeChange={(mode) => setActiveNavMode(mode)}
+              externalExportOpen={exportOpen}
+              onExportClose={() => setExportOpen(false)}
+              externalTourOpen={tourOpen}
+              onTourClose={() => setTourOpen(false)}
+            />
+          )}
         </main>
 
         {/* ─── Footer Telemetry Notice ─── */}

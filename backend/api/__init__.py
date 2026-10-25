@@ -31,6 +31,8 @@ from backend.api.routes_compiler import router as compiler_router
 from backend.api.routes_certification import router as certification_router
 from backend.api.routes_system import router as system_router
 from backend.api.routes_modules import router as modules_router
+from backend.api.routes_agent import router as agent_router
+from backend.api.routes_digital_twin import router as digital_twin_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -59,6 +61,8 @@ api_router.include_router(compiler_router)
 api_router.include_router(certification_router)
 api_router.include_router(system_router)
 api_router.include_router(modules_router)
+api_router.include_router(agent_router)
+api_router.include_router(digital_twin_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -86,6 +90,8 @@ api_v1_router.include_router(compiler_router)
 api_v1_router.include_router(certification_router)
 api_v1_router.include_router(system_router)
 api_v1_router.include_router(modules_router)
+api_v1_router.include_router(agent_router)
+api_v1_router.include_router(digital_twin_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

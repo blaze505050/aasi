@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "AASI — Autonomous Aerospace Scientific Intelligence"
-    app_version: str = "1.0.0"
+    app_version: str = "2.0.0"
     
     # Ollama runtime settings
     ollama_base_url: str = "http://127.0.0.1:11434"
@@ -47,14 +47,15 @@ class Settings(BaseSettings):
     backend_port: int = 8000
 
     # CORS settings (comma-separated or list)
-    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,https://frontend-blush-eta-19.vercel.app,https://frontend.vercel.app"
 
     # Logging
     log_level: str = "INFO"
 
     @property
     def cors_origin_list(self) -> List[str]:
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        origins = [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        return origins
 
 
 settings = Settings()

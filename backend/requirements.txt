@@ -13,4 +13,3 @@ astropy>=6.0.0
 rocketpy>=1.13.0
 faiss-cpu>=1.15.0
 pypdf>=6.18.0
-redis>=5.0.0,<6.0.0

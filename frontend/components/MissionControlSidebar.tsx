@@ -22,10 +22,13 @@ import {
   Wind,
   ArrowLeftRight,
   CreditCard,
+  ShieldAlert,
+  Rocket,
 } from "lucide-react";
 
 export type WorkspaceNavMode =
   | "INVESTIGATION"
+  | "DIGITAL_TWIN"
   | "CONNECTED_PIPELINE"
   | "POLAR_STUDIO"
   | "COMPARISON"
@@ -36,7 +39,8 @@ export type WorkspaceNavMode =
   | "COMPUTE"
   | "SURROGATE"
   | "MEMORY"
-  | "MODEL_ZOO";
+  | "MODEL_ZOO"
+  | "GOVERNOR_HARNESS";
 
 interface MissionControlSidebarProps {
   activeMode: WorkspaceNavMode;
@@ -64,6 +68,20 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
       shortLabel: "Inquiry",
       icon: <Compass size={18} />,
       badge: "Core",
+    },
+    {
+      id: "DIGITAL_TWIN" as WorkspaceNavMode,
+      label: "Aerospace Digital Twin",
+      shortLabel: "Digital Twin",
+      icon: <Rocket size={18} />,
+      badge: "Flagship",
+    },
+    {
+      id: "GOVERNOR_HARNESS" as WorkspaceNavMode,
+      label: "Safety Governor & Agent",
+      shortLabel: "Governor",
+      icon: <ShieldAlert size={18} />,
+      badge: "2.0 Active",
     },
     {
       id: "CONNECTED_PIPELINE" as WorkspaceNavMode,

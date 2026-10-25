@@ -20,6 +20,13 @@ from backend.science.epistemic_kernel import epistemic_kernel
 from backend.science.merkle_lineage import merkle_lineage
 from backend.dataset.catalog import cfd_catalog
 from backend.physics.panel_solver import AerodynamicPanelSolver
+from backend.governor import (
+    global_governor,
+    global_kill_switch,
+    default_monitor,
+    ResourceSnapshot,
+    KillSwitchState,
+)
 
 router = APIRouter(prefix="/system", tags=["System Production & Hardening"])
 
@@ -143,3 +150,74 @@ async def get_system_telemetry() -> Dict[str, Any]:
         "anti_fabrication_rule": "ACTIVE_STRICT",
         "system_status": "OPERATIONAL",
     }
+
+
+# ─── Governor & Hardware Resource Endpoints (AASI 2.0) ───────────────────────
+
+class EmergencyHaltRequest(BaseModel):
+    reason: str = "Operator manual emergency halt"
+    triggered_by: str = "operator"
+
+
+class ResetHaltRequest(BaseModel):
+    authorized_by: str = "operator"
+    force: bool = False
+
+
+@router.get(
+    "/resources",
+    response_model=ResourceSnapshot,
+    summary="Real-Time Hardware & Host Resource Snapshot",
+)
+async def get_system_resources() -> ResourceSnapshot:
+    """Returns live hardware telemetry: CPU, RAM, disk, GPU VRAM, and process stats."""
+    return default_monitor.snapshot()
+
+
+@router.post(
+    "/emergency-halt",
+    response_model=KillSwitchState,
+    summary="Engage Emergency Kill Switch (Fail-Closed)",
+)
+async def trigger_emergency_halt(payload: EmergencyHaltRequest) -> KillSwitchState:
+    """Instantly trips the global safety governor kill switch, halting all task executions."""
+    return global_governor.trip_emergency_halt(
+        reason=payload.reason,
+        triggered_by=payload.triggered_by,
+    )
+
+
+@router.post(
+    "/emergency-halt/reset",
+    response_model=KillSwitchState,
+    summary="Reset Emergency Kill Switch",
+)
+async def reset_emergency_halt(payload: ResetHaltRequest) -> KillSwitchState:
+    """Disengages the emergency kill switch after debounce or forced override."""
+    return global_governor.reset_emergency_halt(
+        authorized_by=payload.authorized_by,
+        force=payload.force,
+    )
+
+
+@router.get(
+    "/governor/status",
+    summary="Safety Governor Status & Health",
+)
+async def get_governor_status() -> Dict[str, Any]:
+    """Provides current governor state, kill switch status, and resource snapshot."""
+    return {
+        "kill_switch": global_kill_switch.get_state().model_dump(),
+        "resources": default_monitor.snapshot().model_dump(),
+        "audit_log_verified": global_governor.verify_audit_log(),
+    }
+
+
+@router.get(
+    "/governor/audit",
+    summary="Safety Governor Audit Trail",
+)
+async def get_governor_audit(limit: int = 50) -> List[Dict[str, Any]]:
+    """Returns tamper-evident audit trail of recent governor authorization decisions."""
+    return global_governor.get_audit_log(limit=limit)
+

@@ -3124,8 +3124,8 @@ async def prepare_colab_bundle(req: ColabPrepareRequest):
     return bundle
 
 
-# Mount Phase 27 Modular Control Plane Routers
+# Mount modular Control Plane and Digital Twin API Routers
 from backend.api import api_router, api_v1_router
-
 app.include_router(api_router)
 app.include_router(api_v1_router)
+

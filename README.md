@@ -2,14 +2,18 @@
 
 > **Deterministic Aerodynamic Database Generation, Automated ASME V&V 20 Verification Artifacts, Multi-Fidelity Investigation, & 30-Problem Aerospace Engineering Platform Roadmap**
 
+[![Live Production](https://img.shields.io/badge/Live_Production-frontend--blush--eta--19.vercel.app-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://frontend-blush-eta-19.vercel.app)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14+-black.svg)](https://nextjs.org/)
 [![ASME V&V 20-2009](https://img.shields.io/badge/Verification_Artifacts-ASME%20V%26V%2020--2009-brightgreen.svg)](https://www.asme.org/codes-standards/find-codes-standards/v-v-20-standard-verification-validation-computational-fluid-dynamics-heat-transfer)
 [![NASA-STD-7009B Aligned](https://img.shields.io/badge/Evidence_Artifacts-NASA--STD-7009B%20Aligned-blue.svg)](https://standards.nasa.gov/standard/NASA/NASA-STD-7009B)
 [![USAF DATCOM](https://img.shields.io/badge/Export-USAF%20DATCOM-red.svg)](#multi-standard-aerospace-exporters)
-[![Tests](https://img.shields.io/badge/Tests-Passing-success.svg)](#automated-verification-test-suite)
+[![Tests](https://img.shields.io/badge/Tests-1015%20Passing-success.svg)](#automated-verification-test-suite)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+> 🚀 **Live Production Platform & Digital Twin Studio:**  
+> **[https://frontend-blush-eta-19.vercel.app](https://frontend-blush-eta-19.vercel.app)**
 
 ---
 
@@ -41,6 +45,44 @@ $$\text{AASI} = \text{Physics Kernel} + \text{Verification Layer} + \text{Autono
        │ • 6-DOF Flight Sim (.csv) │     │ • SHA-256 Provenance Hash │     │ • <3ms Panel Solver       │
        └───────────────────────────┘     └───────────────────────────┘     └───────────────────────────┘
 ```
+
+---
+
+## 🌟 Flagship Feature: Aerospace Digital Twin Suite
+
+AASI 2.0 features an industry-grade, deterministic **Aerospace Digital Twin Suite** with real-time interactive 3D WebGL (Three.js) airframe visualization, high-frequency telemetry cockpits, and non-nominal fault-injection stress testing across 4 vehicle classes:
+
+1. 🚀 **Orbital Heavy-Lift Launch Vehicle (Rocket Digital Twin)**
+   - Multi-stage ascent trajectory, Tsiolkovsky mass depletion, US Standard Atmosphere 1976 barometric profile.
+   - Compressible transonic wave drag rise $C_D(M)$, dynamic pressure $q(t)$ tracking Max-Q, and Fay-Riddell aero-thermal heating.
+   - Gravity turn pitch-over dynamics and Keplerian orbital insertion state ($a, e, v_{circ}$, perigee, apogee).
+   - Fault injection: Premature engine cutoff, gimbal actuator freeze.
+
+2. 🚁 **Hexacopter & Hybrid eVTOL (Drone Digital Twin)**
+   - Blade Element Momentum Theory (BEMT) rotor inflow and power dissipation.
+   - Cheeseman-Bennett In-Ground-Effect (IGE) correction for takeoff/landing.
+   - Lithium-Ion Battery Equivalent Circuit Model (ECM) with nonlinear $V_{oc}(SoC)$ curve and internal resistance voltage sag under motor draw.
+   - Brushless DC motor electro-thermal rise and Dryden atmospheric wind gust response.
+   - Fault injection: Rotor motor failure (loss of 1 of 6 rotors), battery cell drop, gust surge.
+
+3. ✈️ **Twin-Turbofan Commercial Air Transport (Aeroplane Digital Twin)**
+   - 3D compressible drag polar with Korn drag divergence and induced drag factor.
+   - High-bypass turbofan thrust lapse and Thrust Specific Fuel Consumption (TSFC).
+   - Complete Breguet mission profile: Takeoff roll $\to$ rotation $\to$ 250 kt 10k climb $\to$ sustained Mach 0.78 cruise at FL360 $\to$ descent and landing.
+   - $V\text{-}n$ structural maneuver envelope monitoring (+2.5g / -1.0g FAR Part 25) and One-Engine Inoperative (OEI) drift-down trim.
+   - Fault injection: Engine flameout (OEI), pitot tube icing, stabilizer trim runaway.
+
+4. 🛰️ **Sun-Synchronous LEO Observation Satellite (Satellite Digital Twin)**
+   - Keplerian orbital propagation with Earth oblateness $J_2$ perturbations (calculating RAAN nodal precession $\dot{\Omega}$ and perigee rotation $\dot{\omega}$).
+   - Harris-Priester / Jacchia thermospheric scale-height density model predicting semi-major axis drag decay $\frac{da}{dt}$ and orbital lifetime in years.
+   - Cylindrical Earth shadow eclipse geometry (umbra entry/exit timestamps).
+   - GaAs triple-junction solar array electrical generation and battery Depth-of-Discharge (DoD).
+   - Stefan-Boltzmann 4th-power radiation equilibrium between solar, Earth albedo, Earth infrared, and internal dissipation.
+   - Fault injection: Solar array string failure (-60%), reaction wheel saturation, geomagnetic drag surge.
+
+### Flight Dynamics & Autopilot Bridges
+- **JSBSim 6-DoF FDM Exporter (`<fdm_config>`)**: Ready-to-simulate flight dynamics deck with mass properties and stability derivatives ($C_{L\alpha}, C_{m\alpha}, C_{Y\beta}, C_{l\beta}, C_{n\beta}, C_{lp}, C_{mq}, C_{nr}$).
+- **PX4 Autopilot Parameter & Mixer Exporter**: Direct `.params` and actuator `.mix` files for Pixhawk / QGroundControl integration.
 
 ---
 
