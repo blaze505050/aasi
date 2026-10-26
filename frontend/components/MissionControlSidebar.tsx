@@ -153,16 +153,16 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
 
   return (
     <aside
+      className="apple-glass"
       style={{
         width: collapsed ? "72px" : "260px",
         minWidth: collapsed ? "72px" : "260px",
         height: "100vh",
         position: "sticky",
         top: 0,
-        background: "linear-gradient(180deg, rgba(12, 17, 29, 0.95), rgba(7, 10, 18, 0.98))",
-        borderRight: "1px solid rgba(255, 255, 255, 0.08)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
+        background: "rgba(10, 15, 26, 0.88)",
+        borderRight: "1px solid rgba(255, 255, 255, 0.09)",
+        boxShadow: "inset 0 1px 0 0 rgba(255, 255, 255, 0.12)",
         display: "flex",
         flexDirection: "column",
         transition: "width 240ms cubic-bezier(0.16, 1, 0.3, 1), min-width 240ms cubic-bezier(0.16, 1, 0.3, 1)",
@@ -325,26 +325,29 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: collapsed ? "center" : "space-between",
-                padding: collapsed ? "11px" : "10px 12px",
-                borderRadius: "9px",
+                padding: collapsed ? "10px" : "9px 12px",
+                borderRadius: "10px",
                 border: isActive
-                  ? "1px solid rgba(100, 210, 255, 0.35)"
+                  ? "1px solid rgba(255, 255, 255, 0.16)"
                   : "1px solid transparent",
                 background: isActive
-                  ? "linear-gradient(90deg, rgba(0, 119, 237, 0.22), rgba(0, 210, 255, 0.1))"
+                  ? "rgba(255, 255, 255, 0.12)"
                   : "transparent",
+                boxShadow: isActive
+                  ? "0 2px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22)"
+                  : "none",
                 color: isActive ? "#ffffff" : "#94a3b8",
                 fontSize: "0.82rem",
                 fontWeight: isActive ? 600 : 500,
                 cursor: "pointer",
-                transition: "all 140ms ease",
+                transition: "all 140ms cubic-bezier(0.16, 1, 0.3, 1)",
                 whiteSpace: "nowrap",
                 position: "relative",
               }}
               title={collapsed ? item.label : undefined}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ color: isActive ? "#64d2ff" : "#64748b" }}>
+                <span style={{ color: isActive ? "#38bdf8" : "#64748b" }}>
                   {item.icon}
                 </span>
                 {!collapsed && <span>{item.label}</span>}
@@ -354,13 +357,14 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
                 <span
                   style={{
                     fontSize: "0.64rem",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
+                    padding: "2px 7px",
+                    borderRadius: "9999px",
                     background: isActive
-                      ? "rgba(0, 210, 255, 0.2)"
-                      : "rgba(255, 255, 255, 0.05)",
-                    color: isActive ? "#64d2ff" : "#64748b",
+                      ? "rgba(56, 189, 248, 0.2)"
+                      : "rgba(255, 255, 255, 0.06)",
+                    color: isActive ? "#38bdf8" : "#64748b",
                     fontFamily: "var(--font-mono)",
+                    fontWeight: 600,
                   }}
                 >
                   {item.badge}
