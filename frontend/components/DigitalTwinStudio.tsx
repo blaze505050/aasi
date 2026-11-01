@@ -29,7 +29,6 @@ import {
   ShieldAlert,
   Radio,
   Clock,
-  Sparkles,
 } from "lucide-react";
 
 export type VehicleType = "ROCKET" | "DRONE" | "AEROPLANE" | "SATELLITE";

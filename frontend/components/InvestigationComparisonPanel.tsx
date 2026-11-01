@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeftRight, CheckCircle2, TrendingUp, AlertTriangle, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeftRight, CheckCircle2, TrendingUp, AlertTriangle, ShieldCheck, Compass } from "lucide-react";
 
 export interface ComparisonCandidate {
   id: string;
@@ -341,7 +341,7 @@ export const InvestigationComparisonPanel: React.FC<InvestigationComparisonPanel
                       gap: "6px",
                     }}
                   >
-                    <Sparkles size={13} />
+                    <Compass size={13} />
                     <span>Investigate</span>
                   </button>
                 </td>

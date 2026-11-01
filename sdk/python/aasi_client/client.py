@@ -239,3 +239,45 @@ class AASIClient:
         Query append-only cryptographic audit log records.
         """
         return self._request("GET", "/api/observability/audit-log", params={"org_id": self.org_id, "limit": limit})
+
+    def run_autonomous_investigation(
+        self,
+        objective_prompt: str = "Investigate the effect of Reynolds number and angle of attack on NACA 4412 aerodynamic efficiency.",
+        airfoil: str = "NACA 4412",
+        alpha_deg: float = 4.0,
+        reynolds: float = 1_500_000.0,
+        mach: float = 0.18,
+        aspect_ratio: float = 8.0,
+        auto_approve_human_gate: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Dispatches end-to-end autonomous research investigation across the 8 specialist agents:
+        Supervisory Orchestrator, Literature Intelligence, Aerospace Research,
+        Physics & Mathematics, CFD Specialist, Scientific ML, Design Optimization, and Verification.
+        """
+        payload = {
+            "objective_prompt": objective_prompt,
+            "airfoil": airfoil,
+            "alpha_deg": alpha_deg,
+            "reynolds": reynolds,
+            "mach": mach,
+            "aspect_ratio": aspect_ratio,
+            "auto_approve_human_gate": auto_approve_human_gate,
+        }
+        return self._request("POST", "/api/v1/investigation/flagship/run", body=payload)
+
+    def list_mcp_tools(self) -> List[Dict[str, Any]]:
+        """
+        Retrieves the engineering Model Context Protocol (MCP) tool catalog.
+        """
+        return self._request("GET", "/api/v1/investigation/mcp/tools")
+
+    def call_mcp_tool(self, name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Directly executes an engineering MCP tool via standard JSON-RPC interface.
+        """
+        payload = {
+            "name": name,
+            "arguments": arguments,
+        }
+        return self._request("POST", "/api/v1/investigation/mcp/call", body=payload)

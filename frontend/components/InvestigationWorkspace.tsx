@@ -31,7 +31,6 @@ import {
   Brain,
   History as HistoryIcon,
   Layers,
-  Sparkles,
   Upload,
   ArrowUpRight,
   ShieldCheck,

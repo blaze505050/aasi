@@ -160,6 +160,73 @@ def cmd_polar(args):
     print()
 
 
+def cmd_investigate(args):
+    """
+    Executes autonomous multi-agent scientific investigation.
+    """
+    base_url = args.base_url or os.getenv("AASI_API_URL", "http://127.0.0.1:8000")
+    print("\n=======================================================")
+    print("  AASI AUTONOMOUS MULTI-AGENT AEROSPACE INVESTIGATION")
+    print("=======================================================")
+    print(f"  Target Airfoil:    {args.airfoil}")
+    print(f"  Angle of Attack:   {args.alpha:.2f} deg")
+    print(f"  Reynolds Number:   {args.reynolds:.2e}")
+    print(f"  Mach Number:       {args.mach:.3f}")
+    print(f"  Prompt:            {args.prompt}")
+    print("-------------------------------------------------------")
+
+    payload = {
+        "objective_prompt": args.prompt,
+        "airfoil": args.airfoil,
+        "alpha_deg": args.alpha,
+        "reynolds": args.reynolds,
+        "mach": args.mach,
+        "aspect_ratio": args.aspect_ratio,
+        "auto_approve_human_gate": True,
+    }
+
+    try:
+        res = _request_api(base_url, "/api/v1/investigation/flagship/run", method="POST", payload=payload)
+    except Exception as e:
+        print(f"[FAIL] Multi-agent execution failed: {e}")
+        sys.exit(1)
+
+    print(f"[SUCCESS] Investigation {res.get('investigation_id')} completed.")
+    print(f"  Final Stage:           {res.get('stage')}")
+    print(f"  Specialists Run:       {res.get('specialists_dispatched')} agents")
+    print(f"  Audit Events:          {res.get('events_count')} immutable blocks")
+    print(f"  Merkle Root Hash:      {res.get('provenance_root_hash')}")
+    print(f"  CL (3D Finite Wing):   {res.get('cl_3d'):.4f}" if res.get('cl_3d') is not None else "  CL: N/A")
+    print(f"  CD (3D Finite Wing):   {res.get('cd_3d'):.5f}" if res.get('cd_3d') is not None else "  CD: N/A")
+    print(f"  L/D Efficiency:        {res.get('l_over_d'):.2f}" if res.get('l_over_d') is not None else "  L/D: N/A")
+    print(f"  NASA-STD-7009B CAS:    Score {res.get('cas_score')}/32 ({res.get('cas_grade')})")
+    print(f"  ASME V&V 20 GCI Fine:  {res.get('gci_fine_pct'):.2f}%" if res.get('gci_fine_pct') is not None else "  GCI: N/A")
+
+    if args.save_report and res.get("report_markdown"):
+        with open(args.save_report, "w", encoding="utf-8") as f:
+            f.write(res["report_markdown"])
+        print(f"\n[REPORT SAVED] Scientific investigation dossier written to: {args.save_report}\n")
+
+
+def cmd_mcp(args):
+    """
+    Model Context Protocol (MCP) tool server subcommands.
+    """
+    base_url = args.base_url or os.getenv("AASI_API_URL", "http://127.0.0.1:8000")
+    if args.mcp_action == "tools":
+        print(f"\n[AASI MCP] Fetching registered engineering tools from {base_url}...")
+        try:
+            tools = _request_api(base_url, "/api/v1/investigation/mcp/tools", method="GET")
+        except Exception as e:
+            print(f"[ERROR] Failed to query MCP tools: {e}")
+            sys.exit(1)
+
+        print(f"Registered MCP Engineering Tools ({len(tools)} available):")
+        for t in tools:
+            print(f"  * {t.get('name')}: {t.get('description', '')[:75]}...")
+        print()
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="aasi",
@@ -188,6 +255,21 @@ def main():
     p_polar.add_argument("--reynolds", type=float, default=3e6, help="Reynolds number")
     p_polar.add_argument("--mach", type=float, default=0.729, help="Mach number")
 
+    # investigate
+    p_inv = subparsers.add_parser("investigate", help="Run autonomous multi-agent aerospace investigation")
+    p_inv.add_argument("--prompt", default="Investigate the effect of Reynolds number and angle of attack on NACA 4412 aerodynamic efficiency.", help="Inquiry prompt")
+    p_inv.add_argument("--airfoil", default="NACA 4412", help="Target airfoil")
+    p_inv.add_argument("--alpha", type=float, default=4.0, help="Angle of attack in degrees")
+    p_inv.add_argument("--reynolds", type=float, default=1.5e6, help="Reynolds number")
+    p_inv.add_argument("--mach", type=float, default=0.18, help="Mach number")
+    p_inv.add_argument("--aspect-ratio", type=float, default=8.0, help="Finite wing aspect ratio")
+    p_inv.add_argument("--save-report", default=None, help="File path to save the generated scientific Markdown report")
+
+    # mcp
+    p_mcp = subparsers.add_parser("mcp", help="Model Context Protocol engineering tools")
+    p_mcp_sub = p_mcp.add_subparsers(dest="mcp_action", required=True)
+    p_mcp_tools = p_mcp_sub.add_parser("tools", help="List available MCP engineering tools")
+
     args = parser.parse_args()
 
     if args.command == "cert" and args.cert_action == "verify":
@@ -196,6 +278,10 @@ def main():
         cmd_audit_verify(args)
     elif args.command == "polar":
         cmd_polar(args)
+    elif args.command == "investigate":
+        cmd_investigate(args)
+    elif args.command == "mcp":
+        cmd_mcp(args)
     else:
         parser.print_help()
 

@@ -201,14 +201,15 @@ export const CognitiveBrainWorkspace: React.FC<CognitiveBrainWorkspaceProps> = (
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "16px" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ fontSize: "28px" }}>⚡</span>
-            <h1 style={{ fontSize: "24px", fontWeight: 700, margin: 0, letterSpacing: "-0.02em" }}>AASI COGNITIVE ENGINE</h1>
-            <span style={{ fontSize: "11px", fontWeight: 600, padding: "3px 8px", borderRadius: "12px", background: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", border: "1px solid rgba(59, 130, 246, 0.3)" }}>
-              AEROSPACE COGNITIVE BRAIN
+            <h1 style={{ fontSize: "22px", fontWeight: 700, margin: 0, letterSpacing: "-0.02em", color: "#f8fafc" }}>
+              AASI SCIENTIFIC REASONING ENGINE
+            </h1>
+            <span style={{ fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "4px", background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", border: "1px solid rgba(245, 158, 11, 0.3)", fontFamily: "var(--font-mono)" }}>
+              EPISTEMIC WORLD MODEL
             </span>
           </div>
-          <p style={{ margin: "6px 0 0 0", fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
-            Autonomous Aerospace Scientific Reasoning • Active World Model • Adversarial Critique • Multi-Fidelity Reconciler
+          <p style={{ margin: "6px 0 0 0", fontSize: "13px", color: "#94a3b8" }}>
+            Autonomous Aerodynamic Scientific Reasoning • Active Epistemic World Model • Adversarial Hypothesis Critique • Multi-Fidelity Reconciler
           </p>
         </div>
 
@@ -251,20 +252,22 @@ export const CognitiveBrainWorkspace: React.FC<CognitiveBrainWorkspaceProps> = (
             disabled={loading}
             style={{
               padding: "10px 24px",
-              background: loading ? "#4b5563" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
-              color: "#fff",
-              fontWeight: 600,
-              fontSize: "14px",
+              background: loading ? "rgba(255, 255, 255, 0.1)" : "#f59e0b",
+              color: loading ? "#94a3b8" : "#08090d",
+              fontWeight: 700,
+              fontSize: "13px",
               borderRadius: "6px",
               border: "none",
               cursor: loading ? "not-allowed" : "pointer",
-              boxShadow: "0 2px 10px rgba(37, 99, 235, 0.3)",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
               display: "flex",
               alignItems: "center",
               gap: "8px",
+              fontFamily: "var(--font-mono)",
+              letterSpacing: "0.02em",
             }}
           >
-            {loading ? "Reasoning & Executing..." : "⚡ Run Cognitive Investigation"}
+            {loading ? "Reasoning & Executing..." : "EXECUTE REASONING ENGINE"}
           </button>
         </div>
 
@@ -346,7 +349,7 @@ export const CognitiveBrainWorkspace: React.FC<CognitiveBrainWorkspaceProps> = (
             {/* Status Card */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>CURRENT COGNITIVE STATE</span>
+                <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>AUTONOMOUS REASONING STATE</span>
                 <span style={{ fontSize: "12px", fontWeight: 700, padding: "2px 10px", borderRadius: "10px", background: getStatusColor(session?.current_state || "IDLE") + "20", color: getStatusColor(session?.current_state || "IDLE"), border: `1px solid ${getStatusColor(session?.current_state || "IDLE")}50` }}>
                   {session?.current_state || "IDLE"}
                 </span>
@@ -380,7 +383,7 @@ export const CognitiveBrainWorkspace: React.FC<CognitiveBrainWorkspaceProps> = (
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#60a5fa" }}>H{i + 1}: {h.title}</span>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#f59e0b" }}>H{i + 1}: {h.title}</span>
                       <span style={{ fontSize: "10px", fontWeight: 600, padding: "2px 8px", borderRadius: "4px", background: getStatusColor(h.status) + "20", color: getStatusColor(h.status) }}>
                         {h.status}
                       </span>
@@ -393,7 +396,7 @@ export const CognitiveBrainWorkspace: React.FC<CognitiveBrainWorkspaceProps> = (
                 ))
               ) : (
                 <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontStyle: "italic", padding: "16px", textAlign: "center", border: "1px dashed rgba(255,255,255,0.1)", borderRadius: "8px" }}>
-                  No active hypotheses generated yet. Click &quot;Run Cognitive Investigation&quot; to begin.
+                  No active hypotheses generated yet. Click &quot;Execute Reasoning Engine&quot; to begin.
                 </div>
               )}
             </div>
@@ -402,18 +405,18 @@ export const CognitiveBrainWorkspace: React.FC<CognitiveBrainWorkspaceProps> = (
           {/* Right Column: Live Reasoning Timeline */}
           <div style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "550px", overflowY: "auto" }}>
             <h3 style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", margin: 0 }}>
-              Live Cognitive Timeline &amp; Decision Audit
+              Autonomous Scientific Reasoning &amp; Decision Audit
             </h3>
             {session?.timeline && session.timeline.length > 0 ? (
               session.timeline.map((entry, idx) => (
                 <div key={idx} style={{ display: "flex", gap: "10px", alignItems: "flex-start", fontSize: "12px", paddingBottom: "10px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                  <span style={{ fontSize: "10px", fontWeight: 700, color: "#38bdf8", minWidth: "110px", textTransform: "uppercase" }}>{entry.stage}</span>
+                  <span style={{ fontSize: "10px", fontWeight: 700, color: "#f59e0b", minWidth: "110px", textTransform: "uppercase" }}>{entry.stage}</span>
                   <span style={{ color: "rgba(255,255,255,0.8)", flex: 1 }}>{entry.message}</span>
                 </div>
               ))
             ) : (
               <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontStyle: "italic" }}>
-                Awaiting cognitive loop execution...
+                Awaiting scientific reasoning loop execution...
               </div>
             )}
           </div>

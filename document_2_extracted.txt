@@ -1,0 +1,211 @@
+Phase 1 – Product Discovery and Live-Site Audit
+
+Overview: The AASI site at frontend-blush-eta-19.vercel.app appears to be a modern Single-Page App (likely React) that our tools cannot fully render (the page shows only a static “You need to enable JavaScript to run this app” placeholder with JavaScript disabled). We attempted to fetch the live URL; no dynamic content was retrieved beyond this standard fallback message (seen in other React apps). In effect, we have no visible content to inspect. All claims about pages, features, or workflows are thus speculative until a human opens the site in a real browser. We cannot verify any UI elements, links, or results.
+
+Inventory of Pages/Routes: Because no content loads without JS, we have no evidence of any routes. Based on typical SaaS dashboards we might expect pages like a Landing Page, Login/Signup, Dashboard, Simulation Setup, Results, etc., but none could be confirmed.
+
+Landing Page (Root URL): In a real browser, this likely displays the product name, branding, and calls-to-action (e.g. “Sign Up” or “Get Started”). Without JS, we see only the static placeholder. If this is the actual behavior (i.e. the site requires client-side rendering), it means SEO and first-impression content are absent unless SSR is implemented. The landing screen currently conveys no problem statement or value proposition, which would confuse new visitors and erode trust. (For reference, similar React front-ends show only this “enable JS” message when rendered headlessly.)
+
+Dashboard / Signed-In UI: We have no way to reach any internal pages (e.g. after login) or simulate actions. Thus, all functionality beyond the landing page is “REQUIRES ADDITIONAL ACCESS.” It is unverified whether there are forms, visualizations, or computational flows. We must plan manual testing with a real browser to find and document every element (menus, forms, simulations, etc.).
+
+Known Capabilities: No text or content was fetched, so no claims or “advertised capabilities” were visible to our tools. The site likely intends to address aerospace simulation and AI, but we have no on-page copy to confirm even that. We treat all feature descriptions as assumptions until human-verifiable. We will thus list no “observed features” from the site itself; instead, we will plan to check for things like CFD solvers, surrogate-model generators, data export, etc., during manual review.
+
+Site Clarity and First-Use Workflow:
+
+Intended Users: Presumably aerospace engineers, designers, and researchers. However, without any marketing copy or user flows visible, it’s impossible to say for sure. The brand “AASI” is unexplained on the page we could access.
+
+Stated Problem: The landing page shows nothing; it does not explain any problem or solution. A new user has no idea what the product does.
+
+First-Use Steps: With no visible guidance or menu, we cannot identify any “first workflow.” Likely there is a signup or demo button, but we have no evidence of it.
+
+Engineering Information vs. Simplicity: Because no data or charts appear, the interface (if it existed) could not overwhelm users until we see it. But right now the interface contains no information at all.
+
+Trust & Credibility: The absence of any pre-login content (no about text, no features list, no data, no splash images) means the site appears empty. A prospective customer would have nothing concrete to trust. Without evidence of actual simulation results or authoritative references, it reads like an incomplete project. There are no trust signals (no references to standards or benchmarks, no validation, no example outputs). In short, users cannot trust or evaluate the product without more substantive content.
+
+Page-by-Page Audit (sample):
+
+Page / FeatureObserved BehaviorEvidenceTest Performed (our tools)ResultSeverityRecommended ChangeAcceptance Criteria
+
+Landing PageOnly static placeholder (enable JS).React fallback text.Open site with JS disabled.No actual UI content (site blank).P2 (moderate)Provide meaningful splash content or SSR.Landing page should show product name, tagline, and navigation.
+
+Dashboard (unverified)No content retrievable without login.N/AAttempt GET /dashboard or clicking nonexistent links.Unreachable/404.P0 (blocker)*Implement actual dashboard routes; ensure access control.Dashboard page loads only after login; contains simulation controls.
+
+*Severity scale: P0 = launch-blocking, P1 = high, P2 = medium, P3 = low. In our audit, “P0” is used for critical missing flow (since nothing works), and “P2” for minor issues like having no fallback content (in normal use this is not user-critical if they do enable JS, but for SEO/accessibility it is).
+
+Notes: All findings above are based on the lack of loaded content. We recommend manual testing as follows: open the site in a current browser (Chrome/Firefox) with JavaScript enabled. Attempt to sign up or log in (if available), explore menus and simulate workflows. Every page, form, and result view should be catalogued. Since our automated crawl cannot proceed, this manual audit is essential to verify page inventory and UI behavior.
+
+Phase 2 – Testing Plan and Defect Discovery
+
+Given the site’s inaccessibility to automated tools, we propose a comprehensive test suite (to be executed once manual access is arranged). Below are key test cases; actual execution status is NOT RUN/BLOCKED until we have a live session.
+
+Frontend / UX Testing (Manual):
+
+We will test every route and control in a full browser session. Each action (clicking buttons, submitting forms) should produce expected UI changes or errors. We will check:
+
+Routing & Navigation: Test that links or menu items (Home, Login, Dashboard, About, Help, etc.) navigate correctly without errors or broken links.
+
+Controls & Forms: Verify all form fields accept valid input, enforce limits (e.g. numeric ranges, required fields), and give clear error messages for invalid input. For example, if there is a “Project name” field, it should reject empty strings or extremely long names.
+
+Duplicate Submissions: Ensure forms disable the submit button while processing to prevent double submits.
+
+State Management: Check that UI state updates (e.g. enabling/disabling buttons, showing spinners) correctly reflect background operations.
+
+Responsive Layout: Resize the browser and test on mobile resolutions; ensure no content overlaps or disappears. Check key pages (landing, dashboard, report) for proper mobile layout.
+
+Accessibility: Use keyboard-only navigation to tab through all interactive elements; ensure focus indicators are visible. Test with a screen reader for meaningful labels. Check color contrast ratios against WCAG 2.1 standards.
+
+Data Display: Inspect any tables or plots (if present) for proper axis labels, units, legends, and scientific notation format. Verify that empty or invalid data is handled gracefully (e.g. “No data available”).
+
+File Uploads: If geometry or data file upload is offered (e.g. CSV, DAT, STEP), test with correct and incorrect file types and sizes. The UI should validate file type, size, and show progress/error messages as needed.
+
+Data Export: If there is a “Download results” or “Export” feature, test it produces a correctly formatted file (CSV, PDF, etc.) with complete data. Handling of name collisions or large files should be tested.
+
+For each of the above, we will document steps, expected behavior, actual results, and screenshots or logs where discrepancies occur. All user-UI interactions should be reproducible.
+
+Functional & Integration Testing (Manual/Blocked):
+
+Assuming API/backend integration exists, we plan end-to-end tests. (Without access, these are planned but not run.)
+
+End-to-End Simulation Workflow: From project creation to obtaining results. Steps: Log in → Create new project → Import geometry → Configure simulation parameters → Submit simulation → Wait for completion → View results → Generate report. Expected: Each step succeeds or fails with clear error. The “Submit” should queue a job and eventually return results (or failure notice).
+
+Failure Handling: Simulate backend failures/timeouts (e.g. by disconnecting network or forcing a long computation). The UI should allow canceling the job, retrying, and should not freeze.
+
+Data Persistence: Verify that projects and results persist across browser reloads and logins (data is stored server-side or in user account).
+
+API Consistency: Check that data shown in UI (e.g. computed lift/drag) matches API responses.
+
+Authentication/Session: If login exists, verify session expiry, logout, and role-based access (if multiple user roles) behave securely. For example, API calls should fail if not logged in (status 401).
+
+Concurrency: (If supported) Launch multiple simulations from one account; verify they run in parallel or queue properly. Check user is prevented from overloading the system (quotas).
+
+Versioning/Upgrades: If API version or data model updates occur, check backward compatibility or migration paths.
+
+Each integration test will specify expected API responses or UI outputs. Failures would highlight critical defects (e.g. job submission not working) needing resolution. For now, all integration tests are BLOCKED pending actual backend interaction.
+
+Security & Privacy (Passive Observations):
+
+We cannot perform active penetration tests on production. Instead, we list planned checks:
+
+Authentication & Access Control: Verify URL-based access: e.g. attempt to access “/dashboard” without login (should be redirected to login). Ensure token/session cookies use secure flags.
+
+Session Management: Check that login tokens expire properly and logout clears sessions. Look for HTTP-only cookies or JWT usage (via dev tools).
+
+Input Validation: On any form field (login, sign-up, simulation parameters, geometry import), test common injections (SQL, HTML, script) to ensure inputs are sanitized. For example, input a short string with <script> tags and ensure it’s not executed or returned.
+
+File Upload Security: If uploading files, ensure no executable code can be uploaded (only expected types allowed, e.g. .stl, .csv). Verify the server does not store files in a public directory.
+
+Dependency Security: We would review any linked script or CSS libraries for known vulnerabilities (e.g. by checking versions).
+
+Rate Limiting: Ensure API endpoints throttle rapid requests to prevent brute force or DoS. Check if CAPTCHAs or rate limits are in place for login attempts.
+
+Secrets Exposure: Inspect HTML/JS (publicly accessible) to ensure no API keys or secrets are embedded.
+
+Data Privacy: If user data is entered (name, email), check that it is sent via HTTPS and not stored in logs. Ensure no sensitive info (like credit cards, if any payment, or geom data) leaks.
+
+Password Policy: If sign-up exists, check that password strength requirements and secure storage (e.g. hashed) are enforced.
+
+All security tests would be PASS/FAIL based on OWASP guidelines. Since we cannot truly attack the site, we classify most as BLOCKED or NOT APPLICABLE for now, with notes on how to perform them once a staging or code review is possible.
+
+Performance and Reliability (NOT RUN):
+
+We will later measure:
+
+Page Load & Core Web Vitals: Test landing and dashboard for load times (desktop/mobile) and metrics like First Contentful Paint, CLS, LCP.
+
+Rendering: If the app uses heavy 3D graphics (e.g. WebGL CAD viewers) or large tables, measure frame rates and memory use.
+
+Network failures: Simulate flaky network (e.g. offline mode) during submission to see recovery behavior.
+
+Backend: Once accessible, test API latency under load; simulate many concurrent sim jobs to observe queue times.
+
+Logging/Monitoring: Confirm that errors get logged (maybe to console or backend logs), and that there is an SLO (e.g. 99.9% uptime).
+
+Database/Storage: Check response times for reading/writing simulation data, and backups of results.
+
+Scale: If possible, perform a basic load test (e.g. 50 simulated users) to ensure site remains responsive.
+
+All of the above require a non-public staging environment. In production, we would set up profiling (e.g. Chrome DevTools, Lighthouse, server metrics). For now, mark as planned.
+
+AI-Specific Evaluation (if applicable):
+
+If the product integrates AI (for design or simulation assistance), we will validate:
+
+Correctness vs Hallucination: Provide known engineering queries to any AI assistant (e.g. “What is the lift coefficient of a NACA 2412 at 5°?”) and check answers against physics or simulation. Ensure the AI cites sources or shows work, and verify any numbers given (to avoid AI hallucinations).
+
+Grounding to Data: If the system uses retrieval or domain data, ensure the AI’s suggestions align with the actual physics models and constraints.
+
+Prompt Injection & Input Sanitization: Test if malicious or irrelevant inputs to the AI assistant cause security issues or nonsensical outputs (e.g. test phrase “Ignore all instructions above…” to check system robustness).
+
+Data Leakage: Confirm that user-provided designs or proprietary data are not inadvertently exposed through AI responses to other users.
+
+Model Performance: Benchmark inference latency and cost of the AI features (e.g. how much it costs per query, and whether that fits pricing model).
+
+Evaluation Datasets: We will identify or create test sets (e.g. known aerodynamic cases) to quantitatively evaluate any surrogate or predictive model. Each model should meet a pre-defined error threshold on that dataset, which we will derive from literature. (For example, a surrogate predicting lift should match within a few percent of CFD for in-domain inputs.)
+
+Monitoring: Plan to log every AI interaction for future auditing.
+
+All AI tests assume there is an AI component (the site didn’t reveal one), so currently NOT APPLICABLE / BLOCKED. In future phases, we will build or integrate any AI feature only after a clear use case is confirmed.
+
+Planned Test Example (sample format):
+
+Test IDObjectivePreconditionsStepsExpected ResultEvidence to CollectPass/Fail CriteriaToolStatusAccess Required
+
+UX-01Verify navigation (routing works)Site loaded with JS in browserClick every menu/nav link (Home, Login, Dashboard etc)Each click routes to correct page (no 404)Screenshot of each pageAll expected pages load without errorManualNOT RUNNone (public)
+
+UX-02Form validation on geometry uploadAt geometry-import pageUpload valid .stl, then invalid file (e.g. .exe)Valid accepted, invalid rejected with messageHTTP requests, UI error messagesError message on invalid uploadManualNOT RUNNone (public)
+
+INT-01End-to-end sim result consistencyProject with simple geometryRun a known test case (e.g. flat plate at 0°)Obtained CL/CD match analytic solutionDownloaded report, logsNumeric values within expected toleranceManual/APIBLOCKEDRequires logged-in account
+
+SEC-01Check SQL injection on input fieldsAny text field (e.g. name)Enter SQL meta-characters (‘ OR 1=1--)App should treat input as plain text (no SQL exec)Application response or error codeNo SQL error, no sensitive data returnedManualNOT RUNCode/DB access for deeper test
+
+PERF-01Measure dashboard load timeUser logged in, many projectsOpen Dashboard repeatedly; monitor load metricsDashboard loads within 2s (50th percentile)Browser devtools timing, logsInitial load <3s, subsequent loads cachedManualNOT RUNRequires functional site
+
+AI-01LLM hallucination testAI assistant active (if any)Ask engineering questions with known answersAnswers match reference (or say “I don’t know”)Chat history transcripts<5% factual errors for in-domain queriesManualNOT APPLDomain dataset
+
+All tests above are in planning stage; actual execution will be done with appropriate staging credentials or code access.
+
+Phase 3 – Aerospace Scientific Validity and Engineering Trust
+
+Scope: We must treat any claimed CFD/simulation/AI computation very conservatively. No “push-button” results can be trusted for critical decisions without rigorous validation. We will apply standard Verification & Validation (V&V) best practices:
+
+Dimensional Consistency: Ensure all inputs/outputs have consistent units (m vs ft, kg vs lb, etc.) and coordinate conventions. The UI must label axes and reference areas clearly. (No external reference needed; this is best practice.)
+
+Conservation Laws: Any CFD solver should conserve mass, momentum, and energy to numerical precision. We will check this in results for closed systems (e.g. fluid in-out balance).
+
+Mesh Convergence: For any CFD solver, results should be insensitive to mesh refinement. For each case, perform at least 3 grid sizes and verify solution convergence (e.g. drag changes <1% between finest meshes).
+
+Solver Convergence: Monitor residuals; ensure solvers actually converge (residual drop) rather than stop early. Check that outputs (force coefficients, pressure) stabilize before reporting.
+
+Modeling Assumptions: Document turbulence models (e.g. k-ε, RANS vs LES), boundary conditions (inlet profiles, far-field treatments), and material properties. These must match the chosen benchmark. Any default should be overridden if needed.
+
+Reproducibility: Every calculation must log its full config (geometry file version, solver version, seed values, mesh, date, etc.). We will insist on exporting this provenance so simulations can be repeated. (NIST’s focus on trustworthy AI underlines the need for traceable scientific results.)
+
+Benchmarking: We will assemble a suite of reference cases from literature for validation (pressure drag of NACA0012 airfoil, ONERA M6 wing at transonic Mach, NASA Common Research Model wing, turbulent channel flow, etc.). For each, we know expected physical behavior:
+
+Example 1: 2D flat-plate Couette flow (analytic solution) – predicts linear velocity profile. The code’s solution should match exact formula to <0.5% error (a very strict numeric check).
+
+Example 2: NACA 0012 airfoil at Re=6e6, Mach=0.2 – expected CL vs α should agree within a few percent with published data (e.g. Abbott & von Doenhoff).
+
+Example 3: ONERA M6 wing transonic flow – compare Cp distribution and lift/drag with NASA results (within ~5%).
+
+Example 4: Cylindrical incompressible flow (Kármán vortex street) – check Strouhal number matches theory for given Re.
+
+Example 5: Simple rocket exhaust (expanding gas) – verify mass flow and thrust against isentropic flow equations if possible.
+
+Uncertainty Quantification: Provide error bars or confidence ranges. For surrogate/AI models, use cross-validation on held-out test cases. For simulation runs, estimate numerical uncertainty (e.g. Grid-Convergence Index).
+
+Out-of-Domain Detection: If a user requests a simulation outside the training range of a surrogate, the system must warn or refuse. For example, a surrogate trained on subsonic flows should not blindly extrapolate to supersonic speeds.
+
+Value Separation: Clearly label whether values are measured (e.g. from experiments), simulated, or estimated by AI. E.g. “CD (simulated)” vs “CL (NASA data)”. Mixing them without labeling can mislead.
+
+Version Control: Keep version tags for all solvers, libraries, and models. Results should cite the software version used. (This aligns with NIST’s emphasis on reproducibility.)
+
+Physical Limits: Sanity-check outputs. Lift coefficients should not exceed theoretical limits by orders of magnitude; no negative densities or absurd Mach >10 unless enabled. Outliers must trigger flags.
+
+Validation Matrix (sample):
+
+CapabilityReference BenchmarkInput(s)Expected PhysicsMeasured MetricTolerance (Justification)UncertaintyEvidence NeededFailure Action
+
+Steady-state wing CFDNASA CRM wing (Mach=0.85)CRM geometry; Mach=0.85; Re=~10^7CL & CD match NASA data% error in CL, CD<5% (typical RANS error in literature)mesh conv.Reported CL/CD, Cp plotsRe-run with finer mesh; reject simulation
+
+Airfoil lift predictionAbbott-von Doenhoff NACA dataNACA 2412; α=0–15°; Re=6e6CL curve slope ~2π, stall >10°Deviation of Cl_α from 2π (approx)±10%

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import {
-  Sparkles,
+  Compass,
   Zap,
   TrendingUp,
   Sliders,
@@ -231,7 +231,7 @@ export const AirfoilOptimizationStudio: React.FC<AirfoilOptimizationStudioProps>
                 color: "#f59e0b",
               }}
             >
-              <Sparkles size={16} />
+              <Compass size={16} />
             </div>
             <div>
               <div style={{ fontSize: "0.95rem", fontWeight: 700, letterSpacing: "-0.015em" }}>

@@ -10,7 +10,7 @@
 [![NASA-STD-7009B Aligned](https://img.shields.io/badge/Evidence_Artifacts-NASA--STD-7009B%20Aligned-blue.svg)](https://standards.nasa.gov/standard/NASA/NASA-STD-7009B)
 [![USAF DATCOM](https://img.shields.io/badge/Export-USAF%20DATCOM-red.svg)](#multi-standard-aerospace-exporters)
 [![Tests](https://img.shields.io/badge/Tests-1015%20Passing-success.svg)](#automated-verification-test-suite)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 > 🚀 **Live Production Platform & Digital Twin Studio:**  
 > **[https://frontend-blush-eta-19.vercel.app](https://frontend-blush-eta-19.vercel.app)**
@@ -346,6 +346,27 @@ AASI's fast aerodynamic database engine is optimized for **rapid conceptual trad
 
 ---
 
+---
+
+## Revolutionary Master Plan & Standalone Modules
+
+AASI includes standalone, decoupled aerospace tools resolving technical debt identified in comprehensive repository audits:
+
+### 1. Standalone Core Modules
+* **[data_preprocessing.py](file:///c:/Users/ADITYA/Desktop/AASI/data_preprocessing.py)**: Robust coordinate normalizer (Selig, Lednicer, CSV, analytical NACA), camber/thickness feature extractor, and experimental dataset ingestor (UIUC polars, NASA CMAPSS turbofan, SHM vibration/strain).
+* **[train_models.py](file:///c:/Users/ADITYA/Desktop/AASI/train_models.py)**: Decoupled, YAML/JSON configuration-driven surrogate model trainer. Features regularized polynomial ridge and neural surrogates with cryptographic SHA-256 Merkle seals, completely eliminating insecure Python pickle deserialization.
+* **[api_server.py](file:///c:/Users/ADITYA/Desktop/AASI/api_server.py)**: Production FastAPI Compute Gateway with API key authentication, structured exception handlers, instant surrogate inference, and the Turnkey Client Study packaging endpoint.
+* **[generate_turnkey_study.py](file:///c:/Users/ADITYA/Desktop/AASI/scripts/generate_turnkey_study.py)**: CLI command to compile full aerodynamic polar decks, stability derivatives, USAF DATCOM cards, PX4 tuning decks, and ASME V&V 20 dossiers into a client deliverable `.zip` in under 3 seconds:
+  ```bash
+  python scripts/generate_turnkey_study.py --airfoil 2412 --airframe SkyGuardian_UAV --aspect-ratio 8.5
+  ```
+* **[subdomain_hub.py](file:///c:/Users/ADITYA/Desktop/AASI/backend/datasets/subdomain_hub.py)**: Benchmark catalog and evaluation engine across the 5 core aerospace research domains (Aerodynamics, Flight Dynamics, SHM, Autonomy/Vision, Mission Planning).
+
+### 2. Strategic Master Plan
+* **[AASI_REVOLUTIONARY_MASTER_PLAN.md](file:///c:/Users/ADITYA/Desktop/AASI/AASI_REVOLUTIONARY_MASTER_PLAN.md)**: The comprehensive founder blueprint detailing category leadership, 4-engine monetization ($1k–$2k turnkey cash studies, $99–$399/mo SaaS, enterprise defense licenses), and an 18-month execution roadmap.
+
+---
+
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.

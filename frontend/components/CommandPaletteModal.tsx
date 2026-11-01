@@ -13,7 +13,6 @@ import {
   FileText,
   ShieldAlert,
   ArrowRight,
-  Sparkles,
   Command,
 } from "lucide-react";
 
@@ -121,11 +120,11 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         style={{
           width: "100%",
           maxWidth: "680px",
-          background: "linear-gradient(180deg, rgba(22, 30, 49, 0.95), rgba(13, 18, 30, 0.98))",
-          border: "1px solid rgba(100, 210, 255, 0.22)",
-          borderRadius: "18px",
+          background: "#0e111a",
+          border: "1px solid rgba(255, 255, 255, 0.12)",
+          borderRadius: "12px",
           boxShadow:
-            "0 24px 70px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 210, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.14)",
+            "0 24px 70px rgba(0, 0, 0, 0.8), 0 0 24px rgba(245, 158, 11, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -141,7 +140,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           }}
         >
-          <Search size={20} color="#64d2ff" style={{ flexShrink: 0 }} />
+          <Search size={20} color="#f59e0b" style={{ flexShrink: 0 }} />
           <input
             ref={inputRef}
             type="text"
@@ -214,10 +213,10 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                     borderRadius: "10px",
                     cursor: "pointer",
                     background: isSelected
-                      ? "linear-gradient(90deg, rgba(0, 119, 237, 0.22), rgba(0, 210, 255, 0.12))"
+                      ? "rgba(245, 158, 11, 0.12)"
                       : "transparent",
                     border: isSelected
-                      ? "1px solid rgba(100, 210, 255, 0.3)"
+                      ? "1px solid rgba(245, 158, 11, 0.35)"
                       : "1px solid transparent",
                     transition: "all 120ms ease",
                   }}
@@ -227,14 +226,14 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                       style={{
                         width: "32px",
                         height: "32px",
-                        borderRadius: "8px",
+                        borderRadius: "6px",
                         background: isSelected
-                          ? "rgba(0, 210, 255, 0.18)"
+                          ? "rgba(245, 158, 11, 0.18)"
                           : "rgba(255, 255, 255, 0.04)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: isSelected ? "#64d2ff" : "#94a3b8",
+                        color: isSelected ? "#f59e0b" : "#94a3b8",
                       }}
                     >
                       {cmd.icon}

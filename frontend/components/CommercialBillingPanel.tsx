@@ -9,7 +9,6 @@ import {
   Award,
   Lock,
   ArrowRight,
-  Sparkles,
   Download,
   Building,
   Key,

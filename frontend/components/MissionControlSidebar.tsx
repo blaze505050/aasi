@@ -24,9 +24,14 @@ import {
   CreditCard,
   ShieldAlert,
   Rocket,
+  Globe,
 } from "lucide-react";
 
 export type WorkspaceNavMode =
+  | "SHOWCASE"
+  | "AUTONOMOUS_COCKPIT"
+  | "VIRTUAL_WIND_TUNNEL"
+  | "ISRO_NASA_MISSION"
   | "INVESTIGATION"
   | "DIGITAL_TWIN"
   | "CONNECTED_PIPELINE"
@@ -62,6 +67,34 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
   const [collapsed, setCollapsed] = useState(false);
 
   const navItems = [
+    {
+      id: "SHOWCASE" as WorkspaceNavMode,
+      label: "Mission Briefing & Overview",
+      shortLabel: "Briefing",
+      icon: <Layers size={18} />,
+      badge: "Architecture",
+    },
+    {
+      id: "AUTONOMOUS_COCKPIT" as WorkspaceNavMode,
+      label: "Autonomous Research Cockpit",
+      shortLabel: "Cockpit",
+      icon: <Brain size={18} />,
+      badge: "Flagship AI",
+    },
+    {
+      id: "VIRTUAL_WIND_TUNNEL" as WorkspaceNavMode,
+      label: "3D Virtual Wind Tunnel",
+      shortLabel: "Wind Tunnel",
+      icon: <Wind size={18} />,
+      badge: "Turnkey CAE",
+    },
+    {
+      id: "ISRO_NASA_MISSION" as WorkspaceNavMode,
+      label: "ISRO & NASA Mission Deck",
+      shortLabel: "Mission Deck",
+      icon: <Globe size={18} />,
+      badge: "Agency",
+    },
     {
       id: "INVESTIGATION" as WorkspaceNavMode,
       label: "Investigation Flow",
@@ -126,9 +159,10 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
     },
     {
       id: "COGNITIVE_BRAIN" as WorkspaceNavMode,
-      label: "Cognitive Brain",
-      shortLabel: "Cognitive",
+      label: "Scientific Reasoning Engine",
+      shortLabel: "Reasoning",
       icon: <Brain size={18} />,
+      badge: "Epistemic",
     },
     {
       id: "SURROGATE" as WorkspaceNavMode,
@@ -185,16 +219,16 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
             style={{
               width: "36px",
               height: "36px",
-              borderRadius: "10px",
-              background: "linear-gradient(135deg, rgba(0, 119, 237, 0.35), rgba(0, 210, 255, 0.2))",
-              border: "1px solid rgba(100, 210, 255, 0.4)",
+              borderRadius: "8px",
+              background: "linear-gradient(135deg, #1a2030 0%, #0e111a 100%)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#64d2ff",
+              color: "#f59e0b",
               fontSize: "1.1rem",
-              fontWeight: 700,
-              boxShadow: "0 0 15px rgba(0, 210, 255, 0.2)",
+              fontWeight: 800,
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
               flexShrink: 0,
             }}
           >
@@ -206,7 +240,7 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontWeight: 800,
-                  fontSize: "1.05rem",
+                  fontSize: "1rem",
                   letterSpacing: "0.08em",
                   color: "#f8fafc",
                 }}
@@ -215,13 +249,14 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
               </div>
               <div
                 style={{
-                  fontSize: "0.66rem",
-                  color: "#64d2ff",
-                  letterSpacing: "0.04em",
-                  fontWeight: 600,
+                  fontSize: "0.64rem",
+                  color: "#f59e0b",
+                  letterSpacing: "0.06em",
+                  fontWeight: 700,
+                  fontFamily: "var(--font-mono)",
                 }}
               >
-                ENTERPRISE AEROSPACE
+                AEROSPACE CAE &amp; V&amp;V
               </div>
             </div>
           )}
@@ -326,17 +361,17 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
                 alignItems: "center",
                 justifyContent: collapsed ? "center" : "space-between",
                 padding: collapsed ? "10px" : "9px 12px",
-                borderRadius: "10px",
+                borderRadius: "6px",
                 border: isActive
-                  ? "1px solid rgba(255, 255, 255, 0.16)"
+                  ? "1px solid rgba(245, 158, 11, 0.35)"
                   : "1px solid transparent",
                 background: isActive
-                  ? "rgba(255, 255, 255, 0.12)"
+                  ? "rgba(245, 158, 11, 0.08)"
                   : "transparent",
                 boxShadow: isActive
-                  ? "0 2px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22)"
+                  ? "0 2px 8px rgba(0, 0, 0, 0.25)"
                   : "none",
-                color: isActive ? "#ffffff" : "#94a3b8",
+                color: isActive ? "#f8fafc" : "#94a3b8",
                 fontSize: "0.82rem",
                 fontWeight: isActive ? 600 : 500,
                 cursor: "pointer",
@@ -347,7 +382,7 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
               title={collapsed ? item.label : undefined}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ color: isActive ? "#38bdf8" : "#64748b" }}>
+                <span style={{ color: isActive ? "#f59e0b" : "#64748b" }}>
                   {item.icon}
                 </span>
                 {!collapsed && <span>{item.label}</span>}
@@ -358,11 +393,11 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
                   style={{
                     fontSize: "0.64rem",
                     padding: "2px 7px",
-                    borderRadius: "9999px",
+                    borderRadius: "3px",
                     background: isActive
-                      ? "rgba(56, 189, 248, 0.2)"
+                      ? "rgba(245, 158, 11, 0.15)"
                       : "rgba(255, 255, 255, 0.06)",
-                    color: isActive ? "#38bdf8" : "#64748b",
+                    color: isActive ? "#f59e0b" : "#64748b",
                     fontFamily: "var(--font-mono)",
                     fontWeight: 600,
                   }}

@@ -1,67 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ═══════════════════════════════════════════════
-   AASI Design System — Beta v1.0
+   AASI Design System — Precision Aerospace Architecture
    Autonomous Aerospace Scientific Intelligence
+   Anti-Slop Industrial Craft Standard
    ═══════════════════════════════════════════════ */
 
 :root {
-  /* Core palette */
-  --bg-primary: #0a0d14;
-  --bg-secondary: #101623;
-  --bg-card: #151d2f;
-  --bg-card-hover: #1a2338;
-  --bg-input: #0e1422;
-  --bg-glass: rgba(15, 23, 42, 0.7);
+  /* Stealth Carbon & Titanium Palette */
+  --bg-primary: #08090d;
+  --bg-secondary: #0e111a;
+  --bg-card: #131724;
+  --bg-card-hover: #191e2e;
+  --bg-input: #090c14;
+  --bg-glass: rgba(14, 17, 26, 0.88);
 
-  /* Borders */
-  --border-color: #1e293b;
-  --border-bright: #334155;
-  --border-accent: rgba(0, 210, 255, 0.3);
+  /* Precision Engineering Borders */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-bright: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-accent: rgba(245, 158, 11, 0.4);
 
-  /* Text */
+  /* Tactical Typography */
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
+  --text-dim: #475569;
 
-  /* Accents */
-  --accent-cyan: #00d2ff;
-  --accent-cyan-dim: rgba(0, 210, 255, 0.15);
+  /* Intentional Aerospace Accents (No AI Slop Neon) */
+  --accent-gold: #f59e0b;
+  --accent-amber: #f59e0b;
+  --accent-amber-dim: rgba(245, 158, 11, 0.12);
+  --accent-cyan: #38bdf8;
+  --accent-cyan-dim: rgba(56, 189, 248, 0.12);
   --accent-blue: #3b82f6;
   --accent-blue-hover: #2563eb;
   --accent-teal: #14b8a6;
-  --accent-indigo: #f59e0b; /* Aerospace Amber */
-  --accent-amber: #f59e0b;
+  --accent-orange: #f97316;
 
-  /* Status */
+  /* Avionics Status Standard */
   --status-green: #10b981;
-  --status-green-dim: rgba(16, 185, 129, 0.15);
+  --status-green-dim: rgba(16, 185, 129, 0.12);
   --status-red: #ef4444;
-  --status-red-dim: rgba(239, 68, 68, 0.15);
+  --status-red-dim: rgba(239, 68, 68, 0.12);
   --status-amber: #f59e0b;
-  --status-amber-dim: rgba(245, 158, 11, 0.15);
+  --status-amber-dim: rgba(245, 158, 11, 0.12);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Spacing & Layout */
+  /* Spacing & Surface Geometries (Crisp, Chamfered & Precise) */
+  --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --max-width: 1200px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --max-width: 1280px;
 
-  /* Shadows */
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
-  --shadow-glow-cyan: 0 0 30px rgba(0, 210, 255, 0.08);
-  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.1);
+  /* Architectural Shadows */
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-glow-amber: 0 0 20px rgba(245, 158, 11, 0.15);
+  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.12);
 
   /* Transitions */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --transition-fast: 150ms var(--ease-out);
-  --transition-med: 250ms var(--ease-out);
-  --transition-slow: 400ms var(--ease-out);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 120ms var(--ease-out);
+  --transition-med: 200ms var(--ease-out);
+  --transition-slow: 350ms var(--ease-out);
 }
 
 /* ─── Reset ─── */
@@ -77,15 +84,16 @@ body {
   font-family: var(--font-sans);
   min-height: 100vh;
   overflow-x: hidden;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Subtle grid background */
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
+  /* Atmospheric deep titanium ambient tone & engineering grid */
   background-image:
-    radial-gradient(ellipse at 50% 0%, rgba(0, 210, 255, 0.03) 0%, transparent 50%),
-    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
-  background-size: 100% 100%, 40px 40px, 40px 40px;
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.02) 0%, transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
 }
 
 /* ─── Scrollbar ─── */
@@ -136,6 +144,15 @@ body {
   max-width: 1680px;
   margin: 0 auto;
   padding: 16px 24px;
+}
+
+.mission-control-main-full {
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes paletteFadeIn {
@@ -2075,10 +2092,10 @@ html, body {
   border-radius: 4px;
   letter-spacing: 0.04em;
 }
-.scenario-badge-blue { background: rgba(10, 132, 255, 0.18); color: #64d2ff; border: 1px solid rgba(10, 132, 255, 0.35); }
-.scenario-badge-amber { background: rgba(255, 159, 10, 0.18); color: #ffd60a; border: 1px solid rgba(255, 159, 10, 0.35); }
-.scenario-badge-purple { background: rgba(191, 90, 242, 0.18); color: #e5b8ff; border: 1px solid rgba(191, 90, 242, 0.35); }
-.scenario-badge-teal { background: rgba(48, 209, 88, 0.18); color: #70ff9c; border: 1px solid rgba(48, 209, 88, 0.35); }
+.scenario-badge-blue { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+.scenario-badge-amber { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+.scenario-badge-purple { background: rgba(148, 163, 184, 0.15); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); }
+.scenario-badge-teal { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
 
 .scenario-title {
   font-size: 0.76rem;
@@ -2239,10 +2256,10 @@ html, body {
   padding: 1px 6px;
   border-radius: 4px;
 }
-.aero-kpi-chip-blue { background: rgba(10, 132, 255, 0.15); color: #64d2ff; }
-.aero-kpi-chip-teal { background: rgba(48, 209, 88, 0.15); color: #70ff9c; }
-.aero-kpi-chip-purple { background: rgba(191, 90, 242, 0.15); color: #e5b8ff; }
-.aero-kpi-chip-indigo { background: rgba(94, 92, 230, 0.15); color: #b5b3ff; }
+.aero-kpi-chip-blue { background: rgba(56, 189, 248, 0.12); color: #7dd3fc; }
+.aero-kpi-chip-teal { background: rgba(16, 185, 129, 0.12); color: #6ee7b7; }
+.aero-kpi-chip-purple { background: rgba(148, 163, 184, 0.12); color: #e2e8f0; }
+.aero-kpi-chip-indigo { background: rgba(245, 158, 11, 0.12); color: #fcd34d; }
 
 .aero-kpi-value-row {
   display: flex;

@@ -26,6 +26,7 @@ import {
   Box,
   Sparkles,
   Rocket,
+  Brain,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -35,6 +36,13 @@ import { AirfoilOptimizationStudio } from "../components/AirfoilOptimizationStud
 import { EnterpriseTelemetryDashboard } from "../components/EnterpriseTelemetryDashboard";
 import { GovernorTaskHarnessPanel } from "../components/GovernorTaskHarnessPanel";
 import { DigitalTwinStudio } from "../components/DigitalTwinStudio";
+import { AeroDbPanel } from "../components/AeroDbPanel";
+import { EpistemicRadarPanel } from "../components/EpistemicRadarPanel";
+import { SubdomainBenchmarkModal } from "../components/SubdomainBenchmarkModal";
+import { AasiPublicShowcase } from "../components/AasiPublicShowcase";
+import { VirtualWindTunnelStudio } from "../components/VirtualWindTunnelStudio";
+import { IsroNasaMissionStudio } from "../components/IsroNasaMissionStudio";
+import { AutonomousResearchCockpit } from "../components/AutonomousResearchCockpit";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -50,12 +58,13 @@ export default function AASIApp() {
   const [mesh3DOpen, setMesh3DOpen] = useState(false);
   const [optStudioOpen, setOptStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
+  const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [hardwareStatus, setHardwareStatus] = useState<{ protected: boolean; ram_free_gb?: number }>({
     protected: true,
   });
 
-  // Check stored auth session on startup
+  // Check stored auth session and URL deep-link mode on startup
   useEffect(() => {
     try {
       const stored = localStorage.getItem("aasi_user");
@@ -69,6 +78,31 @@ export default function AASIApp() {
           email: "researcher@aasi.aero",
           role: "RESEARCHER",
         });
+      }
+
+      // Deep-linking via query parameter (e.g. ?mode=showcase, ?mode=windtunnel)
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const modeParam = params.get("mode");
+        if (modeParam) {
+          const upper = modeParam.toUpperCase();
+          if (
+            upper === "SHOWCASE" ||
+            upper === "AUTONOMOUS_COCKPIT" ||
+            upper === "COCKPIT" ||
+            upper === "VIRTUAL_WIND_TUNNEL" ||
+            upper === "WINDTUNNEL" ||
+            upper === "ISRO_NASA_MISSION" ||
+            upper === "MISSION" ||
+            upper === "DIGITAL_TWIN" ||
+            upper === "AERODB"
+          ) {
+            if (upper === "WINDTUNNEL") setActiveNavMode("VIRTUAL_WIND_TUNNEL");
+            else if (upper === "MISSION") setActiveNavMode("ISRO_NASA_MISSION");
+            else if (upper === "COCKPIT") setActiveNavMode("AUTONOMOUS_COCKPIT");
+            else setActiveNavMode(upper as WorkspaceNavMode);
+          }
+        }
       }
     } catch {
       /* ignore */
@@ -132,6 +166,42 @@ export default function AASIApp() {
       badge: "EXP 3",
       icon: <Zap size={16} />,
       action: () => setActiveNavMode("INVESTIGATION"),
+    },
+    {
+      id: "cmd-ws-cockpit",
+      category: "Workspaces",
+      title: "Launch Autonomous Aerospace Cockpit",
+      description: "AASI 2.0 8-agent intelligence core, NACA 4412 flagship loop, CFD boundary layer lab, and FNO neural operators.",
+      badge: "Flagship AI",
+      icon: <Brain size={16} />,
+      action: () => setActiveNavMode("AUTONOMOUS_COCKPIT"),
+    },
+    {
+      id: "cmd-ws-showcase",
+      category: "Workspaces",
+      title: "Open Executive Platform Showcase",
+      description: "Overview of AASI autonomous aerospace intelligence, benchmarks, and problem statement.",
+      badge: "Executive",
+      icon: <Sparkles size={16} />,
+      action: () => setActiveNavMode("SHOWCASE"),
+    },
+    {
+      id: "cmd-ws-windtunnel",
+      category: "Workspaces",
+      title: "Launch 3D Virtual Wind Tunnel",
+      description: "SimScale/Airshaper automated CAE: drag-and-drop CAD, real-time WebGL flowfield, surface Cp, and forces.",
+      badge: "Turnkey CAE",
+      icon: <Wind size={16} />,
+      action: () => setActiveNavMode("VIRTUAL_WIND_TUNNEL"),
+    },
+    {
+      id: "cmd-ws-isronasa",
+      category: "Workspaces",
+      title: "Launch ISRO & NASA Mission Architecture Deck",
+      description: "Launch vehicle ascent, dynamic pressure Max-Q, aerothermal heating, and satellite orbit decay lifetime.",
+      badge: "Mission Grade",
+      icon: <Rocket size={16} />,
+      action: () => setActiveNavMode("ISRO_NASA_MISSION"),
     },
     {
       id: "cmd-ws-digitaltwin",
@@ -374,6 +444,67 @@ export default function AASIApp() {
               <span className="flight-tool-label">Dossier</span>
             </button>
 
+            {/* Executive Showcase Trigger */}
+            <button
+              onClick={() => setActiveNavMode("SHOWCASE")}
+              className="flight-action-btn"
+              style={{
+                borderColor: activeNavMode === "SHOWCASE" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
+                background: activeNavMode === "SHOWCASE" ? "rgba(56, 189, 248, 0.15)" : "rgba(18, 26, 44, 0.6)",
+                color: activeNavMode === "SHOWCASE" ? "#38bdf8" : "#94a3b8",
+              }}
+              title="Open Executive Platform Showcase & Overview"
+            >
+              <Sparkles size={12} color="#38bdf8" />
+              <span className="flight-tool-label">Showcase</span>
+            </button>
+
+            {/* Autonomous Cockpit Trigger */}
+            <button
+              onClick={() => setActiveNavMode("AUTONOMOUS_COCKPIT")}
+              className="flight-action-btn"
+              style={{
+                borderColor: activeNavMode === "AUTONOMOUS_COCKPIT" ? "rgba(245, 158, 11, 0.5)" : "rgba(255, 255, 255, 0.08)",
+                background: activeNavMode === "AUTONOMOUS_COCKPIT" ? "rgba(245, 158, 11, 0.18)" : "rgba(18, 26, 44, 0.6)",
+                color: activeNavMode === "AUTONOMOUS_COCKPIT" ? "#f59e0b" : "#94a3b8",
+                fontWeight: activeNavMode === "AUTONOMOUS_COCKPIT" ? 700 : 500,
+              }}
+              title="Launch AASI 2.0 Autonomous Aerospace Intelligence Cockpit (8 Agents & Flagship Inquiry)"
+            >
+              <Brain size={12} color="#f59e0b" />
+              <span className="flight-tool-label">Autonomous Cockpit</span>
+            </button>
+
+            {/* 3D Virtual Wind Tunnel Trigger */}
+            <button
+              onClick={() => setActiveNavMode("VIRTUAL_WIND_TUNNEL")}
+              className="flight-action-btn"
+              style={{
+                borderColor: activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
+                background: activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "rgba(56, 189, 248, 0.15)" : "rgba(18, 26, 44, 0.6)",
+                color: activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "#38bdf8" : "#94a3b8",
+              }}
+              title="Launch 3D Virtual Wind Tunnel (SimScale/Airshaper automated CAE)"
+            >
+              <Wind size={12} color="#38bdf8" />
+              <span className="flight-tool-label">3D Wind Tunnel</span>
+            </button>
+
+            {/* ISRO & NASA Mission Deck Trigger */}
+            <button
+              onClick={() => setActiveNavMode("ISRO_NASA_MISSION")}
+              className="flight-action-btn"
+              style={{
+                borderColor: activeNavMode === "ISRO_NASA_MISSION" ? "rgba(245, 158, 11, 0.4)" : "rgba(255, 255, 255, 0.08)",
+                background: activeNavMode === "ISRO_NASA_MISSION" ? "rgba(245, 158, 11, 0.15)" : "rgba(18, 26, 44, 0.6)",
+                color: activeNavMode === "ISRO_NASA_MISSION" ? "#f59e0b" : "#94a3b8",
+              }}
+              title="Launch ISRO & NASA Mission Architecture Deck (Ascent, Max-Q, Orbit Decay)"
+            >
+              <Rocket size={12} color="#f59e0b" />
+              <span className="flight-tool-label">ISRO / NASA</span>
+            </button>
+
             {/* Digital Twin Studio Quick Trigger */}
             <button
               onClick={() => setActiveNavMode("DIGITAL_TWIN")}
@@ -387,6 +518,36 @@ export default function AASIApp() {
             >
               <Rocket size={12} color="#38bdf8" />
               <span className="flight-tool-label">Digital Twin</span>
+            </button>
+
+            {/* Aero DB & Turnkey Study Trigger */}
+            <button
+              onClick={() => setActiveNavMode("AERODB")}
+              className="flight-action-btn"
+              style={{
+                borderColor: activeNavMode === "AERODB" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
+                background: activeNavMode === "AERODB" ? "rgba(56, 189, 248, 0.12)" : "rgba(18, 26, 44, 0.6)",
+                color: activeNavMode === "AERODB" ? "#38bdf8" : "#94a3b8",
+              }}
+              title="Open Autonomous Aerodynamic Database & Turnkey Client Package Generator"
+            >
+              <Database size={12} color="#38bdf8" />
+              <span className="flight-tool-label">Aero DB &amp; Turnkey</span>
+            </button>
+
+            {/* Subdomain Benchmark Hub Trigger */}
+            <button
+              onClick={() => setSubdomainBenchmarkOpen(true)}
+              className="flight-action-btn"
+              style={{
+                borderColor: "rgba(52, 211, 153, 0.25)",
+                background: "rgba(52, 211, 153, 0.08)",
+                color: "#34d399",
+              }}
+              title="Open Aerospace Subdomain Benchmark Hub (NASA CRM, UIUC, CMAPSS, SHM, AirSim)"
+            >
+              <Compass size={12} color="#34d399" />
+              <span className="flight-tool-label">Benchmark Hub</span>
             </button>
 
             {/* Analysis Console Trigger */}
@@ -433,13 +594,46 @@ export default function AASIApp() {
         </header>
 
         {/* ─── Main Content Canvas ─── */}
-        <main className="mission-control-main">
-          {activeNavMode === "GOVERNOR_HARNESS" ? (
+        <main
+          className={
+            activeNavMode === "SHOWCASE" ||
+            activeNavMode === "AUTONOMOUS_COCKPIT" ||
+            activeNavMode === "VIRTUAL_WIND_TUNNEL" ||
+            activeNavMode === "ISRO_NASA_MISSION"
+              ? "mission-control-main-full"
+              : "mission-control-main"
+          }
+        >
+          {activeNavMode === "SHOWCASE" ? (
+            <AasiPublicShowcase
+              onLaunchCockpit={() => setActiveNavMode("AUTONOMOUS_COCKPIT")}
+              onOpenWindTunnel={() => setActiveNavMode("VIRTUAL_WIND_TUNNEL")}
+              onOpenDigitalTwin={() => setActiveNavMode("DIGITAL_TWIN")}
+              onOpenMissionPlanner={() => setActiveNavMode("ISRO_NASA_MISSION")}
+              onOpenAeroDb={() => setActiveNavMode("AERODB")}
+            />
+          ) : activeNavMode === "AUTONOMOUS_COCKPIT" ? (
+            <AutonomousResearchCockpit
+              apiBase={API_BASE}
+              onOpenWindTunnel={() => setActiveNavMode("VIRTUAL_WIND_TUNNEL")}
+              onOpenDigitalTwin={() => setActiveNavMode("DIGITAL_TWIN")}
+              onOpenMissionPlanner={() => setActiveNavMode("ISRO_NASA_MISSION")}
+            />
+          ) : activeNavMode === "VIRTUAL_WIND_TUNNEL" ? (
+            <VirtualWindTunnelStudio apiBase={API_BASE} />
+          ) : activeNavMode === "ISRO_NASA_MISSION" ? (
+            <IsroNasaMissionStudio apiBase={API_BASE} />
+          ) : activeNavMode === "GOVERNOR_HARNESS" ? (
             <div className="p-6 max-w-7xl mx-auto w-full">
               <GovernorTaskHarnessPanel />
             </div>
           ) : activeNavMode === "DIGITAL_TWIN" ? (
             <DigitalTwinStudio apiBase={API_BASE} />
+          ) : activeNavMode === "AERODB" ? (
+            <div className="p-6 max-w-7xl mx-auto w-full" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <EpistemicRadarPanel apiBase={API_BASE} />
+              <AeroDbPanel apiBase={API_BASE} />
+            </div>
           ) : (
             <InvestigationWorkspace
               apiBase={API_BASE}
@@ -537,6 +731,12 @@ export default function AASIApp() {
         isOpen={telemetryOpen}
         onClose={() => setTelemetryOpen(false)}
         apiBase={API_BASE}
+      />
+
+      {/* ─── Aerospace Subdomain Benchmark Hub Modal ─── */}
+      <SubdomainBenchmarkModal
+        isOpen={subdomainBenchmarkOpen}
+        onClose={() => setSubdomainBenchmarkOpen(false)}
       />
     </div>
   );
