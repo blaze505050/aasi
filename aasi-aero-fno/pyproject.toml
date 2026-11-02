@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aasi-aero-fno"
+version = "2.0.0"
+description = "AASI PyTorch Aerodynamic Surrogate Pipeline (FourNetFlows, Geo-FNO, IUFNO, Theodorsen)"
+authors = [{ name = "AASI Sovereign Architecture Team" }]
+dependencies = [
+    "torch>=2.0.0",
+    "numpy>=1.22.0",
+    "pydantic>=2.0.0",
+]
+readme = "README.md"
+requires-python = ">=3.10"

@@ -27,6 +27,7 @@ import {
   Sparkles,
   Rocket,
   Brain,
+  Globe,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -43,6 +44,7 @@ import { AasiPublicShowcase } from "../components/AasiPublicShowcase";
 import { VirtualWindTunnelStudio } from "../components/VirtualWindTunnelStudio";
 import { IsroNasaMissionStudio } from "../components/IsroNasaMissionStudio";
 import { AutonomousResearchCockpit } from "../components/AutonomousResearchCockpit";
+import { SovereignMissionControlDashboard } from "../components/SovereignMissionControlDashboard";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -88,6 +90,10 @@ export default function AASIApp() {
           const upper = modeParam.toUpperCase();
           if (
             upper === "SHOWCASE" ||
+            upper === "SOVEREIGN_MISSION_CONTROL" ||
+            upper === "SOVEREIGN" ||
+            upper === "NETRA" ||
+            upper === "CATFM" ||
             upper === "AUTONOMOUS_COCKPIT" ||
             upper === "COCKPIT" ||
             upper === "VIRTUAL_WIND_TUNNEL" ||
@@ -100,6 +106,8 @@ export default function AASIApp() {
             if (upper === "WINDTUNNEL") setActiveNavMode("VIRTUAL_WIND_TUNNEL");
             else if (upper === "MISSION") setActiveNavMode("ISRO_NASA_MISSION");
             else if (upper === "COCKPIT") setActiveNavMode("AUTONOMOUS_COCKPIT");
+            else if (upper === "SOVEREIGN" || upper === "NETRA" || upper === "CATFM")
+              setActiveNavMode("SOVEREIGN_MISSION_CONTROL");
             else setActiveNavMode(upper as WorkspaceNavMode);
           }
         }
@@ -459,6 +467,22 @@ export default function AASIApp() {
               <span className="flight-tool-label">Showcase</span>
             </button>
 
+            {/* Sovereign Mission Control Trigger */}
+            <button
+              onClick={() => setActiveNavMode("SOVEREIGN_MISSION_CONTROL")}
+              className="flight-action-btn"
+              style={{
+                borderColor: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "rgba(56, 189, 248, 0.6)" : "rgba(255, 255, 255, 0.08)",
+                background: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "rgba(56, 189, 248, 0.22)" : "rgba(18, 26, 44, 0.6)",
+                color: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "#38bdf8" : "#94a3b8",
+                fontWeight: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? 800 : 500,
+              }}
+              title="Launch Sovereign Mission Control Deck (ISRO Project NETRA, AAI C-ATFM, BlazeWatch MHA)"
+            >
+              <Globe size={12} color="#38bdf8" />
+              <span className="flight-tool-label">Sovereign Mission Deck</span>
+            </button>
+
             {/* Autonomous Cockpit Trigger */}
             <button
               onClick={() => setActiveNavMode("AUTONOMOUS_COCKPIT")}
@@ -597,6 +621,7 @@ export default function AASIApp() {
         <main
           className={
             activeNavMode === "SHOWCASE" ||
+            activeNavMode === "SOVEREIGN_MISSION_CONTROL" ||
             activeNavMode === "AUTONOMOUS_COCKPIT" ||
             activeNavMode === "VIRTUAL_WIND_TUNNEL" ||
             activeNavMode === "ISRO_NASA_MISSION"
@@ -606,12 +631,14 @@ export default function AASIApp() {
         >
           {activeNavMode === "SHOWCASE" ? (
             <AasiPublicShowcase
-              onLaunchCockpit={() => setActiveNavMode("AUTONOMOUS_COCKPIT")}
+              onLaunchCockpit={() => setActiveNavMode("SOVEREIGN_MISSION_CONTROL")}
               onOpenWindTunnel={() => setActiveNavMode("VIRTUAL_WIND_TUNNEL")}
               onOpenDigitalTwin={() => setActiveNavMode("DIGITAL_TWIN")}
               onOpenMissionPlanner={() => setActiveNavMode("ISRO_NASA_MISSION")}
               onOpenAeroDb={() => setActiveNavMode("AERODB")}
             />
+          ) : activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? (
+            <SovereignMissionControlDashboard apiBase={API_BASE} />
           ) : activeNavMode === "AUTONOMOUS_COCKPIT" ? (
             <AutonomousResearchCockpit
               apiBase={API_BASE}

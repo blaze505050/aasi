@@ -31,6 +31,7 @@ from backend.cfd.asme_vv20 import ASMEVV20Engine, ASMEConvergenceStatus, ASMEVer
 from backend.datasets.subdomain_hub import AerospaceSubdomainHub, AerospaceSubdomain
 from backend.agent.stateful_multi_agent_system import MultiAgentInvestigationState, SupervisoryOrchestrator
 from backend.tools.mcp_engineering_server import MCPEngineeringServer, MCPCallRequest
+from backend.api.routes_sovereign_v2 import router as sovereign_v2_router
 
 
 # ─── FastAPI Application Initialization ────────────────────────────────────────
@@ -51,6 +52,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(sovereign_v2_router)
 
 
 # ─── Enterprise Authentication & Security ──────────────────────────────────────

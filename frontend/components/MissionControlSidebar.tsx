@@ -29,6 +29,7 @@ import {
 
 export type WorkspaceNavMode =
   | "SHOWCASE"
+  | "SOVEREIGN_MISSION_CONTROL"
   | "AUTONOMOUS_COCKPIT"
   | "VIRTUAL_WIND_TUNNEL"
   | "ISRO_NASA_MISSION"
@@ -73,6 +74,13 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
       shortLabel: "Briefing",
       icon: <Layers size={18} />,
       badge: "Architecture",
+    },
+    {
+      id: "SOVEREIGN_MISSION_CONTROL" as WorkspaceNavMode,
+      label: "Sovereign Mission Control",
+      shortLabel: "Mission Deck",
+      icon: <Globe size={18} />,
+      badge: "MoCA / ISRO",
     },
     {
       id: "AUTONOMOUS_COCKPIT" as WorkspaceNavMode,
