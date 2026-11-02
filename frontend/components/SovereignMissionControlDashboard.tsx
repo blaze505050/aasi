@@ -300,95 +300,45 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
         fontFamily: "var(--font-sans, sans-serif)",
       }}
     >
-      {/* ─── Sovereign Mission Header ─── */}
-      <header
+      {/* ─── Sovereign Operational Telemetry Strip ─── */}
+      <div
         style={{
           borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "rgba(14, 17, 26, 0.95)",
-          backdropFilter: "blur(12px)",
-          padding: "16px 28px",
+          background: "rgba(11, 14, 23, 0.96)",
+          backdropFilter: "blur(16px)",
+          padding: "10px 24px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          gap: "16px",
+          flexWrap: "wrap",
           position: "sticky",
           top: 0,
           zIndex: 40,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div
-            style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "8px",
-              background: "linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(56, 189, 248, 0.2))",
-              border: "1px solid rgba(239, 68, 68, 0.4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Globe size={24} color="#38bdf8" />
+        {/* Left: Active Facility & Custody */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981" }} />
+            <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.78rem", fontWeight: 700, color: "#f8fafc", letterSpacing: "0.06em" }}>
+              ISRO ISTRAC // PROJECT NETRA SSA
+            </span>
           </div>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <h1 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0, letterSpacing: "-0.01em" }}>
-                AASI Sovereign Mission Control Deck
-              </h1>
-              <span
-                style={{
-                  fontSize: "0.68rem",
-                  padding: "2px 8px",
-                  borderRadius: "4px",
-                  background: "rgba(239, 68, 68, 0.15)",
-                  color: "#ef4444",
-                  border: "1px solid rgba(239, 68, 68, 0.3)",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontWeight: 700,
-                }}
-              >
-                PROJECT NETRA ACTIVE
-              </span>
-              <span
-                style={{
-                  fontSize: "0.68rem",
-                  padding: "2px 8px",
-                  borderRadius: "4px",
-                  background: "rgba(16, 185, 129, 0.15)",
-                  color: "#10b981",
-                  border: "1px solid rgba(16, 185, 129, 0.3)",
-                  fontFamily: "var(--font-mono, monospace)",
-                }}
-              >
-                AAI C-ATFM SYNC
-              </span>
-            </div>
-            <p style={{ margin: "2px 0 0 0", fontSize: "0.78rem", color: "#94a3b8" }}>
-              Sovereign Aerospace Intelligence: ISRO Project NETRA, AAI Airspace Flow, and BlazeWatch MHA Security
-            </p>
+          <span style={{ color: "rgba(255, 255, 255, 0.2)" }}>|</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", color: "#94a3b8", fontFamily: "var(--font-mono, monospace)" }}>
+            <Radio size={13} color="#38bdf8" />
+            <span>MOTR Radar: <strong style={{ color: "#38bdf8" }}>ACTIVE (10cm CUSTODY)</strong></span>
+          </div>
+          <span style={{ color: "rgba(255, 255, 255, 0.2)" }}>|</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", color: "#94a3b8", fontFamily: "var(--font-mono, monospace)" }}>
+            <CloudRain size={13} color="#10b981" />
+            <span>Chandrapur Radar: <strong style={{ color: "#10b981" }}>45.2 dBZ</strong></span>
           </div>
         </div>
 
-        {/* Live Status Indicators */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "0.74rem",
-              padding: "6px 12px",
-              borderRadius: "6px",
-              background: "rgba(19, 23, 36, 0.8)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              fontFamily: "var(--font-mono, monospace)",
-            }}
-          >
-            <Radio size={14} color="#10b981" />
-            <span style={{ color: "#94a3b8" }}>Chandrapur Radar:</span>
-            <span style={{ color: "#10b981", fontWeight: 700 }}>45.2 dBZ</span>
-          </div>
-
+        {/* Right: ASTM F3269-21 RTA Switch & Telemetry */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div
             onClick={handleTripRTASwitch}
             style={{
@@ -396,22 +346,22 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
               alignItems: "center",
               gap: "8px",
               fontSize: "0.74rem",
-              padding: "6px 12px",
+              padding: "5px 12px",
               borderRadius: "6px",
               background:
                 rtaSwitchState === "COMPLEX_FUNCTION_ACTIVE"
-                  ? "rgba(16, 185, 129, 0.15)"
-                  : "rgba(239, 68, 68, 0.2)",
+                  ? "rgba(16, 185, 129, 0.12)"
+                  : "rgba(239, 68, 68, 0.18)",
               border:
                 rtaSwitchState === "COMPLEX_FUNCTION_ACTIVE"
-                  ? "1px solid rgba(16, 185, 129, 0.4)"
-                  : "1px solid rgba(239, 68, 68, 0.5)",
+                  ? "1px solid rgba(16, 185, 129, 0.35)"
+                  : "1px solid rgba(239, 68, 68, 0.45)",
               color: rtaSwitchState === "COMPLEX_FUNCTION_ACTIVE" ? "#10b981" : "#ef4444",
               cursor: "pointer",
               fontFamily: "var(--font-mono, monospace)",
               fontWeight: 700,
             }}
-            title="Click to toggle ASTM F3269-21 RTA Switch between AI and Recovery Function"
+            title="Click to toggle ASTM F3269-21 RTA Switch between AI and Deterministic Recovery"
           >
             {rtaSwitchState === "COMPLEX_FUNCTION_ACTIVE" ? (
               <ShieldCheck size={14} color="#10b981" />
@@ -421,7 +371,7 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
             <span>RTA: {rtaSwitchState}</span>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* ─── Mission Deck Navigation ─── */}
       <nav

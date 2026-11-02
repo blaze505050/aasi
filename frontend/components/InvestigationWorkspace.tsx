@@ -235,7 +235,7 @@ const SUGGESTED_INQUIRIES = [
   },
   {
     badge: "EXP 3",
-    badgeClass: "scenario-badge-purple",
+    badgeClass: "scenario-badge-slate",
     label: "Inviscid vs RANS (Contradiction Attribution)",
     desc: "100% discrepancy evaluated across 8 dimensions. Attributed to d'Alembert's paradox & shear stress.",
     prompt: "Compare Inviscid Potential Flow (CD=0) vs. Viscous RANS (CD=0.0082) for NACA 0012 at alpha = 0° and attribute physical discrepancy.",

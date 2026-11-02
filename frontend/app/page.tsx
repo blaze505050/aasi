@@ -53,7 +53,8 @@ export default function AASIApp() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
-  const [activeNavMode, setActiveNavMode] = useState<WorkspaceNavMode>("INVESTIGATION");
+  const [activeNavMode, setActiveNavMode] = useState<WorkspaceNavMode>("SOVEREIGN_MISSION_CONTROL");
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [auditModalOpen, setAuditModalOpen] = useState(false);
   const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
@@ -304,6 +305,7 @@ export default function AASIApp() {
         onOpenTour={() => setTourOpen(true)}
         onOpenExport={() => setExportOpen(true)}
         hardwareSafe={hardwareStatus.protected}
+        defaultCollapsed={true}
       />
 
       {/* ─── Main Viewport Area ─── */}
@@ -311,114 +313,338 @@ export default function AASIApp() {
         {/* ─── Top Mission Control Bar (SpaceX + Apple Glassmorphic Flight Deck) ─── */}
         <header className="spacex-flight-deck">
           {/* Left: Mission Identity & Real-Time Telemetry */}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-            <div
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.78rem",
-                color: "#38bdf8",
-                fontWeight: 700,
-                letterSpacing: "0.04em",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span>AASI // FLIGHT CONTROL</span>
-              <span className="header-breadcrumb-sub" style={{ color: "#475569" }}>/</span>
-              <span className="header-breadcrumb-sub" style={{ color: "#94a3b8", fontWeight: 500, fontSize: "0.72rem" }}>
-                AERODYNAMICS FABRIC
-              </span>
-            </div>
-
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "5px",
-                padding: "3px 8px",
-                borderRadius: "9999px",
-                background: "rgba(16, 185, 129, 0.08)",
-                border: "1px solid rgba(16, 185, 129, 0.25)",
-                color: "#10b981",
-                fontSize: "0.66rem",
-                fontWeight: 600,
-                fontFamily: "var(--font-mono)",
-                letterSpacing: "0.03em",
-                whiteSpace: "nowrap",
-              }}
-              title="Real-time operational status and physics dataset integrity"
-            >
-              <span
+          <div style={{ display: "flex", alignItems: "center", gap: "14px", minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div
                 style={{
-                  width: "5px",
-                  height: "5px",
-                  borderRadius: "50%",
-                  background: "#10b981",
-                  boxShadow: "0 0 6px rgba(16, 185, 129, 0.6)",
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "6px",
+                  background: "rgba(56, 189, 248, 0.12)",
+                  border: "1px solid rgba(56, 189, 248, 0.3)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-              />
-              SYS: NOMINAL
-            </span>
+              >
+                <Globe size={18} color="#38bdf8" />
+              </div>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "1.05rem",
+                      fontWeight: 800,
+                      color: "#f8fafc",
+                      letterSpacing: "0.12em",
+                    }}
+                  >
+                    AASI
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "0.62rem",
+                      padding: "1px 6px",
+                      borderRadius: "4px",
+                      background: "rgba(16, 185, 129, 0.12)",
+                      color: "#10b981",
+                      border: "1px solid rgba(16, 185, 129, 0.25)",
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 700,
+                    }}
+                  >
+                    SOVEREIGN V2.0
+                  </span>
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.62rem",
+                    color: "#64748b",
+                    fontWeight: 600,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  BHARATIYA AUTONOMOUS AEROSPACE INTELLIGENCE
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Center: SpaceX Capsule Flight Tools (Frosted Glass Segmented Pill) */}
-          <nav className="flight-tools-capsule" aria-label="Flight Tools Deck">
-            {/* 3D Surface Pressure (Cp) & Mesh */}
+          {/* Center: The 5 Core Executive Aerospace Pillars (Segmented Controller) */}
+          <nav className="flight-tools-capsule" aria-label="Aerospace Pillars Deck">
             <button
-              onClick={() => setMesh3DOpen(true)}
-              className="flight-tool-btn cyan"
-              title="Launch interactive 3D WebGL CFD surface mesh and Cp pressure distribution"
+              onClick={() => setActiveNavMode("SOVEREIGN_MISSION_CONTROL")}
+              className={`flight-tool-btn ${activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "active" : ""}`}
+              title="ISRO Project NETRA Orbital Conjunctions, AAI National Airspace Flow, BlazeWatch MHA Crisis Radar"
             >
-              <Box size={13} color="#38bdf8" />
-              <span className="flight-tool-label">3D Flowfield</span>
+              <Globe size={13} color={activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "#38bdf8" : "#94a3b8"} />
+              <span>Mission Control</span>
             </button>
 
-            {/* Shape Optimization Studio */}
             <button
-              onClick={() => setOptStudioOpen(true)}
-              className="flight-tool-btn amber"
-              title="Autonomous airfoil shape optimization to maximize L/D under structural constraints"
+              onClick={() => setActiveNavMode("AUTONOMOUS_COCKPIT")}
+              className={`flight-tool-btn ${activeNavMode === "AUTONOMOUS_COCKPIT" ? "active" : ""}`}
+              title="8 Autonomous Aerospace Agents, Flagship NACA 4412 Investigation, Neural Operator Surrogates"
             >
-              <Sparkles size={13} color="#f59e0b" />
-              <span className="flight-tool-label">Shape Studio</span>
+              <Brain size={13} color={activeNavMode === "AUTONOMOUS_COCKPIT" ? "#f59e0b" : "#94a3b8"} />
+              <span>Autonomous AI</span>
             </button>
 
-            {/* Mission Telemetry & Observability */}
             <button
-              onClick={() => setTelemetryOpen(true)}
-              className="flight-tool-btn emerald"
-              title="View live P50/P95/P99 latency, cognitive engine telemetry, and system health"
+              onClick={() => setActiveNavMode("VIRTUAL_WIND_TUNNEL")}
+              className={`flight-tool-btn ${activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "active" : ""}`}
+              title="Turnkey 3D Virtual Wind Tunnel, CFD Mesh Deformations, Aerodynamic Polars"
             >
-              <Activity size={13} color="#10b981" />
-              <span className="flight-tool-label">Telemetry</span>
+              <Wind size={13} color={activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "#38bdf8" : "#94a3b8"} />
+              <span>3D Wind Tunnel</span>
             </button>
 
-            {/* Cryptographic SHA-256 Audit Trail */}
             <button
-              onClick={() => setAuditModalOpen(true)}
-              className="flight-tool-btn cyan"
-              title="Inspect tamper-evident SHA-256 cryptographic audit trail"
+              onClick={() => setActiveNavMode("DIGITAL_TWIN")}
+              className={`flight-tool-btn ${activeNavMode === "DIGITAL_TWIN" ? "active" : ""}`}
+              title="6-DOF SpaDeX Rendezvous & Docking, Chandrayaan-4 Lunar Lander, Aircraft Flight Dynamics"
             >
-              <Lock size={13} color="#38bdf8" />
-              <span className="flight-tool-label">Audit Trail</span>
+              <Rocket size={13} color={activeNavMode === "DIGITAL_TWIN" ? "#10b981" : "#94a3b8"} />
+              <span>Digital Twin &amp; GNC</span>
             </button>
 
-            {/* Enterprise & V&V Certification */}
             <button
-              onClick={() => setEnterpriseModalOpen(true)}
-              className="flight-tool-btn amber"
-              title="Enterprise architecture, ASME V&V 20 compliance, and licensing tiers"
+              onClick={() => setActiveNavMode("SHOWCASE")}
+              className={`flight-tool-btn ${activeNavMode === "SHOWCASE" ? "active" : ""}`}
+              title="Executive Platform Briefing, ASME V&V 20 & RTCA DO-178C Certification Matrices"
             >
-              <ShieldCheck size={13} color="#f59e0b" />
-              <span className="flight-tool-label">ASME V&amp;V</span>
+              <FileText size={13} color={activeNavMode === "SHOWCASE" ? "#38bdf8" : "#94a3b8"} />
+              <span>Executive Briefing</span>
             </button>
           </nav>
 
-          {/* Right: Mission Actions & Security Clearance Dock */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }}>
-            {/* Quick Command Trigger (Apple Spotlight Style) */}
+          {/* Right: Tools Dropdown, Command Palette, Analysis Console, Clearance */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", position: "relative" }}>
+            {/* Quick Tools Dropdown */}
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setToolsMenuOpen(!toolsMenuOpen)}
+                className="flight-action-btn"
+                style={{
+                  borderColor: toolsMenuOpen ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
+                  background: toolsMenuOpen ? "rgba(56, 189, 248, 0.12)" : "rgba(18, 26, 44, 0.6)",
+                  color: toolsMenuOpen ? "#38bdf8" : "#cbd5e1",
+                }}
+                title="Secondary Aerospace Studios & Turnkey Utilities"
+              >
+                <Layers size={12} color="#38bdf8" />
+                <span className="flight-tool-label">CAE Studios ▾</span>
+              </button>
+
+              {/* Tools Popover Menu */}
+              {toolsMenuOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    right: 0,
+                    width: "260px",
+                    background: "#0e111a",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    borderRadius: "10px",
+                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.6)",
+                    zIndex: 200,
+                    padding: "6px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "2px",
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setMesh3DOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "transparent",
+                      border: "none",
+                      color: "#f8fafc",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Box size={14} color="#38bdf8" />
+                    <div>
+                      <div style={{ fontWeight: 600 }}>3D Surface Pressure (Cp)</div>
+                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Interactive WebGL pressure grid</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setOptStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "transparent",
+                      border: "none",
+                      color: "#f8fafc",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Sparkles size={14} color="#f59e0b" />
+                    <div>
+                      <div style={{ fontWeight: 600 }}>Airfoil Shape Optimizer</div>
+                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Genetic algorithm L/D maximizing</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveNavMode("AERODB");
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "transparent",
+                      border: "none",
+                      color: "#f8fafc",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Database size={14} color="#38bdf8" />
+                    <div>
+                      <div style={{ fontWeight: 600 }}>Aero Database &amp; Exporter</div>
+                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Turnkey ArduPilot / PX4 param tables</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSubdomainBenchmarkOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "transparent",
+                      border: "none",
+                      color: "#f8fafc",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Compass size={14} color="#34d399" />
+                    <div>
+                      <div style={{ fontWeight: 600 }}>Subdomain Benchmark Hub</div>
+                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>NASA CRM, UIUC, CMAPSS cases</div>
+                    </div>
+                  </button>
+
+                  <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.08)", margin: "4px 0" }} />
+
+                  <button
+                    onClick={() => {
+                      setExportOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "transparent",
+                      border: "none",
+                      color: "#f8fafc",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <FileText size={14} color="#14b8a6" />
+                    <div>
+                      <div style={{ fontWeight: 600 }}>ASME V&amp;V 20 Dossier</div>
+                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Export certification evidence package</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setAuditModalOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "transparent",
+                      border: "none",
+                      color: "#f8fafc",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Lock size={14} color="#38bdf8" />
+                    <div>
+                      <div style={{ fontWeight: 600 }}>SHA-256 Merkle Audit Trail</div>
+                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Immutable cryptographic execution logs</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setTelemetryOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "transparent",
+                      border: "none",
+                      color: "#f8fafc",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Activity size={14} color="#10b981" />
+                    <div>
+                      <div style={{ fontWeight: 600 }}>Engine Telemetry &amp; Health</div>
+                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>P50/P95 latency &amp; memory metrics</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Command Trigger (Cmd+K) */}
             <button
               onClick={() => setCommandPaletteOpen(true)}
               className="flight-action-btn"
@@ -441,139 +667,6 @@ export default function AASIApp() {
               </kbd>
             </button>
 
-            {/* Export Dossier Button */}
-            <button
-              onClick={() => setExportOpen(true)}
-              className="flight-action-btn"
-              style={{ color: "#14b8a6" }}
-              title="Export ASME V&V 20 Certification Dossier"
-            >
-              <FileText size={12} color="#14b8a6" />
-              <span className="flight-tool-label">Dossier</span>
-            </button>
-
-            {/* Executive Showcase Trigger */}
-            <button
-              onClick={() => setActiveNavMode("SHOWCASE")}
-              className="flight-action-btn"
-              style={{
-                borderColor: activeNavMode === "SHOWCASE" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
-                background: activeNavMode === "SHOWCASE" ? "rgba(56, 189, 248, 0.15)" : "rgba(18, 26, 44, 0.6)",
-                color: activeNavMode === "SHOWCASE" ? "#38bdf8" : "#94a3b8",
-              }}
-              title="Open Executive Platform Showcase & Overview"
-            >
-              <Sparkles size={12} color="#38bdf8" />
-              <span className="flight-tool-label">Showcase</span>
-            </button>
-
-            {/* Sovereign Mission Control Trigger */}
-            <button
-              onClick={() => setActiveNavMode("SOVEREIGN_MISSION_CONTROL")}
-              className="flight-action-btn"
-              style={{
-                borderColor: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "rgba(56, 189, 248, 0.6)" : "rgba(255, 255, 255, 0.08)",
-                background: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "rgba(56, 189, 248, 0.22)" : "rgba(18, 26, 44, 0.6)",
-                color: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "#38bdf8" : "#94a3b8",
-                fontWeight: activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? 800 : 500,
-              }}
-              title="Launch Sovereign Mission Control Deck (ISRO Project NETRA, AAI C-ATFM, BlazeWatch MHA)"
-            >
-              <Globe size={12} color="#38bdf8" />
-              <span className="flight-tool-label">Sovereign Mission Deck</span>
-            </button>
-
-            {/* Autonomous Cockpit Trigger */}
-            <button
-              onClick={() => setActiveNavMode("AUTONOMOUS_COCKPIT")}
-              className="flight-action-btn"
-              style={{
-                borderColor: activeNavMode === "AUTONOMOUS_COCKPIT" ? "rgba(245, 158, 11, 0.5)" : "rgba(255, 255, 255, 0.08)",
-                background: activeNavMode === "AUTONOMOUS_COCKPIT" ? "rgba(245, 158, 11, 0.18)" : "rgba(18, 26, 44, 0.6)",
-                color: activeNavMode === "AUTONOMOUS_COCKPIT" ? "#f59e0b" : "#94a3b8",
-                fontWeight: activeNavMode === "AUTONOMOUS_COCKPIT" ? 700 : 500,
-              }}
-              title="Launch AASI 2.0 Autonomous Aerospace Intelligence Cockpit (8 Agents & Flagship Inquiry)"
-            >
-              <Brain size={12} color="#f59e0b" />
-              <span className="flight-tool-label">Autonomous Cockpit</span>
-            </button>
-
-            {/* 3D Virtual Wind Tunnel Trigger */}
-            <button
-              onClick={() => setActiveNavMode("VIRTUAL_WIND_TUNNEL")}
-              className="flight-action-btn"
-              style={{
-                borderColor: activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
-                background: activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "rgba(56, 189, 248, 0.15)" : "rgba(18, 26, 44, 0.6)",
-                color: activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "#38bdf8" : "#94a3b8",
-              }}
-              title="Launch 3D Virtual Wind Tunnel (SimScale/Airshaper automated CAE)"
-            >
-              <Wind size={12} color="#38bdf8" />
-              <span className="flight-tool-label">3D Wind Tunnel</span>
-            </button>
-
-            {/* ISRO & NASA Mission Deck Trigger */}
-            <button
-              onClick={() => setActiveNavMode("ISRO_NASA_MISSION")}
-              className="flight-action-btn"
-              style={{
-                borderColor: activeNavMode === "ISRO_NASA_MISSION" ? "rgba(245, 158, 11, 0.4)" : "rgba(255, 255, 255, 0.08)",
-                background: activeNavMode === "ISRO_NASA_MISSION" ? "rgba(245, 158, 11, 0.15)" : "rgba(18, 26, 44, 0.6)",
-                color: activeNavMode === "ISRO_NASA_MISSION" ? "#f59e0b" : "#94a3b8",
-              }}
-              title="Launch ISRO & NASA Mission Architecture Deck (Ascent, Max-Q, Orbit Decay)"
-            >
-              <Rocket size={12} color="#f59e0b" />
-              <span className="flight-tool-label">ISRO / NASA</span>
-            </button>
-
-            {/* Digital Twin Studio Quick Trigger */}
-            <button
-              onClick={() => setActiveNavMode("DIGITAL_TWIN")}
-              className="flight-action-btn"
-              style={{
-                borderColor: activeNavMode === "DIGITAL_TWIN" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
-                background: activeNavMode === "DIGITAL_TWIN" ? "rgba(56, 189, 248, 0.12)" : "rgba(18, 26, 44, 0.6)",
-                color: activeNavMode === "DIGITAL_TWIN" ? "#38bdf8" : "#94a3b8",
-              }}
-              title="Open Aerospace Digital Twin Studio (Rocket, Drone, Jet, Satellite)"
-            >
-              <Rocket size={12} color="#38bdf8" />
-              <span className="flight-tool-label">Digital Twin</span>
-            </button>
-
-            {/* Aero DB & Turnkey Study Trigger */}
-            <button
-              onClick={() => setActiveNavMode("AERODB")}
-              className="flight-action-btn"
-              style={{
-                borderColor: activeNavMode === "AERODB" ? "rgba(56, 189, 248, 0.4)" : "rgba(255, 255, 255, 0.08)",
-                background: activeNavMode === "AERODB" ? "rgba(56, 189, 248, 0.12)" : "rgba(18, 26, 44, 0.6)",
-                color: activeNavMode === "AERODB" ? "#38bdf8" : "#94a3b8",
-              }}
-              title="Open Autonomous Aerodynamic Database & Turnkey Client Package Generator"
-            >
-              <Database size={12} color="#38bdf8" />
-              <span className="flight-tool-label">Aero DB &amp; Turnkey</span>
-            </button>
-
-            {/* Subdomain Benchmark Hub Trigger */}
-            <button
-              onClick={() => setSubdomainBenchmarkOpen(true)}
-              className="flight-action-btn"
-              style={{
-                borderColor: "rgba(52, 211, 153, 0.25)",
-                background: "rgba(52, 211, 153, 0.08)",
-                color: "#34d399",
-              }}
-              title="Open Aerospace Subdomain Benchmark Hub (NASA CRM, UIUC, CMAPSS, SHM, AirSim)"
-            >
-              <Compass size={12} color="#34d399" />
-              <span className="flight-tool-label">Benchmark Hub</span>
-            </button>
-
             {/* Analysis Console Trigger */}
             <button
               onClick={() => setChatOpen(true)}
@@ -589,13 +682,13 @@ export default function AASIApp() {
               onClick={() => setAuthModalOpen(true)}
               className="flight-action-btn"
               style={{
-                borderColor: authUser ? "rgba(245, 158, 11, 0.3)" : "rgba(255, 255, 255, 0.08)",
-                background: authUser ? "rgba(245, 158, 11, 0.08)" : "rgba(18, 26, 44, 0.6)",
+                borderColor: authUser ? "rgba(16, 185, 129, 0.3)" : "rgba(255, 255, 255, 0.08)",
+                background: authUser ? "rgba(16, 185, 129, 0.08)" : "rgba(18, 26, 44, 0.6)",
               }}
               title="Manage authentication session and team clearance"
             >
-              <UserIcon size={12} color={authUser ? "#f59e0b" : "#94a3b8"} />
-              <span style={{ fontSize: "0.72rem", color: authUser ? "#f59e0b" : "#cbd5e1" }}>
+              <UserIcon size={12} color={authUser ? "#10b981" : "#94a3b8"} />
+              <span style={{ fontSize: "0.72rem", color: authUser ? "#10b981" : "#cbd5e1", fontWeight: 600 }}>
                 {authUser ? authUser.username : "Sign In"}
               </span>
               {authUser && (
@@ -610,7 +703,7 @@ export default function AASIApp() {
                     fontWeight: 700,
                   }}
                 >
-                  {authUser.role.replace("AERODYNAMICIST", "AERO")}
+                  CLEARED
                 </span>
               )}
             </button>

@@ -1671,7 +1671,7 @@ export const DigitalTwinStudio: React.FC<DigitalTwinStudioProps> = ({
                 {currentFrame ? `${currentFrame.acceleration_g.toFixed(2)} G` : "--"}
               </div>
               <div style={{ marginTop: "6px" }}>
-                <Sparkline data={sparklineAccel} color="#a855f7" currentIdx={currentFrameIndex} />
+                <Sparkline data={sparklineAccel} color="#38bdf8" currentIdx={currentFrameIndex} />
               </div>
             </div>
 

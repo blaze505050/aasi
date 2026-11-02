@@ -871,7 +871,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "#64748b", marginBottom: "4px" }}>
                     <span>Finite Wing Aspect Ratio (AR)</span>
-                    <span style={{ color: "#a855f7", fontFamily: "var(--font-mono, monospace)" }}>{aspectRatio.toFixed(1)}</span>
+                    <span style={{ color: "#38bdf8", fontFamily: "var(--font-mono, monospace)" }}>{aspectRatio.toFixed(1)}</span>
                   </div>
                   <input
                     type="range"
@@ -880,7 +880,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                     step="0.5"
                     value={aspectRatio}
                     onChange={(e) => setAspectRatio(parseFloat(e.target.value))}
-                    style={{ width: "100%", accentColor: "#a855f7" }}
+                    style={{ width: "100%", accentColor: "#38bdf8" }}
                   />
                 </div>
               </div>
@@ -995,12 +995,12 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: "0.74rem", color: "#94a3b8", fontWeight: 600 }}>ASME V&amp;V 20 &amp; NASA CAS</span>
-                  <span style={{ fontSize: "0.64rem", padding: "2px 6px", background: "rgba(168, 85, 247, 0.15)", color: "#a855f7", borderRadius: "4px" }}>
+                  <span style={{ fontSize: "0.64rem", padding: "2px 6px", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", borderRadius: "4px" }}>
                     VERIFICATION
                   </span>
                 </div>
                 <div style={{ margin: "12px 0" }}>
-                  <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#a855f7", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#38bdf8", fontFamily: "var(--font-mono, monospace)" }}>
                     CAS {casScore}/32
                   </div>
                   <div style={{ fontSize: "0.74rem", color: "#64748b" }}>
@@ -1008,7 +1008,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                   </div>
                 </div>
                 <div style={{ fontSize: "0.68rem", color: "#94a3b8", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "8px" }}>
-                  Rating: <span style={{ color: "#a855f7", fontWeight: 600 }}>{casGrade}</span>
+                  Rating: <span style={{ color: "#38bdf8", fontWeight: 600 }}>{casGrade}</span>
                 </div>
               </div>
             </div>
@@ -1273,7 +1273,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                                     ? "#38bdf8"
                                     : spec.epistemicTier === "DATABASE_REAL"
                                     ? "#10b981"
-                                    : "#a855f7",
+                                    : "#0284c7",
                                 fontWeight: 600,
                                 fontFamily: "var(--font-mono, monospace)",
                               }}
@@ -1542,7 +1542,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
 
                   <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "4px" }}>
                     <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Recommended Inflation Layers:</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#a855f7" }}>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#38bdf8" }}>
                       {cfdCalculations.recommendedInflationLayers} layers (Growth: 1.20)
                     </span>
                   </div>
@@ -1585,7 +1585,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                   <span style={{ color: "#38bdf8" }}>■ Ux (1.2e-7)</span>
                   <span style={{ color: "#10b981" }}>■ Uy (2.4e-7)</span>
                   <span style={{ color: "#f59e0b" }}>■ p (4.2e-7)</span>
-                  <span style={{ color: "#a855f7" }}>■ k-ω (3.1e-7)</span>
+                  <span style={{ color: "#cbd5e1" }}>■ k-ω (3.1e-7)</span>
                 </div>
               </div>
 
@@ -1631,7 +1631,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                   <path
                     d="M 50 28 Q 180 50 380 92 T 780 144"
                     fill="none"
-                    stroke="#a855f7"
+                    stroke="#cbd5e1"
                     strokeWidth="1.8"
                   />
 

@@ -110,7 +110,7 @@ export const AerodynamicKpiCards: React.FC<AerodynamicKpiCardsProps> = ({
       <div className="aero-kpi-card">
         <div className="aero-kpi-header">
           <span className="aero-kpi-label">PITCHING MOMENT (c/4)</span>
-          <span className="aero-kpi-chip aero-kpi-chip-purple">C_M</span>
+          <span className="aero-kpi-chip aero-kpi-chip-slate">C_M</span>
         </div>
         <div className="aero-kpi-value-row">
           <span className="aero-kpi-value">

@@ -684,9 +684,9 @@ export const AeroDbPanel: React.FC<AeroDbPanelProps> = ({
                   onClick={() => downloadAutopilotFile("ardupilot")}
                   className="btn-export"
                   style={{
-                    background: "rgba(168, 85, 247, 0.2)",
-                    border: "1px solid #a855f7",
-                    color: "#c084fc",
+                    background: "rgba(56, 189, 248, 0.15)",
+                    border: "1px solid rgba(56, 189, 248, 0.4)",
+                    color: "#7dd3fc",
                     fontWeight: 700,
                     cursor: "pointer",
                   }}
@@ -939,7 +939,7 @@ export const AeroDbPanel: React.FC<AeroDbPanelProps> = ({
           <div className="aero-kpi-card">
             <div className="aero-kpi-header">
               <span className="aero-kpi-label">MIN PROFILE DRAG</span>
-              <span className="aero-kpi-chip aero-kpi-chip-purple">C_D0</span>
+              <span className="aero-kpi-chip aero-kpi-chip-slate">C_D0</span>
             </div>
             <div className="aero-kpi-value-row">
               <span className="aero-kpi-value">{derivs.cd_0.toFixed(5)}</span>

@@ -200,13 +200,10 @@ body {
 
 .header-logo {
   font-family: var(--font-mono);
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal), var(--accent-indigo));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #f8fafc;
 }
 
 .header-subtitle {
@@ -2094,7 +2091,7 @@ html, body {
 }
 .scenario-badge-blue { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
 .scenario-badge-amber { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
-.scenario-badge-purple { background: rgba(148, 163, 184, 0.15); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); }
+.scenario-badge-purple, .scenario-badge-slate { background: rgba(148, 163, 184, 0.15); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); }
 .scenario-badge-teal { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
 
 .scenario-title {
@@ -2258,8 +2255,8 @@ html, body {
 }
 .aero-kpi-chip-blue { background: rgba(56, 189, 248, 0.12); color: #7dd3fc; }
 .aero-kpi-chip-teal { background: rgba(16, 185, 129, 0.12); color: #6ee7b7; }
-.aero-kpi-chip-purple { background: rgba(148, 163, 184, 0.12); color: #e2e8f0; }
-.aero-kpi-chip-indigo { background: rgba(245, 158, 11, 0.12); color: #fcd34d; }
+.aero-kpi-chip-purple, .aero-kpi-chip-slate { background: rgba(148, 163, 184, 0.12); color: #e2e8f0; }
+.aero-kpi-chip-indigo, .aero-kpi-chip-amber { background: rgba(245, 158, 11, 0.12); color: #fcd34d; }
 
 .aero-kpi-value-row {
   display: flex;

@@ -55,6 +55,7 @@ interface MissionControlSidebarProps {
   onOpenTour: () => void;
   onOpenExport: () => void;
   hardwareSafe?: boolean;
+  defaultCollapsed?: boolean;
 }
 
 export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
@@ -64,8 +65,9 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
   onOpenTour,
   onOpenExport,
   hardwareSafe = true,
+  defaultCollapsed = false,
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
 
   const navItems = [
     {
@@ -476,7 +478,7 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
             }}
             title="Guided System Tour"
           >
-            <HelpCircle size={18} color="#a855f7" />
+            <HelpCircle size={18} color="#38bdf8" />
             {!collapsed && <span>Guided System Tour</span>}
           </button>
         </div>
