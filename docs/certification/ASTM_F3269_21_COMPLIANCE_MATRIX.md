@@ -66,3 +66,4 @@ ASTM F3269-21 Table 1 requires that unassured data produced by the Complex Funct
 | **F-17**| Orbital Conjunction Warning | Collision probability $P_c > 10^{-6}$ and miss $< 1,000$ m | `CRITICAL` | Compute and execute automated tangential CAM burn. |
 | **F-18**| Non-Permitted Tool Invocation | Subsystem tool call not in certified ODD whitelist | `CRITICAL` | Veto invocation; log security breach event. |
 | **F-19**| Audit Trail Tamper | Merkle hash pointer discontinuity | `FATAL` | Immediate system freeze; alert sovereign ground station. |
+

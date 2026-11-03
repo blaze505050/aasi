@@ -142,3 +142,4 @@ class GeoFNOAirfoilModel(nn.Module):
         # 6. Final projection to output flow quantities
         out_fields = self.projection(sampled_h)  # [B, N, out_channels]
         return out_fields, latent_coords
+

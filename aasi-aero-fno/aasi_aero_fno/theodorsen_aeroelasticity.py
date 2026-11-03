@@ -158,3 +158,4 @@ class TheodorsenAeroelasticSolver:
                 "mean_lambda2": float(np.mean(self.lambda2)),
             },
         )
+

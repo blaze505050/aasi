@@ -45,6 +45,7 @@ import { VirtualWindTunnelStudio } from "../components/VirtualWindTunnelStudio";
 import { IsroNasaMissionStudio } from "../components/IsroNasaMissionStudio";
 import { AutonomousResearchCockpit } from "../components/AutonomousResearchCockpit";
 import { SovereignMissionControlDashboard } from "../components/SovereignMissionControlDashboard";
+import { AeroCraftStudio } from "../components/AeroCraftStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -93,6 +94,9 @@ export default function AASIApp() {
             upper === "SHOWCASE" ||
             upper === "SOVEREIGN_MISSION_CONTROL" ||
             upper === "SOVEREIGN" ||
+            upper === "AEROCRAFT_STUDIO" ||
+            upper === "AEROCRAFT" ||
+            upper === "CRAFT" ||
             upper === "NETRA" ||
             upper === "CATFM" ||
             upper === "AUTONOMOUS_COCKPIT" ||
@@ -107,6 +111,7 @@ export default function AASIApp() {
             if (upper === "WINDTUNNEL") setActiveNavMode("VIRTUAL_WIND_TUNNEL");
             else if (upper === "MISSION") setActiveNavMode("ISRO_NASA_MISSION");
             else if (upper === "COCKPIT") setActiveNavMode("AUTONOMOUS_COCKPIT");
+            else if (upper === "AEROCRAFT" || upper === "CRAFT") setActiveNavMode("AEROCRAFT_STUDIO");
             else if (upper === "SOVEREIGN" || upper === "NETRA" || upper === "CATFM")
               setActiveNavMode("SOVEREIGN_MISSION_CONTROL");
             else setActiveNavMode(upper as WorkspaceNavMode);
@@ -175,6 +180,15 @@ export default function AASIApp() {
       badge: "EXP 3",
       icon: <Zap size={16} />,
       action: () => setActiveNavMode("INVESTIGATION"),
+    },
+    {
+      id: "cmd-ws-aerocraft",
+      category: "Workspaces",
+      title: "Launch AeroCraft Reverse-Engineering Studio",
+      description: "Clean-room 4-step loop (Study -> Build -> Check -> Ready), ASME V&V 20 Richardson GCI, and ASTM F3269-21 RTA flight approval cards.",
+      badge: "Sovereign CAE",
+      icon: <Cpu size={16} />,
+      action: () => setActiveNavMode("AEROCRAFT_STUDIO"),
     },
     {
       id: "cmd-ws-cockpit",
@@ -372,7 +386,7 @@ export default function AASIApp() {
             </div>
           </div>
 
-          {/* Center: The 5 Core Executive Aerospace Pillars (Segmented Controller) */}
+          {/* Center: The 6 Core Executive Aerospace Pillars (Segmented Controller) */}
           <nav className="flight-tools-capsule" aria-label="Aerospace Pillars Deck">
             <button
               onClick={() => setActiveNavMode("SOVEREIGN_MISSION_CONTROL")}
@@ -381,6 +395,15 @@ export default function AASIApp() {
             >
               <Globe size={13} color={activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "#38bdf8" : "#94a3b8"} />
               <span>Mission Control</span>
+            </button>
+
+            <button
+              onClick={() => setActiveNavMode("AEROCRAFT_STUDIO")}
+              className={`flight-tool-btn ${activeNavMode === "AEROCRAFT_STUDIO" ? "active" : ""}`}
+              title="AASI-Craft: Clean-Room Reverse-Engineering, 4-Step Loop (Study->Build->Check->Ready), ASME V&V 20 & ASTM F3269-21 RTA"
+            >
+              <Cpu size={13} color={activeNavMode === "AEROCRAFT_STUDIO" ? "#38bdf8" : "#94a3b8"} />
+              <span>AeroCraft Studio</span>
             </button>
 
             <button
@@ -715,6 +738,7 @@ export default function AASIApp() {
           className={
             activeNavMode === "SHOWCASE" ||
             activeNavMode === "SOVEREIGN_MISSION_CONTROL" ||
+            activeNavMode === "AEROCRAFT_STUDIO" ||
             activeNavMode === "AUTONOMOUS_COCKPIT" ||
             activeNavMode === "VIRTUAL_WIND_TUNNEL" ||
             activeNavMode === "ISRO_NASA_MISSION"
@@ -732,6 +756,8 @@ export default function AASIApp() {
             />
           ) : activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? (
             <SovereignMissionControlDashboard apiBase={API_BASE} />
+          ) : activeNavMode === "AEROCRAFT_STUDIO" ? (
+            <AeroCraftStudio />
           ) : activeNavMode === "AUTONOMOUS_COCKPIT" ? (
             <AutonomousResearchCockpit
               apiBase={API_BASE}

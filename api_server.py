@@ -32,6 +32,7 @@ from backend.datasets.subdomain_hub import AerospaceSubdomainHub, AerospaceSubdo
 from backend.agent.stateful_multi_agent_system import MultiAgentInvestigationState, SupervisoryOrchestrator
 from backend.tools.mcp_engineering_server import MCPEngineeringServer, MCPCallRequest
 from backend.api.routes_sovereign_v2 import router as sovereign_v2_router
+from backend.api.routes_aasi_craft import router as aasi_craft_router
 
 
 # ─── FastAPI Application Initialization ────────────────────────────────────────
@@ -54,6 +55,7 @@ app.add_middleware(
 )
 
 app.include_router(sovereign_v2_router)
+app.include_router(aasi_craft_router)
 
 
 # ─── Enterprise Authentication & Security ──────────────────────────────────────

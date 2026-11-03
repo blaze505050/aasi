@@ -228,3 +228,4 @@ class RTASwitch:
 
     def reset_to_complex_function(self) -> None:
         self.state = RTASwitchState.COMPLEX_FUNCTION_ACTIVE
+

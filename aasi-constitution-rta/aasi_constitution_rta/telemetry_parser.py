@@ -167,3 +167,4 @@ class CCSDSTelemetryParser:
         full_unchecksummed = hdr + data_field
         crc = sum(full_unchecksummed) & 0xFFFF
         return full_unchecksummed + struct.pack(">H", crc)
+

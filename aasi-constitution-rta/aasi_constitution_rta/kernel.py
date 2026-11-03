@@ -319,3 +319,4 @@ class SealedConstitutionalKernel:
         # 5. Record
         block_hash = self.stage_5_record(prop, auth, exec_res, obs)
         return auth, exec_res, block_hash
+

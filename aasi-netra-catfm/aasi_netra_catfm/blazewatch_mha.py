@@ -129,3 +129,4 @@ class BlazeWatchSecurityIntelligence:
             los_rate_rad_s=los_rate,
             interceptor_guidance_command=f"LOS Curvature Shaping: a_cmd={a_cmd:.2f} m/s^2; Seeker Lock Confirmed.",
         )
+

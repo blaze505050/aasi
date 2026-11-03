@@ -121,3 +121,4 @@ class IUFNOModel(nn.Module):
         # 4. Final output
         out = self.final_conv(d1)
         return out
+

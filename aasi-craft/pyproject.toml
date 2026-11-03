@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aasi-craft"
+version = "1.0.0"
+description = "AASI-Craft: Autonomous Clean-Room Aerospace Reverse-Engineering, ASME V&V 20 Verification & AI Synthesis Engine"
+authors = [{ name = "AASI National Aerospace Consortium" }]
+license = { text = "Proprietary / Sovereign Aerospace Flight-Critical" }
+dependencies = [
+    "torch>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "cryptography>=41.0.0",
+]
+
+[project.scripts]
+aasi-craft = "aasi_craft.cli:main"
+

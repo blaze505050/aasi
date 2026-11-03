@@ -46,3 +46,4 @@ class EmbeddedConstitutionalSafetyHarness:
         if command_id < 0:
             return False, 2  # F-2: Invalid token
         return True, 0
+

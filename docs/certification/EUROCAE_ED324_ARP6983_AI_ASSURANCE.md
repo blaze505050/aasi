@@ -41,3 +41,4 @@ For vision-based landing (VBL), optical docking, and neural aerodynamic surrogat
 | **Representativeness** | Training distribution must match the target airframe geometry and Reynolds scaling. | Geometry-Aware deformation (Geo-FNO) preserving physical surface camber and thickness. | Geometric error $< 0.5\%$. |
 | **Accuracy & Precision** | Ground truth measurements must possess quantified uncertainty bounds. | ASME V&V 20 Richardson extrapolation GCI calculated for every mesh level. | Fine $GCI < 1.25\%$. |
 | **Data Integrity** | Training pipelines and datasets must be protected against tampering. | SHA-256 Merkle root hashing of all raw training datasets and model weights. | Zero bit-rot / checksum match. |
+

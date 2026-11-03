@@ -30,6 +30,7 @@ import {
 export type WorkspaceNavMode =
   | "SHOWCASE"
   | "SOVEREIGN_MISSION_CONTROL"
+  | "AEROCRAFT_STUDIO"
   | "AUTONOMOUS_COCKPIT"
   | "VIRTUAL_WIND_TUNNEL"
   | "ISRO_NASA_MISSION"
@@ -83,6 +84,13 @@ export const MissionControlSidebar: React.FC<MissionControlSidebarProps> = ({
       shortLabel: "Mission Deck",
       icon: <Globe size={18} />,
       badge: "MoCA / ISRO",
+    },
+    {
+      id: "AEROCRAFT_STUDIO" as WorkspaceNavMode,
+      label: "AeroCraft Reverse-Eng Studio",
+      shortLabel: "AeroCraft",
+      icon: <Cpu size={18} />,
+      badge: "Study→Ready",
     },
     {
       id: "AUTONOMOUS_COCKPIT" as WorkspaceNavMode,

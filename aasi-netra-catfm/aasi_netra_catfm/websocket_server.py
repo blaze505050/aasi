@@ -62,3 +62,4 @@ def create_mission_telemetry_router() -> APIRouter:
             pass
 
     return router
+

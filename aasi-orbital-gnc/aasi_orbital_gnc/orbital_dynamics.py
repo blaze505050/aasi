@@ -180,3 +180,4 @@ class RelativeOrbitalDynamics6DOF:
             mass_kg=current_mass,
             fuel_remaining_kg=new_fuel,
         )
+

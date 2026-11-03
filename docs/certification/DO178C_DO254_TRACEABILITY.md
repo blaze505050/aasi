@@ -38,3 +38,4 @@
 - **Spaceborne COTS Accelerators**: Validated against Single Event Upsets (SEU) and Total Ionizing Dose (TID) degradation following ISRO PSLV-C60 POEM-4 MOI-TD flight heritage.
 - **TMR Memory Scrubbing**: Real-time Triple Modular Redundancy (TMR) voting across RAM banks triggered by Failsafe F-15.
 - **RadMon Dosimetry Interface**: Automated telemetry ingestion from SpaDeX SDX02 Radiation Monitor (RadMon) to trigger weight scrubbing when orbital flux exceeds safe thresholds.
+

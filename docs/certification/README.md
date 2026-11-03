@@ -23,3 +23,4 @@ This directory contains the formal airworthiness, flight safety, and regulatory 
 2. **Deterministic Constitutional Seal**: An immutable, Ed25519-signed boot kernel enforces strict boundary constraints outside neural addressable memory.
 3. **ASTM F3269 Table 1 Adherence**: Uncorroborated telemetry or state hypotheses from the Complex Function are never routed directly into the Safety Monitor's state estimation without independent physical sensor validation.
 4. **Deterministic Recovery**: Upon 2-of-3 monitor veto, an RTA hardware/software switch disengages the Complex Function and transitions the vehicle into a DO-178C certified Recovery Function (Safe-Hold, Wings-Level Trim, or Retrograde Abort).
+
