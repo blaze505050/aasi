@@ -133,8 +133,10 @@ app.add_middleware(
 
 # Phase 27 & 28: Control Plane Modular API Routers
 from backend.api import api_router, api_v1_router
+from backend.api.routes_aasi_craft import router as craft_router
 app.include_router(api_router)
 app.include_router(api_v1_router)
+app.include_router(craft_router)
 
 
 

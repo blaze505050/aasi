@@ -17,9 +17,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 root_dir = Path(__file__).resolve().parent.parent.parent
-aasi_craft_dir = root_dir / "aasi-craft"
-if str(aasi_craft_dir) not in sys.path:
-    sys.path.insert(0, str(aasi_craft_dir))
+for mod_name in ["aasi-craft", "aasi-orbital-gnc", "aasi-aero-fno", "aasi-constitution-rta"]:
+    mod_path = root_dir / mod_name
+    if str(mod_path) not in sys.path:
+        sys.path.insert(0, str(mod_path))
 
 from aasi_craft.evidence_dossier import EvidenceDossier
 from aasi_craft.parsers.polar_parser import AirfoilPolarParser
@@ -27,11 +28,20 @@ from aasi_craft.parsers.telemetry_parser import CcsdsTelemetryParser
 from aasi_craft.synthesis.clean_room_synthesizer import CleanRoomSynthesizer
 from aasi_craft.verification.asme_vv20 import AsmeVv20Verifier
 from aasi_craft.assurance.rta_packager import RtaAirworthinessPackager
+from aasi_craft.cad.geometry_engine import CadGeometryEngine
+from aasi_craft.mesher.automated_mesher import AutomatedMesher
+from aasi_craft.exporters.autopilot_exporter import AutopilotHardwareExporter
+from aasi_orbital_gnc.hil_bridge import HilFlightBridge
+from aasi_aero_fno.adaskip_tmr import TmrRadiationExecutive
 from aasi_craft.flagship_workflow import (
     run_naca4412_surrogate_pipeline,
     run_spadex_eclipse_docking_pipeline,
     NACA_4412_EXPERIMENTAL_POLAR,
 )
+
+# Global HIL singleton bridge
+hil_bridge_singleton = HilFlightBridge()
+tmr_exec_singleton = TmrRadiationExecutive()
 
 router = APIRouter(prefix="/api/v2/craft", tags=["AASI-Craft Reverse Engineering"])
 
@@ -174,4 +184,106 @@ def post_pipeline(req: PipelineRequest) -> Dict[str, Any]:
     elif req.preset.lower() in ["spadex", "orbital"]:
         return run_spadex_eclipse_docking_pipeline(auto_approve=req.auto_approve)
     raise HTTPException(status_code=400, detail=f"Unsupported pipeline preset: {req.preset}")
+
+
+# ─── CAD, MESHING, HIL & SPACEBORNE EDGE EXTENSIONS ───
+
+class CadInspectRequest(BaseModel):
+    name: str = "TRIBAL_TACTICAL_UAV"
+    raw_ascii_stl: Optional[str] = None
+    use_preset_uav: bool = True
+
+
+class MesherRequest(BaseModel):
+    geometry_name: str = "TRIBAL_TACTICAL_UAV"
+    chord_m: float = 1.0
+    u_inf_mps: float = 60.0
+    target_y_plus: float = 0.95
+    grid_ratio: float = 1.414
+
+
+class HilStepRequest(BaseModel):
+    dt_sec: float = 0.01
+
+
+class HilInjectFaultRequest(BaseModel):
+    fault_mode: str = Field(default="ACTUATOR_JAM_AILERON", description="ACTUATOR_JAM_AILERON, ACTUATOR_FLOAT_RUDDER, ORBITAL_ECLIPSE_GNSS_OUTAGE, SAA_COSMIC_SEU, NOMINAL")
+
+
+class TmrEvaluateRequest(BaseModel):
+    alpha_deg: float = 4.0
+    inject_seu_channel: Optional[int] = None
+
+
+class AutopilotExportRequest(BaseModel):
+    airframe_name: str = "TRIBAL_TACTICAL_UAV"
+    mass_kg: float = 12.5
+    span_m: float = 2.4
+    chord_m: float = 0.35
+    v_cruise_mps: float = 24.0
+    cl_alpha: float = 5.85
+    cm_alpha: float = -0.62
+
+
+@router.post("/cad/inspect-stl")
+def post_inspect_stl(req: CadInspectRequest) -> Dict[str, Any]:
+    """Parses 3D surface STL, calculates MAC, planform area, aspect ratio, and sweep."""
+    if req.raw_ascii_stl:
+        metrics = CadGeometryEngine.parse_stl_ascii(req.raw_ascii_stl, name=req.name)
+    else:
+        sample_bytes = CadGeometryEngine.generate_sample_uav_wing_stl()
+        metrics = CadGeometryEngine.parse_stl_binary(sample_bytes, name=req.name)
+    return metrics.to_dict()
+
+
+@router.post("/mesher/generate-asme-grid")
+def post_generate_asme_grid(req: MesherRequest) -> Dict[str, Any]:
+    """Synthesizes ASME V&V 20 3-level grid hierarchy with prism inflation (y+ < 1.0)."""
+    hierarchy = AutomatedMesher.generate_asme_vv20_grid_hierarchy(
+        geometry_name=req.geometry_name,
+        base_chord_m=req.chord_m,
+        u_inf=req.u_inf_mps,
+        grid_refinement_ratio=req.grid_ratio,
+    )
+    return hierarchy.to_dict()
+
+
+@router.post("/hil/step-telemetry")
+def post_hil_step(req: HilStepRequest) -> Dict[str, Any]:
+    """Steps the real-time 100 Hz Hardware-in-the-Loop simulation cycle."""
+    frame = hil_bridge_singleton.step_simulation_cycle(dt=req.dt_sec)
+    return frame.to_dict()
+
+
+@router.post("/hil/inject-failure")
+def post_hil_inject_failure(req: HilInjectFaultRequest) -> Dict[str, Any]:
+    """Injects or clears flight hardware fault into the active HIL bridge."""
+    status_msg = hil_bridge_singleton.inject_failure(req.fault_mode)
+    return {"status": status_msg, "active_fault": hil_bridge_singleton.active_fault}
+
+
+@router.post("/space/tmr-evaluate")
+def post_tmr_evaluate(req: TmrEvaluateRequest) -> Dict[str, Any]:
+    """Executes on-orbit Triple Modular Redundancy (TMR) evaluation with AdaSkip pruning."""
+    res = tmr_exec_singleton.evaluate_with_tmr(
+        alpha_deg=req.alpha_deg,
+        inject_seu_channel=req.inject_seu_channel
+    )
+    return res.to_dict()
+
+
+@router.post("/export/autopilot")
+def post_export_autopilot(req: AutopilotExportRequest) -> Dict[str, Any]:
+    """Synthesizes ready-to-flash ArduPilot .param and PX4 mixer configurations."""
+    pkg = AutopilotHardwareExporter.generate_autopilot_package(
+        airframe_name=req.airframe_name,
+        mass_kg=req.mass_kg,
+        span_m=req.span_m,
+        chord_m=req.chord_m,
+        v_cruise_mps=req.v_cruise_mps,
+        cl_alpha=req.cl_alpha,
+        cm_alpha=req.cm_alpha,
+    )
+    return pkg.to_dict()
+
 

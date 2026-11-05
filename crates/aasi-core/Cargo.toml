@@ -1,0 +1,22 @@
+[package]
+name = "aasi-core"
+version = "2.0.0"
+edition = "2021"
+authors = ["AASI Sovereign Aerospace Intelligence <avionics@aasi.isro.gov.in>"]
+description = "High-integrity flight micro-kernel, 12-state NavIC EKF, and ASTM F3269-21 RTA safety monitor for spaceborne avionics and UAVs"
+license = "Proprietary"
+readme = "README.md"
+
+[lib]
+crate-type = ["lib", "staticlib", "cdylib"]
+
+[dependencies]
+# Zero heap allocations: pure core math for Cortex-M4/R5 and RISC-V Shakti
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+overflow-checks = true
+
