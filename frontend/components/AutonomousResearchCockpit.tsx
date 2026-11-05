@@ -1143,7 +1143,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <Terminal size={14} color="#38bdf8" />
-                  <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#f8fafc" }}>
+                  <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-primary, #0f172a)" }}>
                     Cryptographic Multi-Agent Investigation Log
                   </span>
                 </div>
@@ -1505,37 +1505,37 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                 </h3>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "8px" }}>
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Reynolds Number (Re):</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#f8fafc" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "8px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Reynolds Number (Re):</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "var(--text-primary, #0f172a)" }}>
                       {cfdCalculations.Re.toExponential(3)}
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "8px" }}>
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>First Cell Height (Δy₁):</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#38bdf8" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "8px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#64748b" }}>First Cell Height (Δy₁):</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#0284c7" }}>
                       {(cfdCalculations.deltaY1 * 1000).toFixed(4)} mm ({cfdCalculations.deltaY1.toExponential(2)} m)
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "8px" }}>
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Boundary Layer Thickness (δ):</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#f59e0b" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "8px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Boundary Layer Thickness (δ):</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#d97706" }}>
                       {(cfdCalculations.deltaBL * 1000).toFixed(2)} mm
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "8px" }}>
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Wall Shear Stress (τ_w):</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#10b981" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "8px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Wall Shear Stress (τ_w):</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#059669" }}>
                       {cfdCalculations.tauW.toFixed(3)} Pa
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "8px" }}>
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Friction Velocity (u_τ):</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "#f8fafc" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "8px" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Friction Velocity (u_τ):</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "var(--text-primary, #0f172a)" }}>
                       {cfdCalculations.uTau.toFixed(3)} m/s
                     </span>
                   </div>
@@ -1916,7 +1916,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
                       <div>
                         <div style={{ fontSize: "0.68rem", color: "#64748b" }}>Target Property</div>
-                        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#f8fafc", fontFamily: "var(--font-mono, monospace)" }}>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", fontFamily: "var(--font-mono, monospace)" }}>
                           {bench.target}
                         </div>
                       </div>
@@ -2280,7 +2280,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                 >
                   AASI VERIFIED SCIENTIFIC DOSSIER — GRADE 4
                 </span>
-                <h1 style={{ fontSize: "1.45rem", fontWeight: 800, margin: "10px 0 6px 0", color: "#f8fafc" }}>
+                <h1 style={{ fontSize: "1.45rem", fontWeight: 800, margin: "10px 0 6px 0", color: "var(--text-primary, #0f172a)" }}>
                   Autonomous Investigation of {selectedAirfoil} Aerodynamic Efficiency across Reynolds Numbers
                 </h1>
                 <div style={{ fontSize: "0.78rem", color: "#94a3b8", display: "flex", gap: "16px", flexWrap: "wrap" }}>

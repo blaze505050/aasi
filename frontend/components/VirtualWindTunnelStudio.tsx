@@ -547,7 +547,7 @@ export const VirtualWindTunnelStudio: React.FC<VirtualWindTunnelStudioProps> = (
             <Wind size={18} />
           </div>
           <div>
-            <h3 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, color: "#f8fafc" }}>3D Virtual Wind Tunnel</h3>
+            <h3 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, color: "var(--text-primary, #0f172a)" }}>3D Virtual Wind Tunnel</h3>
             <p style={{ fontSize: "0.72rem", color: "#64748b", margin: 0, fontFamily: "var(--font-mono)" }}>Automated CAE &amp; Ingestion</p>
           </div>
         </div>
@@ -600,7 +600,7 @@ export const VirtualWindTunnelStudio: React.FC<VirtualWindTunnelStudioProps> = (
           }}
         >
           <Upload size={18} color="#f59e0b" style={{ margin: "0 auto 8px" }} />
-          <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#f8fafc" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-primary, #0f172a)" }}>
             {customFileName ? customFileName : "Ingest Custom CAD / Mesh"}
           </div>
           <div style={{ fontSize: "0.7rem", color: "#94a3b8", marginTop: "2px" }}>
@@ -993,7 +993,7 @@ export const VirtualWindTunnelStudio: React.FC<VirtualWindTunnelStudioProps> = (
             <span>ASME V&amp;V 20 Verification Gate</span>
           </div>
           <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "6px", lineHeight: 1.4 }}>
-            Discretization GCI: <strong style={{ color: "#34d399" }}>0.84%</strong> • Observed order: <strong style={{ color: "#f8fafc" }}>p=1.94</strong>
+            Discretization GCI: <strong style={{ color: "#059669" }}>0.84%</strong> • Observed order: <strong style={{ color: "var(--text-primary, #0f172a)" }}>p=1.94</strong>
             <br />
             Provenance: <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "#64748b" }}>SHA-256 e3b0c442...</span>
           </div>

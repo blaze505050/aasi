@@ -137,10 +137,10 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             alignItems: "center",
             gap: "12px",
             padding: "16px 20px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            borderBottom: "1px solid var(--border-color, #e2e8f0)",
           }}
         >
-          <Search size={20} color="#f59e0b" style={{ flexShrink: 0 }} />
+          <Search size={20} color="var(--accent-gold, #d97706)" style={{ flexShrink: 0 }} />
           <input
             ref={inputRef}
             type="text"
@@ -152,7 +152,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
               background: "transparent",
               border: "none",
               outline: "none",
-              color: "#f8fafc",
+              color: "var(--text-primary, #0f172a)",
               fontSize: "1rem",
               fontFamily: "var(--font-sans)",
             }}
@@ -161,9 +161,9 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             style={{
               padding: "3px 8px",
               borderRadius: "6px",
-              background: "rgba(255, 255, 255, 0.06)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              color: "#94a3b8",
+              background: "var(--bg-secondary, #f1f5f9)",
+              border: "1px solid var(--border-color, #e2e8f0)",
+              color: "var(--text-secondary, #64748b)",
               fontSize: "0.72rem",
               fontFamily: "var(--font-mono)",
             }}
@@ -228,12 +228,12 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                         height: "32px",
                         borderRadius: "6px",
                         background: isSelected
-                          ? "rgba(245, 158, 11, 0.18)"
-                          : "rgba(255, 255, 255, 0.04)",
+                          ? "rgba(217, 119, 6, 0.18)"
+                          : "rgba(0, 0, 0, 0.04)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: isSelected ? "#f59e0b" : "#94a3b8",
+                        color: isSelected ? "var(--accent-gold, #d97706)" : "var(--text-secondary, #64748b)",
                       }}
                     >
                       {cmd.icon}
@@ -241,7 +241,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                     <div>
                       <div
                         style={{
-                          color: isSelected ? "#ffffff" : "#f1f5f9",
+                          color: "var(--text-primary, #0f172a)",
                           fontSize: "0.88rem",
                           fontWeight: 600,
                         }}
@@ -250,7 +250,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                       </div>
                       <div
                         style={{
-                          color: isSelected ? "#cbd5e1" : "#64748b",
+                          color: "var(--text-secondary, #475569)",
                           fontSize: "0.76rem",
                         }}
                       >
@@ -265,8 +265,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                         style={{
                           padding: "2px 7px",
                           borderRadius: "5px",
-                          background: "rgba(0, 210, 255, 0.1)",
-                          color: "#64d2ff",
+                          background: "rgba(2, 132, 199, 0.1)",
+                          color: "var(--accent-cyan, #0284c7)",
                           fontSize: "0.68rem",
                           fontFamily: "var(--font-mono)",
                         }}
@@ -276,7 +276,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                     )}
                     <ArrowRight
                       size={14}
-                      color={isSelected ? "#64d2ff" : "transparent"}
+                      color={isSelected ? "var(--accent-cyan, #0284c7)" : "transparent"}
                       style={{ transition: "color 120ms ease" }}
                     />
                   </div>
@@ -293,17 +293,17 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             alignItems: "center",
             justifyContent: "space-between",
             padding: "10px 18px",
-            borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-            background: "rgba(10, 14, 24, 0.6)",
+            borderTop: "1px solid var(--border-color, #e2e8f0)",
+            background: "var(--bg-secondary, #f8fafc)",
             fontSize: "0.72rem",
-            color: "#64748b",
+            color: "var(--text-secondary, #64748b)",
             fontFamily: "var(--font-mono)",
           }}
         >
           <div style={{ display: "flex", gap: "14px" }}>
-            <span><strong style={{ color: "#94a3b8" }}>↑↓</strong> to navigate</span>
-            <span><strong style={{ color: "#94a3b8" }}>↵</strong> to select</span>
-            <span><strong style={{ color: "#94a3b8" }}>esc</strong> to close</span>
+            <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>↑↓</strong> to navigate</span>
+            <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>↵</strong> to select</span>
+            <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>esc</strong> to close</span>
           </div>
           <div>AASI Universal Command Fabric</div>
         </div>

@@ -211,7 +211,7 @@ export const AirfoilOptimizationStudio: React.FC<AirfoilOptimizationStudioProps>
         <div
           style={{
             padding: "14px 20px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            borderBottom: "1px solid var(--border-color, #e2e8f0)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -272,8 +272,8 @@ export const AirfoilOptimizationStudio: React.FC<AirfoilOptimizationStudioProps>
           <div
             style={{
               padding: "16px",
-              background: "rgba(10, 14, 26, 0.95)",
-              borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+              background: "var(--bg-secondary, #ffffff)",
+              borderRight: "1px solid var(--border-color, #e2e8f0)",
               display: "flex",
               flexDirection: "column",
               gap: "14px",
@@ -285,7 +285,7 @@ export const AirfoilOptimizationStudio: React.FC<AirfoilOptimizationStudioProps>
             </div>
 
             <div>
-              <label style={{ fontSize: "0.72rem", color: "#94a3b8", display: "block", marginBottom: "4px" }}>
+              <label style={{ fontSize: "0.72rem", color: "var(--text-secondary, #475569)", display: "block", marginBottom: "4px" }}>
                 Baseline Airframe Geometry
               </label>
               <select
@@ -295,9 +295,9 @@ export const AirfoilOptimizationStudio: React.FC<AirfoilOptimizationStudioProps>
                   width: "100%",
                   padding: "7px 10px",
                   borderRadius: "8px",
-                  background: "rgba(0, 0, 0, 0.4)",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  color: "#f8fafc",
+                  background: "var(--bg-card, #ffffff)",
+                  border: "1px solid var(--border-color, #e2e8f0)",
+                  color: "var(--text-primary, #0f172a)",
                   fontSize: "0.78rem",
                 }}
               >
@@ -427,8 +427,8 @@ export const AirfoilOptimizationStudio: React.FC<AirfoilOptimizationStudioProps>
                     AIRFOIL CONTOUR GEOMETRY COMPARISON
                   </div>
 
-                  <svg width="100%" height="150" viewBox="0 0 600 140" style={{ background: "rgba(0, 0, 0, 0.25)", borderRadius: "10px" }}>
-                    <line x1="20" y1="70" x2="580" y2="70" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" strokeDasharray="3 3" />
+                  <svg width="100%" height="150" viewBox="0 0 600 140" style={{ background: "var(--bg-primary, #f8fafc)", border: "1px solid var(--border-color, #e2e8f0)", borderRadius: "10px" }}>
+                    <line x1="20" y1="70" x2="580" y2="70" stroke="var(--border-color, #e2e8f0)" strokeWidth="1" strokeDasharray="3 3" />
 
                     {/* Baseline Contour (Dashed Gray) */}
                     <path

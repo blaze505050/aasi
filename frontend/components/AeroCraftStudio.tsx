@@ -793,7 +793,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderBottom: "1px solid var(--border-color, #e2e8f0)",
                   paddingBottom: "12px",
                 }}
               >
@@ -802,7 +802,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                     style={{
                       fontSize: "0.92rem",
                       fontWeight: 700,
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
@@ -836,7 +836,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
               <div
                 style={{
                   background: "#07090e",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  border: "1px solid var(--border-color, #e2e8f0)",
                   borderRadius: "8px",
                   padding: "16px",
                   fontFamily: "var(--font-mono, monospace)",
@@ -885,7 +885,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                     <span style={{ color: "#64748b", fontSize: "0.68rem", textTransform: "uppercase" }}>
                       Target Identifier
                     </span>
-                    <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "0.82rem" }}>
+                    <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "0.82rem" }}>
                       {studyData.target_name}
                     </div>
                   </div>
@@ -893,7 +893,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                     <span style={{ color: "#64748b", fontSize: "0.68rem", textTransform: "uppercase" }}>
                       Physics Subsystem
                     </span>
-                    <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "0.82rem" }}>
+                    <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "0.82rem" }}>
                       {studyData.y_plus_resolution}
                     </div>
                   </div>
@@ -1005,7 +1005,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderBottom: "1px solid var(--border-color, #e2e8f0)",
                   paddingBottom: "12px",
                 }}
               >
@@ -1014,7 +1014,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                     style={{
                       fontSize: "0.92rem",
                       fontWeight: 700,
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
@@ -1050,7 +1050,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   <span style={{ fontSize: "0.68rem", fontFamily: "var(--font-mono, monospace)", color: "#94a3b8", textTransform: "uppercase" }}>
                     Architecture
                   </span>
-                  <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#f8fafc", marginTop: "4px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", marginTop: "4px", fontFamily: "var(--font-mono, monospace)" }}>
                     {buildData.architecture}
                   </div>
                 </div>
@@ -1082,7 +1082,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   style={{
                     padding: "14px",
                     background: "#07090e",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
                     borderRadius: "8px",
                     fontSize: "0.72rem",
                     fontFamily: "var(--font-mono, monospace)",
@@ -1116,7 +1116,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderBottom: "1px solid var(--border-color, #e2e8f0)",
                   paddingBottom: "12px",
                 }}
               >
@@ -1125,7 +1125,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                     style={{
                       fontSize: "0.92rem",
                       fontWeight: 700,
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
@@ -1161,7 +1161,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   <span style={{ fontSize: "0.68rem", fontFamily: "var(--font-mono, monospace)", color: "#94a3b8", textTransform: "uppercase" }}>
                     Fine Grid (h1)
                   </span>
-                  <div style={{ fontSize: "1.15rem", fontWeight: 700, color: "#f8fafc", marginTop: "4px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", marginTop: "4px", fontFamily: "var(--font-mono, monospace)" }}>
                     {checkData.f1_fine}
                   </div>
                   <div style={{ fontSize: "0.65rem", color: "#64748b", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
@@ -1210,7 +1210,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
               <div
                 style={{
                   background: "#07090e",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  border: "1px solid var(--border-color, #e2e8f0)",
                   borderRadius: "8px",
                   padding: "16px",
                   display: "flex",
@@ -1230,7 +1230,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: "#94a3b8" }}>Convergence Classification:</span>
-                  <span style={{ color: "#f8fafc", fontWeight: 700 }}>{checkData.convergence_type}</span>
+                  <span style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700 }}>{checkData.convergence_type}</span>
                 </div>
               </div>
             </div>
@@ -1254,7 +1254,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderBottom: "1px solid var(--border-color, #e2e8f0)",
                   paddingBottom: "12px",
                 }}
               >
@@ -1263,7 +1263,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                     style={{
                       fontSize: "0.92rem",
                       fontWeight: 700,
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
@@ -1414,12 +1414,12 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                 gap: "20px",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "16px" }}>
                 <div>
                   <div style={{ fontSize: "0.72rem", fontFamily: "var(--font-mono, monospace)", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     PILLAR 1: DIRECT CAD INGESTION &amp; AUTOMATED ASME MESHING
                   </div>
-                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc", margin: "4px 0 0 0" }}>
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", margin: "4px 0 0 0" }}>
                     3D Surface Geometry &amp; Wall-Resolved Boundary Layer Inflation
                   </h3>
                 </div>
@@ -1450,7 +1450,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "10px" }}>
                 <div style={{ background: "var(--bg-card, #ffffff)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)" }}>
                   <span style={{ color: "#94a3b8", fontSize: "0.68rem", textTransform: "uppercase" }}>Wingspan (b)</span>
-                  <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
                     {cadData.span} m
                   </div>
                 </div>
@@ -1462,19 +1462,19 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                 </div>
                 <div style={{ background: "var(--bg-card, #ffffff)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)" }}>
                   <span style={{ color: "#94a3b8", fontSize: "0.68rem", textTransform: "uppercase" }}>Mean Chord (MAC)</span>
-                  <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
                     {cadData.mac} m
                   </div>
                 </div>
                 <div style={{ background: "var(--bg-card, #ffffff)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)" }}>
                   <span style={{ color: "#94a3b8", fontSize: "0.68rem", textTransform: "uppercase" }}>Planform Area (Sref)</span>
-                  <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
                     {cadData.planform_area} m²
                   </div>
                 </div>
                 <div style={{ background: "var(--bg-card, #ffffff)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)" }}>
                   <span style={{ color: "#94a3b8", fontSize: "0.68rem", textTransform: "uppercase" }}>LE Sweep (Λ)</span>
-                  <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
                     {cadData.sweep_deg}°
                   </div>
                 </div>
@@ -1499,8 +1499,8 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", fontSize: "0.72rem", fontFamily: "var(--font-mono, monospace)", color: "#cbd5e1" }}>
                   <div>Target y+: <span style={{ color: "#10b981", fontWeight: 700 }}>{cadData.target_y_plus}</span></div>
                   <div>1st Cell Height: <span style={{ color: "#38bdf8", fontWeight: 700 }}>8.7 μm</span></div>
-                  <div>Prism Layers: <span style={{ color: "#f8fafc", fontWeight: 700 }}>{cadData.prism_layers}</span></div>
-                  <div>Geometric Growth: <span style={{ color: "#f8fafc", fontWeight: 700 }}>{cadData.expansion_ratio}x</span></div>
+                  <div>Prism Layers: <span style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700 }}>{cadData.prism_layers}</span></div>
+                  <div>Geometric Growth: <span style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700 }}>{cadData.expansion_ratio}x</span></div>
                 </div>
               </div>
 
@@ -1542,12 +1542,12 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                 gap: "20px",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "16px" }}>
                 <div>
                   <div style={{ fontSize: "0.72rem", fontFamily: "var(--font-mono, monospace)", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     PILLAR 2: REAL-TIME HIL &amp; SITL FLIGHT BRIDGE
                   </div>
-                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc", margin: "4px 0 0 0" }}>
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", margin: "4px 0 0 0" }}>
                     100 Hz MAVLink v2 Telemetry Stream &amp; Active Dynamic Inversion
                   </h3>
                 </div>
@@ -1610,13 +1610,13 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                 </div>
                 <div style={{ background: "var(--bg-card, #ffffff)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)" }}>
                   <span style={{ color: "#94a3b8", fontSize: "0.68rem", textTransform: "uppercase" }}>Yaw Angle (ψ)</span>
-                  <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "1.1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "1.1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
                     {hilData.yaw_deg}°
                   </div>
                 </div>
                 <div style={{ background: "var(--bg-card, #ffffff)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)" }}>
                   <span style={{ color: "#94a3b8", fontSize: "0.68rem", textTransform: "uppercase" }}>Roll Rate (p)</span>
-                  <div style={{ color: "#f8fafc", fontWeight: 700, fontSize: "1.1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ color: "var(--text-primary, #0f172a)", fontWeight: 700, fontSize: "1.1rem", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
                     {hilData.p_deg_s} °/s
                   </div>
                 </div>
@@ -1637,7 +1637,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
               {/* Fault Injection Panel */}
               <div style={{ background: "#07090e", padding: "16px", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.06)", display: "flex", flexDirection: "column", gap: "12px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono, monospace)", color: "#f8fafc", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono, monospace)", color: "var(--text-primary, #0f172a)", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
                     <AlertTriangle size={14} color="#f59e0b" /> Real-Time In-Flight Fault Injection Controls
                   </span>
                   <span style={{ fontSize: "0.68rem", fontFamily: "var(--font-mono, monospace)", color: hilData.recovery_active ? "#10b981" : "#94a3b8" }}>
@@ -1660,7 +1660,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                         style={{
                           padding: "8px 14px",
                           borderRadius: "6px",
-                          border: isActive ? `1px solid ${btn.color}` : "1px solid rgba(255, 255, 255, 0.08)",
+                          border: isActive ? `1px solid ${btn.color}` : "1px solid var(--border-color, #e2e8f0)",
                           background: isActive ? `${btn.color}22` : "#111420",
                           color: isActive ? btn.color : "#cbd5e1",
                           fontSize: "0.72rem",
@@ -1693,12 +1693,12 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                 gap: "20px",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "16px" }}>
                 <div>
                   <div style={{ fontSize: "0.72rem", fontFamily: "var(--font-mono, monospace)", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     PILLAR 4 &amp; 5: HARDWARE EXPORTERS &amp; SPACEBORNE EDGE HARDENING
                   </div>
-                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc", margin: "4px 0 0 0" }}>
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", margin: "4px 0 0 0" }}>
                     Turnkey ArduPilot .param, PX4 Mixer, and DO-178C DAL-A C Headers
                   </h3>
                 </div>
@@ -1800,8 +1800,8 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
               gap: "12px",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "10px" }}>
-              <span style={{ fontSize: "0.78rem", fontFamily: "var(--font-mono, monospace)", fontWeight: 700, color: "#f8fafc", display: "flex", alignItems: "center", gap: "6px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "10px" }}>
+              <span style={{ fontSize: "0.78rem", fontFamily: "var(--font-mono, monospace)", fontWeight: 700, color: "var(--text-primary, #0f172a)", display: "flex", alignItems: "center", gap: "6px" }}>
                 <Terminal size={14} color="#38bdf8" /> Dual CLI &amp; MCP Stream
               </span>
               <span style={{ fontSize: "0.68rem", fontFamily: "var(--font-mono, monospace)", color: "#64748b" }}>Live JSON-RPC</span>
@@ -1855,7 +1855,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
               gap: "12px",
             }}
           >
-            <span style={{ fontSize: "0.78rem", fontFamily: "var(--font-mono, monospace)", fontWeight: 700, color: "#f8fafc", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "10px" }}>
+            <span style={{ fontSize: "0.78rem", fontFamily: "var(--font-mono, monospace)", fontWeight: 700, color: "var(--text-primary, #0f172a)", borderBottom: "1px solid var(--border-color, #e2e8f0)", paddingBottom: "10px" }}>
               Airworthiness Certification Gates
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.75rem", fontFamily: "var(--font-mono, monospace)" }}>

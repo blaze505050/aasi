@@ -2522,14 +2522,14 @@ html, body {
   max-width: 1320px;
   max-height: calc(100vh - 36px);
   height: min(92vh, 840px);
-  background: #080d19;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 16px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #f8fafc;
+  color: var(--text-primary, #0f172a);
 }
 
 /* ═══════════════════════════════════════════════
@@ -2538,21 +2538,40 @@ html, body {
    ═══════════════════════════════════════════════ */
 
 .apple-glass {
-  background: rgba(14, 19, 32, 0.78);
+  background: var(--bg-glass, rgba(255, 255, 255, 0.94));
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+}
+
+.apple-glass-card {
+  background: var(--bg-card, #ffffff);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .aerospace-modal-container {
+  background: #080d19;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .apple-glass {
+  background: rgba(14, 19, 32, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.09);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.42), inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
 }
 
-.apple-glass-card {
+[data-theme="dark"] .apple-glass-card {
   background: rgba(16, 22, 36, 0.68);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .apple-glass-card:hover {
@@ -2777,9 +2796,24 @@ html, body {
 :root:not([data-theme="dark"]) div[style*="color: #f1f5f9"],
 :root:not([data-theme="dark"]) h1[style*="color: #f8fafc"],
 :root:not([data-theme="dark"]) h2[style*="color: #f8fafc"],
+:root:not([data-theme="dark"]) h1[style*="color: #f8fafc"],
+:root:not([data-theme="dark"]) h2[style*="color: #f8fafc"],
 :root:not([data-theme="dark"]) h3[style*="color: #f8fafc"],
-:root:not([data-theme="dark"]) h4[style*="color: #f8fafc"] {
+:root:not([data-theme="dark"]) h4[style*="color: #f8fafc"],
+:root:not([data-theme="dark"]) p[style*="color: #f8fafc"],
+:root:not([data-theme="dark"]) div[style*="color: #f8fafc"]:not(button *),
+:root:not([data-theme="dark"]) span[style*="color: #f8fafc"]:not(button *),
+:root:not([data-theme="dark"]) strong[style*="color: #f8fafc"] {
   color: #0f172a !important;
+}
+
+:root:not([data-theme="dark"]) div[style*="border: 1px solid rgba(255, 255, 255"],
+:root:not([data-theme="dark"]) div[style*="border-top: 1px solid rgba(255, 255, 255"],
+:root:not([data-theme="dark"]) div[style*="border-bottom: 1px solid rgba(255, 255, 255"],
+:root:not([data-theme="dark"]) div[style*="border-left: 1px solid rgba(255, 255, 255"],
+:root:not([data-theme="dark"]) div[style*="border-right: 1px solid rgba(255, 255, 255"],
+:root:not([data-theme="dark"]) span[style*="border-bottom: 1px solid rgba(255, 255, 255"] {
+  border-color: #e2e8f0 !important;
 }
 
 :root:not([data-theme="dark"]) span[style*="color: #94a3b8"],
