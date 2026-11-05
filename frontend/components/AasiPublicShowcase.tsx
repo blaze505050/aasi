@@ -215,7 +215,7 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                   lineHeight: 1.12,
                   letterSpacing: "-0.03em",
                   marginBottom: "20px",
-                  color: "#f8fafc",
+                  color: "var(--text-primary, #0f172a)",
                 }}
               >
                 Autonomous Aerodynamic Intelligence for Modern Aerospace &amp; Defense
@@ -224,7 +224,7 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                 style={{
                   fontSize: "1.12rem",
                   lineHeight: 1.6,
-                  color: "#94a3b8",
+                  color: "var(--text-secondary, #334155)",
                   maxWidth: "760px",
                   marginBottom: "32px",
                 }}
@@ -244,13 +244,13 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                     gap: "10px",
                     padding: "13px 26px",
                     borderRadius: "6px",
-                    background: "#f59e0b",
-                    color: "#08090d",
+                    background: "var(--accent-gold, #d97706)",
+                    color: "#ffffff",
                     fontSize: "0.92rem",
                     fontWeight: 700,
                     border: "none",
                     cursor: "pointer",
-                    boxShadow: "0 2px 14px rgba(245, 158, 11, 0.25)",
+                    boxShadow: "0 2px 14px rgba(217, 119, 6, 0.25)",
                     transition: "transform 0.15s ease",
                   }}
                 >
@@ -267,15 +267,16 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                     gap: "10px",
                     padding: "13px 22px",
                     borderRadius: "6px",
-                    background: "rgba(19, 23, 36, 0.8)",
-                    color: "#f8fafc",
+                    background: "var(--bg-card, #ffffff)",
+                    color: "var(--text-primary, #0f172a)",
                     fontSize: "0.92rem",
                     fontWeight: 600,
-                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
                     cursor: "pointer",
                   }}
                 >
-                  <Wind size={17} color="#38bdf8" />
+                  <Wind size={17} color="var(--accent-cyan, #0284c7)" />
                   <span>3D Virtual Wind Tunnel</span>
                 </button>
 
@@ -287,15 +288,16 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                     gap: "10px",
                     padding: "13px 22px",
                     borderRadius: "6px",
-                    background: "rgba(19, 23, 36, 0.8)",
-                    color: "#f8fafc",
+                    background: "var(--bg-card, #ffffff)",
+                    color: "var(--text-primary, #0f172a)",
                     fontSize: "0.92rem",
                     fontWeight: 600,
-                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
                     cursor: "pointer",
                   }}
                 >
-                  <Rocket size={17} color="#f59e0b" />
+                  <Rocket size={17} color="var(--accent-gold, #d97706)" />
                   <span>ISRO &amp; NASA Mission Deck</span>
                 </button>
               </div>
@@ -304,18 +306,18 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
             {/* Aerospace System Status Instrumentation */}
             <div
               style={{
-                background: "rgba(14, 17, 26, 0.95)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 borderRadius: "10px",
                 padding: "22px",
                 display: "flex",
                 flexDirection: "column",
                 gap: "16px",
-                boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.5)",
+                boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.08)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: "0.72rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-mono)" }}>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-secondary, #64748b)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-mono)" }}>
                   MIL-STD Operational Status
                 </span>
                 <span
@@ -327,37 +329,37 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                     padding: "2px 8px",
                     borderRadius: "3px",
                     background: "rgba(16, 185, 129, 0.12)",
-                    color: "#10b981",
+                    color: "#059669",
                     fontWeight: 700,
                     fontFamily: "var(--font-mono)",
                   }}
                 >
-                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }} />
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#059669" }} />
                   FLIGHT READY
                 </span>
               </div>
 
               <div>
-                <div style={{ fontSize: "2rem", fontWeight: 800, color: "#f8fafc", fontFamily: "var(--font-mono)", letterSpacing: "-0.02em" }}>
+                <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", fontFamily: "var(--font-mono)", letterSpacing: "-0.02em" }}>
                   1,015 / 1,015
                 </div>
-                <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: "2px" }}>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-secondary, #64748b)", marginTop: "2px" }}>
                   Automated Physical &amp; Discretization Benchmarks Passing
                 </div>
               </div>
 
-              <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "14px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div style={{ fontSize: "0.75rem", color: "#94a3b8", display: "flex", justifyContent: "space-between" }}>
+              <div style={{ borderTop: "1px solid var(--border-color, #e2e8f0)", paddingTop: "14px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary, #64748b)", display: "flex", justifyContent: "space-between" }}>
                   <span>Discretization V&amp;V:</span>
-                  <strong style={{ color: "#f8fafc", fontFamily: "var(--font-mono)" }}>ASME V&amp;V 20-2009</strong>
+                  <strong style={{ color: "var(--text-primary, #0f172a)", fontFamily: "var(--font-mono)" }}>ASME V&amp;V 20-2009</strong>
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "#94a3b8", display: "flex", justifyContent: "space-between" }}>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary, #64748b)", display: "flex", justifyContent: "space-between" }}>
                   <span>M&amp;S Credibility Score:</span>
-                  <strong style={{ color: "#10b981", fontFamily: "var(--font-mono)" }}>NASA-STD-7009B CAS 32/32</strong>
+                  <strong style={{ color: "#059669", fontFamily: "var(--font-mono)" }}>NASA-STD-7009B CAS 32/32</strong>
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "#94a3b8", display: "flex", justifyContent: "space-between" }}>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary, #64748b)", display: "flex", justifyContent: "space-between" }}>
                   <span>Deterministic Latency:</span>
-                  <strong style={{ color: "#f59e0b", fontFamily: "var(--font-mono)" }}>&lt; 4 ms (In-Browser)</strong>
+                  <strong style={{ color: "var(--accent-gold, #d97706)", fontFamily: "var(--font-mono)" }}>&lt; 4 ms (In-Browser)</strong>
                 </div>
               </div>
             </div>
@@ -380,33 +382,34 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
           {/* Legacy Limitations */}
           <div
             style={{
-              background: "rgba(14, 17, 26, 0.6)",
-              border: "1px solid rgba(239, 68, 68, 0.2)",
+              background: "var(--bg-card, #ffffff)",
+              border: "1px solid rgba(220, 38, 38, 0.25)",
               borderRadius: "8px",
               padding: "28px",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-              <span style={{ color: "#ef4444", fontWeight: 700, fontSize: "0.82rem", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
+              <span style={{ color: "#dc2626", fontWeight: 700, fontSize: "0.82rem", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
                 Legacy CFD &amp; CAE Bottlenecks
               </span>
             </div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "14px" }}>
-              <li style={{ display: "flex", gap: "10px", color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#ef4444", fontWeight: "bold" }}>—</span>
-                <span><strong>Prohibitive Licensing:</strong> Traditional CFD codes cost \$30k–\$60k per seat/year, throttling conceptual iteration for startups.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#dc2626", fontWeight: "bold" }}>—</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>Prohibitive Licensing:</strong> Traditional CFD codes cost \$30k–\$60k per seat/year, throttling conceptual iteration for startups.</span>
               </li>
-              <li style={{ display: "flex", gap: "10px", color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#ef4444", fontWeight: "bold" }}>—</span>
-                <span><strong>Weeks Lost in Meshing:</strong> Teams spend up to 70% of design cycles repairing CAD non-manifold edges and boundary layer inflation.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#dc2626", fontWeight: "bold" }}>—</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>Weeks Lost in Meshing:</strong> Teams spend up to 70% of design cycles repairing CAD non-manifold edges and boundary layer inflation.</span>
               </li>
-              <li style={{ display: "flex", gap: "10px", color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#ef4444", fontWeight: "bold" }}>—</span>
-                <span><strong>Unverified Black-Boxes:</strong> Typical AI models hallucinate unphysical coefficients without formal ASME numerical uncertainty intervals.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#dc2626", fontWeight: "bold" }}>—</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>Unverified Black-Boxes:</strong> Typical AI models hallucinate unphysical coefficients without formal ASME numerical uncertainty intervals.</span>
               </li>
-              <li style={{ display: "flex", gap: "10px", color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#ef4444", fontWeight: "bold" }}>—</span>
-                <span><strong>Manual Flight Deck Formatting:</strong> Weeks wasted re-typing polar data into JSBSim, PX4, and USAF DATCOM formats.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#dc2626", fontWeight: "bold" }}>—</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>Manual Flight Deck Formatting:</strong> Weeks wasted re-typing polar data into JSBSim, PX4, and USAF DATCOM formats.</span>
               </li>
             </ul>
           </div>
@@ -414,33 +417,34 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
           {/* AASI Industrial Solution */}
           <div
             style={{
-              background: "rgba(14, 17, 26, 0.6)",
-              border: "1px solid rgba(16, 185, 129, 0.25)",
+              background: "var(--bg-card, #ffffff)",
+              border: "1px solid rgba(5, 150, 105, 0.3)",
               borderRadius: "8px",
               padding: "28px",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-              <span style={{ color: "#10b981", fontWeight: 700, fontSize: "0.82rem", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
+              <span style={{ color: "#059669", fontWeight: 700, fontSize: "0.82rem", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
                 The AASI Deterministic Solution
               </span>
             </div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "14px" }}>
-              <li style={{ display: "flex", gap: "10px", color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#10b981", fontWeight: "bold" }}>✓</span>
-                <span><strong>Instant 3D Virtual Wind Tunnel:</strong> Upload .STL, .OBJ, or .DAT; get real-time streamlines, surface Cp, and polars in seconds.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#059669", fontWeight: "bold" }}>✓</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>Instant 3D Virtual Wind Tunnel:</strong> Upload .STL, .OBJ, or .DAT; get real-time streamlines, surface Cp, and polars in seconds.</span>
               </li>
-              <li style={{ display: "flex", gap: "10px", color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#10b981", fontWeight: "bold" }}>✓</span>
-                <span><strong>Every Number With Mathematical Proof:</strong> Automated ASME V&amp;V 20-2009 verification, GCI discretization bounds, and NASA CAS scores.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#059669", fontWeight: "bold" }}>✓</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>Every Number With Mathematical Proof:</strong> Automated ASME V&amp;V 20-2009 verification, GCI discretization bounds, and NASA CAS scores.</span>
               </li>
-              <li style={{ display: "flex", gap: "10px", color: "#10b981", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#10b981", fontWeight: "bold" }}>✓</span>
-                <span><strong>Turnkey Autopilot Parameter Exports:</strong> Direct generation of ready-to-flash PX4 (.params), ArduPilot, and JSBSim 6-DoF XML decks.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#059669", fontWeight: "bold" }}>✓</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>Turnkey Autopilot Parameter Exports:</strong> Direct generation of ready-to-flash PX4 (.params), ArduPilot, and JSBSim 6-DoF XML decks.</span>
               </li>
-              <li style={{ display: "flex", gap: "10px", color: "#cbd5e1", fontSize: "0.88rem", lineHeight: 1.5 }}>
-                <span style={{ color: "#10b981", fontWeight: "bold" }}>✓</span>
-                <span><strong>ISRO &amp; NASA Mission Ready:</strong> Rocket ascent Max-Q, aerothermal heating, and satellite orbit decay life in one integrated cockpit.</span>
+              <li style={{ display: "flex", gap: "10px", color: "var(--text-secondary, #334155)", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                <span style={{ color: "#059669", fontWeight: "bold" }}>✓</span>
+                <span><strong style={{ color: "var(--text-primary, #0f172a)" }}>ISRO &amp; NASA Mission Ready:</strong> Rocket ascent Max-Q, aerothermal heating, and satellite orbit decay life in one integrated cockpit.</span>
               </li>
             </ul>
           </div>
@@ -451,11 +455,11 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
       <section style={{ maxWidth: "1280px", margin: "56px auto 0", padding: "0 32px" }}>
         <div
           style={{
-            background: "rgba(14, 17, 26, 0.95)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            background: "var(--bg-card, #ffffff)",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: "10px",
             padding: "32px",
-            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginBottom: "24px" }}>
@@ -663,40 +667,41 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
 
         <div
           style={{
-            background: "rgba(14, 17, 26, 0.8)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
+            background: "var(--bg-card, #ffffff)",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: "8px",
             overflow: "hidden",
+            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
           }}
         >
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.85rem" }}>
             <thead>
-              <tr style={{ background: "rgba(255, 255, 255, 0.03)", borderBottom: "1px solid rgba(255, 255, 255, 0.08)" }}>
-                <th style={{ padding: "12px 18px", color: "#94a3b8", fontWeight: 600 }}>Benchmark Case</th>
-                <th style={{ padding: "12px 18px", color: "#94a3b8", fontWeight: 600 }}>Reference Standard</th>
-                <th style={{ padding: "12px 18px", color: "#94a3b8", fontWeight: 600 }}>Flow Condition</th>
-                <th style={{ padding: "12px 18px", color: "#94a3b8", fontWeight: 600 }}>Published Literature</th>
-                <th style={{ padding: "12px 18px", color: "#94a3b8", fontWeight: 600 }}>AASI Solver</th>
-                <th style={{ padding: "12px 18px", color: "#94a3b8", fontWeight: 600 }}>Deviation</th>
-                <th style={{ padding: "12px 18px", color: "#94a3b8", fontWeight: 600 }}>Verification</th>
+              <tr style={{ background: "rgba(2, 132, 199, 0.05)", borderBottom: "1px solid var(--border-color, #e2e8f0)" }}>
+                <th style={{ padding: "12px 18px", color: "var(--text-secondary, #475569)", fontWeight: 600 }}>Benchmark Case</th>
+                <th style={{ padding: "12px 18px", color: "var(--text-secondary, #475569)", fontWeight: 600 }}>Reference Standard</th>
+                <th style={{ padding: "12px 18px", color: "var(--text-secondary, #475569)", fontWeight: 600 }}>Flow Condition</th>
+                <th style={{ padding: "12px 18px", color: "var(--text-secondary, #475569)", fontWeight: 600 }}>Published Literature</th>
+                <th style={{ padding: "12px 18px", color: "var(--text-secondary, #475569)", fontWeight: 600 }}>AASI Solver</th>
+                <th style={{ padding: "12px 18px", color: "var(--text-secondary, #475569)", fontWeight: 600 }}>Deviation</th>
+                <th style={{ padding: "12px 18px", color: "var(--text-secondary, #475569)", fontWeight: 600 }}>Verification</th>
               </tr>
             </thead>
             <tbody>
               {benchmarks.map((bm, idx) => (
-                <tr key={idx} style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.04)" }}>
-                  <td style={{ padding: "12px 18px", fontWeight: 600, color: "#f8fafc" }}>{bm.caseName}</td>
-                  <td style={{ padding: "12px 18px", color: "#f59e0b" }}>{bm.reference}</td>
-                  <td style={{ padding: "12px 18px", color: "#94a3b8", fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>{bm.condition}</td>
-                  <td style={{ padding: "12px 18px", color: "#cbd5e1", fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>{bm.literatureValue}</td>
-                  <td style={{ padding: "12px 18px", color: "#10b981", fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>{bm.aasiValue}</td>
-                  <td style={{ padding: "12px 18px", color: "#10b981", fontWeight: 700, fontFamily: "var(--font-mono)" }}>{bm.error}</td>
+                <tr key={idx} style={{ borderBottom: "1px solid var(--border-color, #e2e8f0)" }}>
+                  <td style={{ padding: "12px 18px", fontWeight: 600, color: "var(--text-primary, #0f172a)" }}>{bm.caseName}</td>
+                  <td style={{ padding: "12px 18px", color: "var(--accent-gold, #d97706)", fontWeight: 600 }}>{bm.reference}</td>
+                  <td style={{ padding: "12px 18px", color: "var(--text-secondary, #64748b)", fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>{bm.condition}</td>
+                  <td style={{ padding: "12px 18px", color: "var(--text-secondary, #334155)", fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>{bm.literatureValue}</td>
+                  <td style={{ padding: "12px 18px", color: "#059669", fontFamily: "var(--font-mono)", fontSize: "0.78rem", fontWeight: 700 }}>{bm.aasiValue}</td>
+                  <td style={{ padding: "12px 18px", color: "#059669", fontWeight: 700, fontFamily: "var(--font-mono)" }}>{bm.error}</td>
                   <td style={{ padding: "12px 18px" }}>
                     <span
                       style={{
                         padding: "2px 6px",
                         borderRadius: "3px",
                         background: "rgba(16, 185, 129, 0.12)",
-                        color: "#10b981",
+                        color: "#059669",
                         fontSize: "0.7rem",
                         fontWeight: 700,
                         fontFamily: "var(--font-mono)",
@@ -715,10 +720,10 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
       {/* ─── Platform Capabilities Grid ─── */}
       <section style={{ maxWidth: "1280px", margin: "56px auto 0", padding: "0 32px" }}>
         <div style={{ marginBottom: "28px" }}>
-          <span style={{ fontSize: "0.75rem", color: "#f59e0b", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", fontFamily: "var(--font-mono)" }}>
+          <span style={{ fontSize: "0.75rem", color: "var(--accent-gold, #d97706)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", fontFamily: "var(--font-mono)" }}>
             Engineered Capabilities
           </span>
-          <h2 style={{ fontSize: "1.8rem", fontWeight: 700, letterSpacing: "-0.02em", marginTop: "4px" }}>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: 700, letterSpacing: "-0.02em", marginTop: "4px", color: "var(--text-primary, #0f172a)" }}>
             The 6 Pillars of AASI Flight Intelligence
           </h2>
         </div>
@@ -728,13 +733,14 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
             <div
               key={idx}
               style={{
-                background: "rgba(14, 17, 26, 0.7)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 borderRadius: "8px",
                 padding: "22px",
                 display: "flex",
                 flexDirection: "column",
                 gap: "10px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
                 transition: "border-color 0.15s ease",
               }}
             >
@@ -744,8 +750,8 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                     width: "36px",
                     height: "36px",
                     borderRadius: "6px",
-                    background: "rgba(255, 255, 255, 0.04)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(2, 132, 199, 0.08)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -753,13 +759,13 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                 >
                   {feat.icon}
                 </div>
-                <span style={{ fontSize: "0.68rem", color: "#64748b", fontFamily: "var(--font-mono)", letterSpacing: "0.04em" }}>
+                <span style={{ fontSize: "0.68rem", color: "var(--text-secondary, #64748b)", fontFamily: "var(--font-mono)", letterSpacing: "0.04em" }}>
                   {feat.tag}
                 </span>
               </div>
 
-              <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#f8fafc", margin: 0 }}>{feat.title}</h4>
-              <p style={{ fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.5, margin: 0 }}>{feat.desc}</p>
+              <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", margin: 0 }}>{feat.title}</h4>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-secondary, #64748b)", lineHeight: 1.5, margin: 0 }}>{feat.desc}</p>
 
               <button
                 onClick={feat.action}
@@ -768,7 +774,7 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
                   paddingTop: "10px",
                   background: "none",
                   border: "none",
-                  color: "#f59e0b",
+                  color: "var(--accent-gold, #d97706)",
                   fontSize: "0.78rem",
                   fontWeight: 600,
                   display: "flex",
@@ -789,8 +795,8 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
       <section style={{ maxWidth: "1280px", margin: "56px auto 0", padding: "0 32px" }}>
         <div
           style={{
-            background: "rgba(14, 17, 26, 0.8)",
-            border: "1px solid rgba(245, 158, 11, 0.3)",
+            background: "var(--bg-card, #ffffff)",
+            border: "1px solid rgba(217, 119, 6, 0.35)",
             borderRadius: "10px",
             padding: "40px",
             display: "flex",
@@ -798,13 +804,14 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
             justifyContent: "space-between",
             flexWrap: "wrap",
             gap: "24px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
           }}
         >
           <div>
-            <h2 style={{ fontSize: "1.8rem", fontWeight: 800, margin: 0 }}>
+            <h2 style={{ fontSize: "1.8rem", fontWeight: 800, margin: 0, color: "var(--text-primary, #0f172a)" }}>
               Deploy AASI Across Your Aerospace Engineering Team
             </h2>
-            <p style={{ color: "#94a3b8", fontSize: "0.95rem", maxWidth: "620px", marginTop: "8px", margin: 0 }}>
+            <p style={{ color: "var(--text-secondary, #475569)", fontSize: "0.95rem", maxWidth: "620px", marginTop: "8px", margin: 0 }}>
               Instant deterministic aerodynamics, zero software licensing friction, and complete verification for FAA, DGCA, ISRO, and NASA flight audits.
             </p>
           </div>
