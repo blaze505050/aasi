@@ -2556,21 +2556,29 @@ html, body {
 }
 
 /* Responsive Laptop Optimization */
-@media (max-width: 1400px) {
+@media (max-width: 1440px) {
+  .header-breadcrumb-sub {
+    display: none !important;
+  }
   .flight-tool-subtext {
     display: none !important;
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
+  .flight-tool-btn {
+    padding: 5px 8px;
+    font-size: 0.70rem;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 1100px) {
   .flight-tool-label {
     display: none !important;
   }
   .flight-tool-btn {
     padding: 5px 8px;
-  }
-  .header-breadcrumb-sub {
-    display: none !important;
   }
 }
 

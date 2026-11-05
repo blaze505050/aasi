@@ -372,12 +372,14 @@ export default function AASIApp() {
                   </span>
                 </div>
                 <div
+                  className="header-breadcrumb-sub"
                   style={{
                     fontSize: "0.62rem",
                     color: "#64748b",
                     fontWeight: 600,
                     letterSpacing: "0.06em",
                     textTransform: "uppercase",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   BHARATIYA AUTONOMOUS AEROSPACE INTELLIGENCE
@@ -394,7 +396,7 @@ export default function AASIApp() {
               title="ISRO Project NETRA Orbital Conjunctions, AAI National Airspace Flow, BlazeWatch MHA Crisis Radar"
             >
               <Globe size={13} color={activeNavMode === "SOVEREIGN_MISSION_CONTROL" ? "#38bdf8" : "#94a3b8"} />
-              <span>Mission Control</span>
+              <span className="flight-tool-label">Mission Control</span>
             </button>
 
             <button
@@ -403,7 +405,7 @@ export default function AASIApp() {
               title="AASI-Craft: Clean-Room Reverse-Engineering, 4-Step Loop (Study->Build->Check->Ready), ASME V&V 20 & ASTM F3269-21 RTA"
             >
               <Cpu size={13} color={activeNavMode === "AEROCRAFT_STUDIO" ? "#38bdf8" : "#94a3b8"} />
-              <span>AeroCraft Studio</span>
+              <span className="flight-tool-label">AeroCraft Studio</span>
             </button>
 
             <button
@@ -412,7 +414,7 @@ export default function AASIApp() {
               title="8 Autonomous Aerospace Agents, Flagship NACA 4412 Investigation, Neural Operator Surrogates"
             >
               <Brain size={13} color={activeNavMode === "AUTONOMOUS_COCKPIT" ? "#f59e0b" : "#94a3b8"} />
-              <span>Autonomous AI</span>
+              <span className="flight-tool-label">Autonomous AI</span>
             </button>
 
             <button
@@ -421,7 +423,7 @@ export default function AASIApp() {
               title="Turnkey 3D Virtual Wind Tunnel, CFD Mesh Deformations, Aerodynamic Polars"
             >
               <Wind size={13} color={activeNavMode === "VIRTUAL_WIND_TUNNEL" ? "#38bdf8" : "#94a3b8"} />
-              <span>3D Wind Tunnel</span>
+              <span className="flight-tool-label">3D Wind Tunnel</span>
             </button>
 
             <button
@@ -430,7 +432,7 @@ export default function AASIApp() {
               title="6-DOF SpaDeX Rendezvous & Docking, Chandrayaan-4 Lunar Lander, Aircraft Flight Dynamics"
             >
               <Rocket size={13} color={activeNavMode === "DIGITAL_TWIN" ? "#10b981" : "#94a3b8"} />
-              <span>Digital Twin &amp; GNC</span>
+              <span className="flight-tool-label">Digital Twin &amp; GNC</span>
             </button>
 
             <button
@@ -439,7 +441,7 @@ export default function AASIApp() {
               title="Executive Platform Briefing, ASME V&V 20 & RTCA DO-178C Certification Matrices"
             >
               <FileText size={13} color={activeNavMode === "SHOWCASE" ? "#38bdf8" : "#94a3b8"} />
-              <span>Executive Briefing</span>
+              <span className="flight-tool-label">Executive Briefing</span>
             </button>
           </nav>
 
