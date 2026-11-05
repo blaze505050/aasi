@@ -156,7 +156,7 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
     const height = 340;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x08090d);
+    scene.background = null;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0, 4.5);
@@ -164,6 +164,7 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
 
     canvasContainerRef.current.appendChild(renderer.domElement);
 
@@ -295,16 +296,16 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
-        background: "#08090d",
-        color: "#f8fafc",
+        background: "var(--bg-primary, #f8fafc)",
+        color: "var(--text-primary, #0f172a)",
         fontFamily: "var(--font-sans, sans-serif)",
       }}
     >
       {/* ─── Sovereign Operational Telemetry Strip ─── */}
       <div
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "rgba(11, 14, 23, 0.96)",
+          borderBottom: "1px solid var(--border-color, #e2e8f0)",
+          background: "var(--bg-secondary, #ffffff)",
           backdropFilter: "blur(16px)",
           padding: "10px 24px",
           display: "flex",
@@ -321,17 +322,17 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
         <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981" }} />
-            <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.78rem", fontWeight: 700, color: "#f8fafc", letterSpacing: "0.06em" }}>
+            <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.78rem", fontWeight: 700, color: "var(--text-primary, #0f172a)", letterSpacing: "0.06em" }}>
               ISRO ISTRAC // PROJECT NETRA SSA
             </span>
           </div>
-          <span style={{ color: "rgba(255, 255, 255, 0.2)" }}>|</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", color: "#94a3b8", fontFamily: "var(--font-mono, monospace)" }}>
-            <Radio size={13} color="#38bdf8" />
-            <span>MOTR Radar: <strong style={{ color: "#38bdf8" }}>ACTIVE (10cm CUSTODY)</strong></span>
+          <span style={{ color: "var(--border-color, #e2e8f0)" }}>|</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", color: "var(--text-secondary, #475569)", fontFamily: "var(--font-mono, monospace)" }}>
+            <Radio size={13} color="#0284c7" />
+            <span>MOTR Radar: <strong style={{ color: "var(--accent-cyan, #0284c7)" }}>ACTIVE (10cm CUSTODY)</strong></span>
           </div>
-          <span style={{ color: "rgba(255, 255, 255, 0.2)" }}>|</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", color: "#94a3b8", fontFamily: "var(--font-mono, monospace)" }}>
+          <span style={{ color: "var(--border-color, #e2e8f0)" }}>|</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", color: "var(--text-secondary, #475569)", fontFamily: "var(--font-mono, monospace)" }}>
             <CloudRain size={13} color="#10b981" />
             <span>Chandrapur Radar: <strong style={{ color: "#10b981" }}>45.2 dBZ</strong></span>
           </div>
@@ -376,8 +377,8 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
       {/* ─── Mission Deck Navigation ─── */}
       <nav
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "#0e111a",
+          borderBottom: "1px solid var(--border-color, #e2e8f0)",
+          background: "var(--bg-secondary, #ffffff)",
           display: "flex",
           gap: "2px",
           padding: "0 28px",
@@ -402,17 +403,17 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                 gap: "8px",
                 padding: "12px 18px",
                 border: "none",
-                borderBottom: isActive ? "2px solid #38bdf8" : "2px solid transparent",
-                background: isActive ? "rgba(56, 189, 248, 0.08)" : "transparent",
-                color: isActive ? "#f8fafc" : "#94a3b8",
-                fontWeight: isActive ? 600 : 500,
+                borderBottom: isActive ? "2px solid var(--accent-cyan, #0284c7)" : "2px solid transparent",
+                background: isActive ? "rgba(2, 132, 199, 0.08)" : "transparent",
+                color: isActive ? "var(--accent-cyan, #0284c7)" : "var(--text-secondary, #64748b)",
+                fontWeight: isActive ? 700 : 500,
                 fontSize: "0.82rem",
                 cursor: "pointer",
                 transition: "all 160ms ease",
                 whiteSpace: "nowrap",
               }}
             >
-              {React.cloneElement(tab.icon, { color: isActive ? "#38bdf8" : "#64748b" })}
+              {React.cloneElement(tab.icon, { color: isActive ? "#0284c7" : "#64748b" })}
               <span>{tab.label}</span>
               {tab.badge && (
                 <span
@@ -420,8 +421,8 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                     fontSize: "0.62rem",
                     padding: "1px 6px",
                     borderRadius: "4px",
-                    background: isActive ? "rgba(56, 189, 248, 0.2)" : "rgba(255, 255, 255, 0.05)",
-                    color: isActive ? "#38bdf8" : "#64748b",
+                    background: isActive ? "rgba(2, 132, 199, 0.15)" : "rgba(0, 0, 0, 0.05)",
+                    color: isActive ? "#0284c7" : "#64748b",
                     fontFamily: "var(--font-mono, monospace)",
                   }}
                 >
@@ -436,8 +437,8 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
       {/* ─── 3D Orbital Earth & Sensor Envelope Canvas ─── */}
       <section
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "#08090d",
+          borderBottom: "1px solid var(--border-color, #e2e8f0)",
+          background: "linear-gradient(180deg, var(--bg-secondary, #ffffff) 0%, var(--bg-primary, #f8fafc) 100%)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -450,20 +451,21 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
             position: "absolute",
             top: "16px",
             left: "28px",
-            background: "rgba(14, 17, 26, 0.85)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
+            background: "rgba(255, 255, 255, 0.94)",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: "8px",
             padding: "10px 14px",
             fontSize: "0.74rem",
             fontFamily: "var(--font-mono, monospace)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)",
           }}
         >
-          <div style={{ color: "#38bdf8", fontWeight: 700, marginBottom: "4px" }}>
+          <div style={{ color: "var(--accent-cyan, #0284c7)", fontWeight: 700, marginBottom: "4px" }}>
             PROJECT NETRA MULTI-RADAR COVERAGE
           </div>
-          <div style={{ color: "#94a3b8" }}>• Sriharikota MOTR: Active LEO Tracking</div>
-          <div style={{ color: "#94a3b8" }}>• Chandrapur Assam Facility: Foundation Laid / Cloud Radar</div>
-          <div style={{ color: "#94a3b8" }}>• Leh &amp; Mt Abu: High-Altitude Deep Space Optical</div>
+          <div style={{ color: "var(--text-secondary, #475569)" }}>• Sriharikota MOTR: Active LEO Tracking</div>
+          <div style={{ color: "var(--text-secondary, #475569)" }}>• Chandrapur Assam Facility: Foundation Laid / Cloud Radar</div>
+          <div style={{ color: "var(--text-secondary, #475569)" }}>• Leh &amp; Mt Abu: High-Altitude Deep Space Optical</div>
         </div>
 
         <div
@@ -471,19 +473,20 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
             position: "absolute",
             bottom: "16px",
             right: "28px",
-            background: "rgba(14, 17, 26, 0.85)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
+            background: "rgba(255, 255, 255, 0.94)",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: "8px",
             padding: "8px 12px",
             display: "flex",
             gap: "12px",
             fontSize: "0.72rem",
             fontFamily: "var(--font-mono, monospace)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)",
           }}
         >
-          <span style={{ color: "#10b981" }}>■ SpaDeX SDX01 (Chaser)</span>
-          <span style={{ color: "#ef4444" }}>■ 10cm Debris Conjunction</span>
-          <span style={{ color: "#f59e0b" }}>▲ Radar Ground Station</span>
+          <span style={{ color: "#059669" }}>■ SpaDeX SDX01 (Chaser)</span>
+          <span style={{ color: "#dc2626" }}>■ 10cm Debris Conjunction</span>
+          <span style={{ color: "#d97706" }}>▲ Radar Ground Station</span>
         </div>
       </section>
 
@@ -553,15 +556,16 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
             {/* Conjunction Alerts Table */}
             <div
               style={{
-                background: "#131724",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 borderRadius: "10px",
                 overflow: "hidden",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
               }}
             >
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem", textAlign: "left" }}>
                 <thead>
-                  <tr style={{ background: "rgba(255, 255, 255, 0.04)", color: "#94a3b8" }}>
+                  <tr style={{ background: "rgba(2, 132, 199, 0.05)", color: "var(--text-secondary, #475569)", borderBottom: "1px solid var(--border-color, #e2e8f0)" }}>
                     <th style={{ padding: "12px 16px" }}>Alert ID</th>
                     <th style={{ padding: "12px 16px" }}>Asset Protected</th>
                     <th style={{ padding: "12px 16px" }}>Debris Object</th>
@@ -579,30 +583,30 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                       <tr
                         key={c.id}
                         style={{
-                          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                          borderBottom: "1px solid var(--border-color, #e2e8f0)",
                           background: isRed && !camExecuted ? "rgba(239, 68, 68, 0.06)" : "transparent",
                         }}
                       >
-                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono, monospace)", color: "#38bdf8" }}>
+                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono, monospace)", color: "var(--accent-cyan, #0284c7)" }}>
                           {c.id}
                         </td>
-                        <td style={{ padding: "12px 16px", fontWeight: 600 }}>{c.asset}</td>
-                        <td style={{ padding: "12px 16px", color: isRed ? "#ef4444" : "#cbd5e1" }}>{c.debris}</td>
-                        <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: "0.75rem" }}>{c.source}</td>
-                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono, monospace)", fontWeight: 700 }}>
+                        <td style={{ padding: "12px 16px", fontWeight: 600, color: "var(--text-primary, #0f172a)" }}>{c.asset}</td>
+                        <td style={{ padding: "12px 16px", color: isRed ? "#dc2626" : "var(--text-primary, #0f172a)" }}>{c.debris}</td>
+                        <td style={{ padding: "12px 16px", color: "var(--text-secondary, #64748b)", fontSize: "0.75rem" }}>{c.source}</td>
+                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono, monospace)", fontWeight: 700, color: "var(--text-primary, #0f172a)" }}>
                           {camExecuted && isRed ? "2,840 m" : `${c.missDistanceM} m`}
                         </td>
                         <td
                           style={{
                             padding: "12px 16px",
                             fontFamily: "var(--font-mono, monospace)",
-                            color: isRed && !camExecuted ? "#ef4444" : "#10b981",
+                            color: isRed && !camExecuted ? "#dc2626" : "#059669",
                             fontWeight: 700,
                           }}
                         >
                           {camExecuted && isRed ? "1.2e-8" : c.collisionProbPc.toExponential(2)}
                         </td>
-                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono, monospace)", color: "#94a3b8" }}>
+                        <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono, monospace)", color: "var(--text-secondary, #64748b)" }}>
                           {c.timeToCa}
                         </td>
                         <td style={{ padding: "12px 16px" }}>
@@ -613,9 +617,9 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                               borderRadius: "4px",
                               background:
                                 isRed && !camExecuted
-                                  ? "rgba(239, 68, 68, 0.2)"
-                                  : "rgba(16, 185, 129, 0.2)",
-                              color: isRed && !camExecuted ? "#ef4444" : "#10b981",
+                                  ? "rgba(239, 68, 68, 0.15)"
+                                  : "rgba(16, 185, 129, 0.15)",
+                              color: isRed && !camExecuted ? "#dc2626" : "#059669",
                               fontWeight: 700,
                               fontFamily: "var(--font-mono, monospace)",
                             }}
@@ -653,30 +657,31 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                   <div
                     key={apt.code}
                     style={{
-                      background: "#131724",
+                      background: "var(--bg-card, #ffffff)",
                       border: isDelayed
-                        ? "1px solid rgba(245, 158, 11, 0.35)"
-                        : "1px solid rgba(255, 255, 255, 0.08)",
+                        ? "1px solid rgba(217, 119, 6, 0.45)"
+                        : "1px solid var(--border-color, #e2e8f0)",
                       borderRadius: "10px",
                       padding: "18px",
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
                       gap: "12px",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
-                        <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "#38bdf8" }}>{apt.code}</span>
-                        <div style={{ fontSize: "0.76rem", color: "#94a3b8" }}>{apt.city}</div>
+                        <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--accent-cyan, #0284c7)" }}>{apt.code}</span>
+                        <div style={{ fontSize: "0.76rem", color: "var(--text-secondary, #64748b)" }}>{apt.city}</div>
                       </div>
                       <span
                         style={{
                           fontSize: "0.64rem",
                           padding: "2px 6px",
                           borderRadius: "4px",
-                          background: isDelayed ? "rgba(245, 158, 11, 0.15)" : "rgba(16, 185, 129, 0.15)",
-                          color: isDelayed ? "#f59e0b" : "#10b981",
+                          background: isDelayed ? "rgba(217, 119, 6, 0.15)" : "rgba(16, 185, 129, 0.15)",
+                          color: isDelayed ? "#d97706" : "#059669",
                           fontFamily: "var(--font-mono, monospace)",
                           fontWeight: 700,
                         }}
@@ -687,22 +692,22 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.75rem" }}>
                       <div>
-                        <span style={{ color: "#64748b" }}>Hourly Capacity:</span>{" "}
-                        <strong style={{ color: "#f8fafc" }}>{apt.cap}/h</strong>
+                        <span style={{ color: "var(--text-secondary, #64748b)" }}>Hourly Capacity:</span>{" "}
+                        <strong style={{ color: "var(--text-primary, #0f172a)" }}>{apt.cap}/h</strong>
                       </div>
                       <div>
-                        <span style={{ color: "#64748b" }}>Hourly Demand:</span>{" "}
-                        <strong style={{ color: apt.demand > apt.cap ? "#f59e0b" : "#f8fafc" }}>
+                        <span style={{ color: "var(--text-secondary, #64748b)" }}>Hourly Demand:</span>{" "}
+                        <strong style={{ color: apt.demand > apt.cap ? "#d97706" : "var(--text-primary, #0f172a)" }}>
                           {apt.demand}/h
                         </strong>
                       </div>
                       <div>
-                        <span style={{ color: "#64748b" }}>Weather Cell:</span>{" "}
-                        <strong style={{ color: "#cbd5e1" }}>{apt.weather}</strong>
+                        <span style={{ color: "var(--text-secondary, #64748b)" }}>Weather Cell:</span>{" "}
+                        <strong style={{ color: "var(--text-secondary, #334155)" }}>{apt.weather}</strong>
                       </div>
                       <div>
-                        <span style={{ color: "#64748b" }}>Ground Delay:</span>{" "}
-                        <strong style={{ color: isDelayed ? "#f59e0b" : "#10b981", fontFamily: "var(--font-mono, monospace)" }}>
+                        <span style={{ color: "var(--text-secondary, #64748b)" }}>Ground Delay:</span>{" "}
+                        <strong style={{ color: isDelayed ? "#d97706" : "#059669", fontFamily: "var(--font-mono, monospace)" }}>
                           +{apt.delayMin} min
                         </strong>
                       </div>
@@ -733,13 +738,14 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                 <div
                   key={alert.id}
                   style={{
-                    background: "#131724",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "var(--bg-card, #ffffff)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
                     borderRadius: "10px",
                     padding: "20px",
                     display: "flex",
                     flexDirection: "column",
                     gap: "10px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -751,44 +757,44 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                           borderRadius: "4px",
                           background:
                             alert.severity === "EMERGENCY"
-                              ? "rgba(239, 68, 68, 0.2)"
+                              ? "rgba(220, 38, 38, 0.15)"
                               : alert.severity === "WARNING"
-                              ? "rgba(245, 158, 11, 0.2)"
-                              : "rgba(56, 189, 248, 0.2)",
+                              ? "rgba(217, 119, 6, 0.15)"
+                              : "rgba(2, 132, 199, 0.15)",
                           color:
                             alert.severity === "EMERGENCY"
-                              ? "#ef4444"
+                              ? "#dc2626"
                               : alert.severity === "WARNING"
-                              ? "#f59e0b"
-                              : "#38bdf8",
+                              ? "#d97706"
+                              : "#0284c7",
                           fontWeight: 700,
                           fontFamily: "var(--font-mono, monospace)",
                         }}
                       >
                         {alert.severity}
                       </span>
-                      <h3 style={{ fontSize: "0.98rem", fontWeight: 700, margin: 0 }}>{alert.type}</h3>
+                      <h3 style={{ fontSize: "0.98rem", fontWeight: 700, margin: 0, color: "var(--text-primary, #0f172a)" }}>{alert.type}</h3>
                     </div>
-                    <span style={{ fontSize: "0.72rem", color: "#64748b", fontFamily: "var(--font-mono, monospace)" }}>
+                    <span style={{ fontSize: "0.72rem", color: "var(--text-secondary, #64748b)", fontFamily: "var(--font-mono, monospace)" }}>
                       {alert.id}
                     </span>
                   </div>
 
-                  <div style={{ fontSize: "0.82rem", color: "#cbd5e1" }}>
-                    Location: <strong>{alert.region}</strong> | Sensor Feed: {alert.source}
+                  <div style={{ fontSize: "0.82rem", color: "var(--text-secondary, #334155)" }}>
+                    Location: <strong style={{ color: "var(--text-primary, #0f172a)" }}>{alert.region}</strong> | Sensor Feed: {alert.source}
                   </div>
 
                   <div
                     style={{
-                      background: "#090c14",
+                      background: "var(--bg-primary, #f8fafc)",
                       borderRadius: "6px",
                       padding: "10px 14px",
                       fontSize: "0.76rem",
-                      color: "#94a3b8",
-                      borderLeft: "3px solid #38bdf8",
+                      color: "var(--text-secondary, #475569)",
+                      borderLeft: "3px solid var(--accent-cyan, #0284c7)",
                     }}
                   >
-                    <strong style={{ color: "#38bdf8" }}>Command Recommendation:</strong> {alert.action}
+                    <strong style={{ color: "var(--accent-cyan, #0284c7)" }}>Command Recommendation:</strong> {alert.action}
                   </div>
                 </div>
               ))}
@@ -802,10 +808,10 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
         {activeTab === "CONSTITUTION_RTA" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 4px 0" }}>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 4px 0", color: "var(--text-primary, #0f172a)" }}>
                 ASTM F3269-21 Run-Time Assurance &amp; 19 Flight Failsafes (F-1 to F-19)
               </h2>
-              <p style={{ margin: 0, fontSize: "0.78rem", color: "#94a3b8" }}>
+              <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--text-secondary, #64748b)" }}>
                 Ed25519-signed sealed constitutional kernel outside neural addressable memory with 2-of-3 heterogeneous safety monitor voting.
               </p>
             </div>
@@ -835,20 +841,21 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                 <div
                   key={f.code}
                   style={{
-                    background: "#131724",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "var(--bg-card, #ffffff)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
                     borderRadius: "8px",
                     padding: "12px 16px",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.03)",
                   }}
                 >
                   <div>
-                    <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#38bdf8", fontFamily: "var(--font-mono, monospace)" }}>
+                    <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--accent-cyan, #0284c7)", fontFamily: "var(--font-mono, monospace)" }}>
                       {f.code}
                     </span>
-                    <div style={{ fontSize: "0.74rem", color: "#f8fafc", marginTop: "2px" }}>{f.name}</div>
+                    <div style={{ fontSize: "0.74rem", color: "var(--text-primary, #0f172a)", marginTop: "2px" }}>{f.name}</div>
                   </div>
                   <span
                     style={{
@@ -856,7 +863,7 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
                       padding: "2px 6px",
                       borderRadius: "4px",
                       background: "rgba(16, 185, 129, 0.15)",
-                      color: "#10b981",
+                      color: "#059669",
                       fontFamily: "var(--font-mono, monospace)",
                       fontWeight: 700,
                     }}
@@ -875,41 +882,41 @@ export const SovereignMissionControlDashboard: React.FC<SovereignMissionControlD
         {activeTab === "ORBITAL_DOCKING" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 4px 0" }}>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 4px 0", color: "var(--text-primary, #0f172a)" }}>
                 SpaDeX &amp; Chandrayaan-4 NavIC RODP + ISL Docking Simulator
               </h2>
-              <p style={{ margin: 0, fontSize: "0.78rem", color: "#94a3b8" }}>
+              <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--text-secondary, #64748b)" }}>
                 Eliminates the 225m post-eclipse drift anomaly using NavIC dual-frequency carrier phase + continuous Inter-Satellite Link (ISL) fusion down to 10 mm/s capture.
               </p>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
-              <div style={{ background: "#131724", borderRadius: "10px", padding: "20px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>POST-ECLIPSE DRIFT (HISTORICAL SPADEX)</span>
-                <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#ef4444", fontFamily: "var(--font-mono, monospace)", margin: "8px 0" }}>
+              <div style={{ background: "var(--bg-card, #ffffff)", borderRadius: "10px", padding: "20px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-secondary, #64748b)" }}>POST-ECLIPSE DRIFT (HISTORICAL SPADEX)</span>
+                <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#dc2626", fontFamily: "var(--font-mono, monospace)", margin: "8px 0" }}>
                   225.0 m
                 </div>
-                <p style={{ margin: 0, fontSize: "0.74rem", color: "#64748b" }}>
+                <p style={{ margin: 0, fontSize: "0.74rem", color: "var(--text-muted, #94a3b8)" }}>
                   Unmodeled differential drag &amp; optical blackout during ground non-visibility window
                 </p>
               </div>
 
-              <div style={{ background: "#131724", borderRadius: "10px", padding: "20px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>AASI NAVIC RODP + ISL FILTER DRIFT</span>
-                <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#10b981", fontFamily: "var(--font-mono, monospace)", margin: "8px 0" }}>
+              <div style={{ background: "var(--bg-card, #ffffff)", borderRadius: "10px", padding: "20px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-secondary, #64748b)" }}>AASI NAVIC RODP + ISL FILTER DRIFT</span>
+                <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#059669", fontFamily: "var(--font-mono, monospace)", margin: "8px 0" }}>
                   0.018 m (1.8 cm)
                 </div>
-                <p style={{ margin: 0, fontSize: "0.74rem", color: "#64748b" }}>
+                <p style={{ margin: 0, fontSize: "0.74rem", color: "var(--text-muted, #94a3b8)" }}>
                   Continuous ISL cross-link phase bounds error covariance across solar eclipse
                 </p>
               </div>
 
-              <div style={{ background: "#131724", borderRadius: "10px", padding: "20px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>TERMINAL LATCH CAPTURE SPEED</span>
-                <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#38bdf8", fontFamily: "var(--font-mono, monospace)", margin: "8px 0" }}>
+              <div style={{ background: "var(--bg-card, #ffffff)", borderRadius: "10px", padding: "20px", border: "1px solid var(--border-color, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-secondary, #64748b)" }}>TERMINAL LATCH CAPTURE SPEED</span>
+                <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--accent-cyan, #0284c7)", fontFamily: "var(--font-mono, monospace)", margin: "8px 0" }}>
                   10.2 mm/s
                 </div>
-                <p style={{ margin: 0, fontSize: "0.74rem", color: "#64748b" }}>
+                <p style={{ margin: 0, fontSize: "0.74rem", color: "var(--text-muted, #94a3b8)" }}>
                   Conforms strictly to 450mm (SpaDeX) and 800mm (BAS-01) BDS capture limits
                 </p>
               </div>

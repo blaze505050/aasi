@@ -513,16 +513,16 @@ export const VirtualWindTunnelStudio: React.FC<VirtualWindTunnelStudioProps> = (
         display: "grid",
         gridTemplateColumns: "310px 1fr 310px",
         height: "calc(100vh - 54px)",
-        background: "#08090d",
-        color: "#f8fafc",
+        background: "var(--bg-primary, #f8fafc)",
+        color: "var(--text-primary, #0f172a)",
         overflow: "hidden",
       }}
     >
       {/* ─── Left Sidebar: Airframe Geometry & Wind Tunnel Conditions ─── */}
       <aside
         style={{
-          borderRight: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "rgba(14, 17, 26, 0.98)",
+          borderRight: "1px solid var(--border-color, #e2e8f0)",
+          background: "var(--bg-secondary, #ffffff)",
           display: "flex",
           flexDirection: "column",
           gap: "18px",
@@ -878,8 +878,8 @@ export const VirtualWindTunnelStudio: React.FC<VirtualWindTunnelStudioProps> = (
       {/* ─── Right Sidebar: Real-Time Force Telemetry & ASME Verification ─── */}
       <aside
         style={{
-          borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "rgba(10, 15, 26, 0.95)",
+          borderLeft: "1px solid var(--border-color, #e2e8f0)",
+          background: "var(--bg-secondary, #ffffff)",
           display: "flex",
           flexDirection: "column",
           gap: "18px",
@@ -888,11 +888,11 @@ export const VirtualWindTunnelStudio: React.FC<VirtualWindTunnelStudioProps> = (
         }}
       >
         <div>
-          <div style={{ fontSize: "0.78rem", color: "#94a3b8", textTransform: "uppercase", fontWeight: 600 }}>
+          <div style={{ fontSize: "0.78rem", color: "var(--text-secondary, #64748b)", textTransform: "uppercase", fontWeight: 600 }}>
             Aerodynamic Coefficients (3D)
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "10px" }}>
-            <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px", borderRadius: "6px", border: "1px solid rgba(255, 255, 255, 0.06)" }}>
+            <div style={{ background: "var(--bg-primary, #f8fafc)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-color, #e2e8f0)" }}>
               <div style={{ fontSize: "0.7rem", color: "#64748b", fontFamily: "var(--font-mono)" }}>Lift Coeff (CL 3D)</div>
               <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#38bdf8", fontFamily: "var(--font-mono)" }}>
                 {aeroResult.cl_3d?.toFixed(4)}

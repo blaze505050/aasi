@@ -165,8 +165,8 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
     <div
       style={{
         minHeight: "100vh",
-        background: "#08090d",
-        color: "#f1f5f9",
+        background: "var(--bg-primary, #f8fafc)",
+        color: "var(--text-primary, #0f172a)",
         fontFamily: "var(--font-sans, system-ui, -apple-system, sans-serif)",
         paddingBottom: "80px",
       }}
@@ -176,8 +176,8 @@ export const AasiPublicShowcase: React.FC<AasiPublicShowcaseProps> = ({
         style={{
           position: "relative",
           padding: "64px 32px 48px",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.04) 0%, rgba(8, 9, 13, 0) 70%)",
+          borderBottom: "1px solid var(--border-color, #e2e8f0)",
+          background: "radial-gradient(ellipse at 50% 0%, rgba(2, 132, 199, 0.05) 0%, transparent 70%)",
         }}
       >
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>

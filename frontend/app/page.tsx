@@ -28,6 +28,8 @@ import {
   Rocket,
   Brain,
   Globe,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -67,6 +69,30 @@ export default function AASIApp() {
   const [hardwareStatus, setHardwareStatus] = useState<{ protected: boolean; ram_free_gb?: number }>({
     protected: true,
   });
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  // Sync theme with document attribute on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("aasi_theme") as "light" | "dark" | null;
+      const initial = stored || "light";
+      setTheme(initial);
+      document.documentElement.setAttribute("data-theme", initial);
+    } catch {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  }, []);
+
+  const handleToggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem("aasi_theme", next);
+    } catch {
+      /* ignore */
+    }
+  };
 
   // Check stored auth session and URL deep-link mode on startup
   useEffect(() => {
@@ -471,10 +497,10 @@ export default function AASIApp() {
                     top: "calc(100% + 8px)",
                     right: 0,
                     width: "260px",
-                    background: "#0e111a",
-                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    background: "var(--bg-card, #ffffff)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
                     borderRadius: "10px",
-                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.6)",
+                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)",
                     zIndex: 200,
                     padding: "6px",
                     display: "flex",
@@ -495,16 +521,16 @@ export default function AASIApp() {
                       borderRadius: "6px",
                       background: "transparent",
                       border: "none",
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       fontSize: "0.78rem",
                       cursor: "pointer",
                       textAlign: "left",
                     }}
                   >
-                    <Box size={14} color="#38bdf8" />
+                    <Box size={14} color="var(--accent-cyan, #0284c7)" />
                     <div>
                       <div style={{ fontWeight: 600 }}>3D Surface Pressure (Cp)</div>
-                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Interactive WebGL pressure grid</div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Interactive WebGL pressure grid</div>
                     </div>
                   </button>
 
@@ -521,16 +547,16 @@ export default function AASIApp() {
                       borderRadius: "6px",
                       background: "transparent",
                       border: "none",
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       fontSize: "0.78rem",
                       cursor: "pointer",
                       textAlign: "left",
                     }}
                   >
-                    <Sparkles size={14} color="#f59e0b" />
+                    <Sparkles size={14} color="#d97706" />
                     <div>
                       <div style={{ fontWeight: 600 }}>Airfoil Shape Optimizer</div>
-                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Genetic algorithm L/D maximizing</div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Genetic algorithm L/D maximizing</div>
                     </div>
                   </button>
 
@@ -547,16 +573,16 @@ export default function AASIApp() {
                       borderRadius: "6px",
                       background: "transparent",
                       border: "none",
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       fontSize: "0.78rem",
                       cursor: "pointer",
                       textAlign: "left",
                     }}
                   >
-                    <Database size={14} color="#38bdf8" />
+                    <Database size={14} color="var(--accent-cyan, #0284c7)" />
                     <div>
                       <div style={{ fontWeight: 600 }}>Aero Database &amp; Exporter</div>
-                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Turnkey ArduPilot / PX4 param tables</div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Turnkey ArduPilot / PX4 param tables</div>
                     </div>
                   </button>
 
@@ -573,20 +599,20 @@ export default function AASIApp() {
                       borderRadius: "6px",
                       background: "transparent",
                       border: "none",
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       fontSize: "0.78rem",
                       cursor: "pointer",
                       textAlign: "left",
                     }}
                   >
-                    <Compass size={14} color="#34d399" />
+                    <Compass size={14} color="#059669" />
                     <div>
                       <div style={{ fontWeight: 600 }}>Subdomain Benchmark Hub</div>
-                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>NASA CRM, UIUC, CMAPSS cases</div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>NASA CRM, UIUC, CMAPSS cases</div>
                     </div>
                   </button>
 
-                  <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.08)", margin: "4px 0" }} />
+                  <div style={{ height: "1px", background: "var(--border-color, #e2e8f0)", margin: "4px 0" }} />
 
                   <button
                     onClick={() => {
@@ -601,16 +627,16 @@ export default function AASIApp() {
                       borderRadius: "6px",
                       background: "transparent",
                       border: "none",
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       fontSize: "0.78rem",
                       cursor: "pointer",
                       textAlign: "left",
                     }}
                   >
-                    <FileText size={14} color="#14b8a6" />
+                    <FileText size={14} color="#059669" />
                     <div>
                       <div style={{ fontWeight: 600 }}>ASME V&amp;V 20 Dossier</div>
-                      <div style={{ fontSize: "0.66rem", color: "#64748b" }}>Export certification evidence package</div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Export certification evidence package</div>
                     </div>
                   </button>
 
@@ -627,7 +653,7 @@ export default function AASIApp() {
                       borderRadius: "6px",
                       background: "transparent",
                       border: "none",
-                      color: "#f8fafc",
+                      color: "var(--text-primary, #0f172a)",
                       fontSize: "0.78rem",
                       cursor: "pointer",
                       textAlign: "left",
@@ -690,6 +716,21 @@ export default function AASIApp() {
               >
                 ⌘K
               </kbd>
+            </button>
+
+            {/* Theme Switcher: White & Light Mode / Dark Avionics */}
+            <button
+              onClick={handleToggleTheme}
+              className="flight-action-btn"
+              title={`Switch to ${theme === "light" ? "Dark Avionics" : "Sovereign White"} Mode`}
+              style={{
+                borderColor: theme === "light" ? "#e2e8f0" : "rgba(255, 255, 255, 0.12)",
+              }}
+            >
+              {theme === "light" ? <Sun size={13} color="#d97706" /> : <Moon size={13} color="#38bdf8" />}
+              <span className="flight-tool-label">
+                {theme === "light" ? "Light" : "Dark"}
+              </span>
             </button>
 
             {/* Analysis Console Trigger */}

@@ -120,11 +120,11 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         style={{
           width: "100%",
           maxWidth: "680px",
-          background: "#0e111a",
-          border: "1px solid rgba(255, 255, 255, 0.12)",
+          background: "var(--bg-card, #ffffff)",
+          border: "1px solid var(--border-color, #e2e8f0)",
           borderRadius: "12px",
           boxShadow:
-            "0 24px 70px rgba(0, 0, 0, 0.8), 0 0 24px rgba(245, 158, 11, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08)",
+            "0 24px 70px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",

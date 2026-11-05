@@ -465,16 +465,16 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
-        background: "#08090d",
-        color: "#f8fafc",
+        background: "var(--bg-primary, #f8fafc)",
+        color: "var(--text-primary, #0f172a)",
         fontFamily: "var(--font-sans, sans-serif)",
       }}
     >
       {/* ─── Top Mission Intelligence Header ─── */}
       <header
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "rgba(14, 17, 26, 0.95)",
+          borderBottom: "1px solid var(--border-color, #e2e8f0)",
+          background: "var(--bg-secondary, #ffffff)",
           backdropFilter: "blur(12px)",
           padding: "14px 28px",
           display: "flex",
@@ -613,8 +613,8 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
       {/* ─── Cockpit Navigation Bar ─── */}
       <nav
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "#0e111a",
+          borderBottom: "1px solid var(--border-color, #e2e8f0)",
+          background: "var(--bg-secondary, #ffffff)",
           display: "flex",
           gap: "2px",
           padding: "0 28px",
@@ -682,7 +682,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
             {/* Mission Objective Card */}
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "24px",
@@ -802,7 +802,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                     onChange={(e) => setSelectedAirfoil(e.target.value)}
                     style={{
                       width: "100%",
-                      background: "#131724",
+                      background: "var(--bg-card, #ffffff)",
                       border: "1px solid rgba(255, 255, 255, 0.1)",
                       color: "#f8fafc",
                       borderRadius: "4px",
@@ -891,7 +891,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* Lift Coefficient Card */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "18px",
@@ -922,7 +922,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* Drag Coefficient Card */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "18px",
@@ -953,7 +953,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* Aerodynamic Efficiency Card */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "18px",
@@ -984,7 +984,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* ASME & NASA Credibility Card */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "18px",
@@ -1016,7 +1016,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
             {/* Interactive Camber Airfoil & Flow Velocity Visualizer */}
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "20px",
@@ -1187,7 +1187,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "20px",
@@ -1210,7 +1210,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                   <div
                     key={spec.id}
                     style={{
-                      background: isCurrent ? "rgba(245, 158, 11, 0.08)" : "#131724",
+                      background: isCurrent ? "rgba(245, 158, 11, 0.08)" : "var(--bg-card, #ffffff)",
                       border: isCurrent
                         ? "1px solid rgba(245, 158, 11, 0.4)"
                         : "1px solid rgba(255, 255, 255, 0.07)",
@@ -1363,7 +1363,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "20px",
@@ -1382,7 +1382,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* Inputs Panel */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "20px",
@@ -1491,7 +1491,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* Physical Quantities Card */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "20px",
@@ -1566,7 +1566,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
             {/* Iterative L2 Residual Convergence Tracker */}
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "10px",
                 padding: "20px",
@@ -1652,7 +1652,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "20px",
@@ -1669,7 +1669,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
             {/* Surface Cp Plot: FNO vs Panel Method */}
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "10px",
                 padding: "20px",
@@ -1766,7 +1766,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "18px",
@@ -1788,7 +1788,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
 
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "18px",
@@ -1810,7 +1810,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
 
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "18px",
@@ -1840,7 +1840,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "20px",
@@ -1884,7 +1884,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                   <div
                     key={bench.id}
                     style={{
-                      background: isSelected ? "rgba(245, 158, 11, 0.08)" : "#131724",
+                      background: isSelected ? "rgba(245, 158, 11, 0.08)" : "var(--bg-card, #ffffff)",
                       border: isSelected
                         ? "1px solid rgba(245, 158, 11, 0.4)"
                         : "1px solid rgba(255, 255, 255, 0.07)",
@@ -2005,7 +2005,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
 
                 <div
                   style={{
-                    background: "#131724",
+                    background: "var(--bg-card, #ffffff)",
                     borderRadius: "6px",
                     padding: "10px 14px",
                     fontSize: "0.76rem",
@@ -2027,7 +2027,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "20px",
@@ -2045,7 +2045,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* Tool Selector & Payload Input */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "20px",
@@ -2150,7 +2150,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
               {/* Tool Execution Response */}
               <div
                 style={{
-                  background: "#131724",
+                  background: "var(--bg-card, #ffffff)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: "10px",
                   padding: "20px",
@@ -2193,7 +2193,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div
               style={{
-                background: "#131724",
+                background: "var(--bg-card, #ffffff)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "12px",
                 padding: "20px",
@@ -2257,12 +2257,13 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
             {/* Rendered Scientific Dossier */}
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 borderRadius: "10px",
                 padding: "32px",
                 lineHeight: 1.65,
-                color: "#e2e8f0",
+                color: "var(--text-primary, #0f172a)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
               }}
             >
               <div style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)", paddingBottom: "16px", marginBottom: "24px" }}>
@@ -2347,7 +2348,7 @@ export const AutonomousResearchCockpit: React.FC<AutonomousResearchCockpitProps>
                   </h3>
                   <div
                     style={{
-                      background: "#131724",
+                      background: "var(--bg-card, #ffffff)",
                       borderRadius: "8px",
                       padding: "16px",
                       display: "flex",

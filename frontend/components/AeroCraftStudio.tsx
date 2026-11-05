@@ -460,8 +460,8 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        background: "#08090d",
-        color: "#f8fafc",
+        background: "var(--bg-primary, #f8fafc)",
+        color: "var(--text-primary, #0f172a)",
         overflowY: "auto",
         fontFamily: "var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
       }}
@@ -469,8 +469,8 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
       {/* ─── Top Avionics Cockpit Banner ─── */}
       <div
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          background: "#0e111a",
+          borderBottom: "1px solid var(--border-color, #e2e8f0)",
+          background: "var(--bg-secondary, #ffffff)",
           padding: "16px 28px",
           display: "flex",
           flexWrap: "wrap",
@@ -617,9 +617,10 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                   padding: "14px",
                   borderRadius: "8px",
                   border: isSelected
-                    ? "1px solid #38bdf8"
-                    : "1px solid rgba(255, 255, 255, 0.08)",
-                  background: isSelected ? "rgba(56, 189, 248, 0.08)" : "#0e111a",
+                    ? "1px solid var(--accent-cyan, #0284c7)"
+                    : "1px solid var(--border-color, #e2e8f0)",
+                  background: isSelected ? "rgba(2, 132, 199, 0.08)" : "var(--bg-card, #ffffff)",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.03)",
                   cursor: "pointer",
                   transition: "all 0.15s ease",
                 }}
@@ -742,7 +743,7 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
                       alignItems: "center",
                       justifyContent: "center",
                       background: isCurrent ? "#38bdf8" : "rgba(255, 255, 255, 0.06)",
-                      color: isCurrent ? "#08090d" : "#94a3b8",
+                      color: isCurrent ? "var(--accent-cyan, #0284c7)" : "var(--text-secondary, #64748b)",
                     }}
                   >
                     <Icon size={14} />
@@ -776,8 +777,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {activeStep === "STUDY" && (
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
                 borderRadius: "12px",
                 padding: "22px",
                 display: "flex",
@@ -987,8 +989,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {activeStep === "BUILD" && (
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
                 borderRadius: "12px",
                 padding: "22px",
                 display: "flex",
@@ -1097,8 +1100,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {activeStep === "CHECK" && (
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
                 borderRadius: "12px",
                 padding: "22px",
                 display: "flex",
@@ -1234,8 +1238,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {activeStep === "READY" && (
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
                 borderRadius: "12px",
                 padding: "22px",
                 display: "flex",
@@ -1398,8 +1403,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {activeStep === "CAD_MESHER" && (
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
                 borderRadius: "12px",
                 padding: "24px",
                 display: "flex",
@@ -1525,8 +1531,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {activeStep === "HIL_FLIGHT" && (
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
                 borderRadius: "12px",
                 padding: "24px",
                 display: "flex",
@@ -1675,8 +1682,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {activeStep === "AUTOPILOT_EXPORT" && (
             <div
               style={{
-                background: "#0e111a",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-card, #ffffff)",
+                border: "1px solid var(--border-color, #e2e8f0)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
                 borderRadius: "12px",
                 padding: "24px",
                 display: "flex",
@@ -1781,8 +1789,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <div
             style={{
-              background: "#0e111a",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              background: "var(--bg-card, #ffffff)",
+              border: "1px solid var(--border-color, #e2e8f0)",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
               borderRadius: "12px",
               padding: "18px",
               display: "flex",
@@ -1835,8 +1844,9 @@ isl_carrier_phase_sigma = 0.0025 # meters`,
           {/* Compliance Matrix Checklist */}
           <div
             style={{
-              background: "#0e111a",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              background: "var(--bg-card, #ffffff)",
+              border: "1px solid var(--border-color, #e2e8f0)",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
               borderRadius: "12px",
               padding: "18px",
               display: "flex",
