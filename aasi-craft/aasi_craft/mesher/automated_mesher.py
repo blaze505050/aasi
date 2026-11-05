@@ -38,6 +38,15 @@ class BoundaryLayerInflation:
 
 
 @dataclass
+class GridLevelInfo:
+    level: str
+    grid_index: int
+    cell_size_m: float
+    estimated_cells: int
+    y_plus: float
+
+
+@dataclass
 class AsmeGridHierarchy:
     """
     3-Level Grid Hierarchy satisfying ASME V&V 20-2009 refinement constraints (r >= 1.3).
@@ -51,9 +60,47 @@ class AsmeGridHierarchy:
     satisfies_asme_vv20_ratio: bool
     openfoam_snappy_dict: str = ""
     su2_mesh_config: str = ""
+    target_y_plus: float = 1.0
+    first_cell_height_m: float = 2.0e-5
+    prism_layer_count: int = 18
+    prism_growth_ratio: float = 1.20
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+    @property
+    def refinement_ratio(self) -> float:
+        return self.grid_refinement_ratio_r
+
+    @property
+    def asme_vv20_compliant(self) -> bool:
+        return self.satisfies_asme_vv20_ratio
+
+    @property
+    def grids(self) -> List[GridLevelInfo]:
+        return [
+            GridLevelInfo(
+                level="Fine (G1)",
+                grid_index=1,
+                cell_size_m=self.fine_grid_h1.get("cell_size_m", 0.005),
+                estimated_cells=self.fine_grid_h1.get("estimated_cells", 450000),
+                y_plus=self.fine_grid_h1.get("y_plus", self.target_y_plus),
+            ),
+            GridLevelInfo(
+                level="Medium (G2)",
+                grid_index=2,
+                cell_size_m=self.medium_grid_h2.get("cell_size_m", 0.007),
+                estimated_cells=self.medium_grid_h2.get("estimated_cells", 159000),
+                y_plus=self.medium_grid_h2.get("y_plus", self.target_y_plus * 1.414),
+            ),
+            GridLevelInfo(
+                level="Coarse (G3)",
+                grid_index=3,
+                cell_size_m=self.coarse_grid_h3.get("cell_size_m", 0.010),
+                estimated_cells=self.coarse_grid_h3.get("estimated_cells", 56000),
+                y_plus=self.coarse_grid_h3.get("y_plus", self.target_y_plus * 2.0),
+            ),
+        ]
 
 
 class AutomatedMesher:
@@ -126,12 +173,13 @@ class AutomatedMesher:
         u_inf: float = 60.0,
         grid_refinement_ratio: float = 1.414,  # sqrt(2)
         base_h1_cell_size_m: float = 0.005,
+        target_y_plus: float = 1.0,
     ) -> AsmeGridHierarchy:
         """
         Synthesizes 3 grid levels (h1 < h2 < h3) satisfying ASME V&V 20-2009 constraint r >= 1.30.
         """
         r = max(grid_refinement_ratio, 1.30)
-        bl_fine = cls.calculate_boundary_layer_inflation(u_inf=u_inf, chord_m=base_chord_m, target_y_plus=0.90)
+        bl_fine = cls.calculate_boundary_layer_inflation(u_inf=u_inf, chord_m=base_chord_m, target_y_plus=target_y_plus)
 
         # Fine Grid (h1)
         h1 = base_h1_cell_size_m
@@ -276,5 +324,35 @@ CONV_STARTITER= 10
             satisfies_asme_vv20_ratio=r >= 1.30,
             openfoam_snappy_dict=snappy_dict.strip(),
             su2_mesh_config=su2_cfg.strip(),
+            target_y_plus=bl_fine.target_y_plus,
+            first_cell_height_m=bl_fine.first_cell_height_delta_y1_m,
+            prism_layer_count=bl_fine.num_prism_layers,
+            prism_growth_ratio=bl_fine.expansion_ratio,
         )
+
+    @classmethod
+    def generate_asme_vv20_grid_suite(
+        cls,
+        cad_filename: str = "UAV_WING",
+        characteristic_length: float = 1.0,
+        target_y_plus: float = 1.0,
+        freestream_velocity: float = 50.0,
+        refinement_ratio: float = 1.414,
+    ) -> AsmeGridHierarchy:
+        geo_name = cad_filename.replace(".stl", "").replace(".step", "")
+        return cls.generate_asme_vv20_grid_hierarchy(
+            geometry_name=geo_name,
+            base_chord_m=characteristic_length,
+            u_inf=freestream_velocity,
+            grid_refinement_ratio=refinement_ratio,
+            target_y_plus=target_y_plus,
+        )
+
+    @staticmethod
+    def generate_openfoam_snappy_hex_mesh_dict(grid_suite: AsmeGridHierarchy) -> str:
+        return grid_suite.openfoam_snappy_dict
+
+    @staticmethod
+    def generate_su2_config(grid_suite: AsmeGridHierarchy, mach: float = 0.15, reynolds: float = 1e6) -> str:
+        return grid_suite.su2_mesh_config
 

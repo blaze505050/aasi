@@ -31,7 +31,7 @@ from aasi_craft.assurance.rta_packager import RtaAirworthinessPackager
 from aasi_craft.cad.geometry_engine import CadGeometryEngine
 from aasi_craft.mesher.automated_mesher import AutomatedMesher
 from aasi_craft.exporters.autopilot_exporter import AutopilotHardwareExporter
-from aasi_orbital_gnc.hil_bridge import HilFlightBridge
+from aasi_orbital_gnc.hil_bridge import HilFlightBridge, HilFailureMode
 from aasi_aero_fno.adaskip_tmr import TmrRadiationExecutive
 from aasi_craft.flagship_workflow import (
     run_naca4412_surrogate_pipeline,
@@ -189,101 +189,207 @@ def post_pipeline(req: PipelineRequest) -> Dict[str, Any]:
 # ─── CAD, MESHING, HIL & SPACEBORNE EDGE EXTENSIONS ───
 
 class CadInspectRequest(BaseModel):
-    name: str = "TRIBAL_TACTICAL_UAV"
+    name: Optional[str] = "TRIBAL_TACTICAL_UAV"
+    filename: Optional[str] = None
+    span: Optional[float] = None
+    root_chord: Optional[float] = None
+    tip_chord: Optional[float] = None
     raw_ascii_stl: Optional[str] = None
     use_preset_uav: bool = True
 
 
 class MesherRequest(BaseModel):
-    geometry_name: str = "TRIBAL_TACTICAL_UAV"
-    chord_m: float = 1.0
-    u_inf_mps: float = 60.0
+    geometry_name: Optional[str] = "TRIBAL_TACTICAL_UAV"
+    cad_filename: Optional[str] = None
+    characteristic_length: Optional[float] = None
+    chord_m: Optional[float] = None
+    u_inf_mps: Optional[float] = None
+    freestream_velocity: Optional[float] = None
     target_y_plus: float = 0.95
-    grid_ratio: float = 1.414
+    grid_ratio: Optional[float] = None
+    refinement_ratio: Optional[float] = None
 
 
 class HilStepRequest(BaseModel):
     dt_sec: float = 0.01
+    steps: Optional[int] = 1
+    target_roll_deg: Optional[float] = 0.0
+    target_pitch_deg: Optional[float] = 0.0
 
 
 class HilInjectFaultRequest(BaseModel):
-    fault_mode: str = Field(default="ACTUATOR_JAM_AILERON", description="ACTUATOR_JAM_AILERON, ACTUATOR_FLOAT_RUDDER, ORBITAL_ECLIPSE_GNSS_OUTAGE, SAA_COSMIC_SEU, NOMINAL")
+    fault_mode: Optional[str] = None
+    failure_mode: Optional[str] = None
+    magnitude: float = 18.0
 
 
 class TmrEvaluateRequest(BaseModel):
-    alpha_deg: float = 4.0
+    alpha_deg: Optional[float] = 4.0
     inject_seu_channel: Optional[int] = None
+    inject_bitflip_channel: Optional[int] = None
+    test_vector: Optional[List[float]] = None
 
 
 class AutopilotExportRequest(BaseModel):
-    airframe_name: str = "TRIBAL_TACTICAL_UAV"
+    airframe_name: Optional[str] = "TRIBAL_TACTICAL_UAV"
+    vehicle_name: Optional[str] = None
     mass_kg: float = 12.5
     span_m: float = 2.4
     chord_m: float = 0.35
-    v_cruise_mps: float = 24.0
-    cl_alpha: float = 5.85
-    cm_alpha: float = -0.62
+    v_cruise_mps: Optional[float] = None
+    cruise_airspeed_mps: Optional[float] = None
+    cl_alpha: Optional[float] = None
+    cm_alpha: Optional[float] = None
+    stability_derivatives: Optional[Dict[str, float]] = None
 
 
 @router.post("/cad/inspect-stl")
 def post_inspect_stl(req: CadInspectRequest) -> Dict[str, Any]:
     """Parses 3D surface STL, calculates MAC, planform area, aspect ratio, and sweep."""
+    filename = req.filename or req.name or "uav_wing.stl"
     if req.raw_ascii_stl:
-        metrics = CadGeometryEngine.parse_stl_ascii(req.raw_ascii_stl, name=req.name)
+        metrics = CadGeometryEngine.parse_stl_ascii(req.raw_ascii_stl, name=filename)
     else:
-        sample_bytes = CadGeometryEngine.generate_sample_uav_wing_stl()
-        metrics = CadGeometryEngine.parse_stl_binary(sample_bytes, name=req.name)
-    return metrics.to_dict()
+        sample_bytes = CadGeometryEngine.generate_sample_uav_wing_stl(
+            span=req.span or 2.4,
+            root_chord=req.root_chord or 0.45,
+            tip_chord=req.tip_chord or 0.22,
+        )
+        engine = CadGeometryEngine()
+        metrics = engine.inspect_stl_bytes(sample_bytes, filename=filename)
+
+    geom_dict = metrics.to_dict()
+    geom_dict["span_m"] = metrics.span_b_m
+    return {
+        "status": "SUCCESS",
+        "geometry": geom_dict,
+        **geom_dict,
+    }
 
 
 @router.post("/mesher/generate-asme-grid")
 def post_generate_asme_grid(req: MesherRequest) -> Dict[str, Any]:
     """Synthesizes ASME V&V 20 3-level grid hierarchy with prism inflation (y+ < 1.0)."""
-    hierarchy = AutomatedMesher.generate_asme_vv20_grid_hierarchy(
-        geometry_name=req.geometry_name,
-        base_chord_m=req.chord_m,
-        u_inf=req.u_inf_mps,
-        grid_refinement_ratio=req.grid_ratio,
+    cad_name = req.cad_filename or req.geometry_name or "uav_wing.stl"
+    chord = req.characteristic_length or req.chord_m or 1.0
+    u_inf = req.freestream_velocity or req.u_inf_mps or 60.0
+    ratio = req.refinement_ratio or req.grid_ratio or 1.414
+
+    mesher = AutomatedMesher()
+    grid_suite = mesher.generate_asme_vv20_grid_suite(
+        cad_filename=cad_name,
+        characteristic_length=chord,
+        target_y_plus=req.target_y_plus,
+        freestream_velocity=u_inf,
+        refinement_ratio=ratio,
     )
-    return hierarchy.to_dict()
+    snappy = mesher.generate_openfoam_snappy_hex_mesh_dict(grid_suite)
+    su2_cfg = mesher.generate_su2_config(grid_suite)
+
+    suite_dict = grid_suite.to_dict()
+    return {
+        "status": "SUCCESS",
+        "asme_vv20_compliant": grid_suite.asme_vv20_compliant,
+        "grids": [
+            {
+                "level": g.level,
+                "grid_index": g.grid_index,
+                "cell_size_m": g.cell_size_m,
+                "estimated_cells": g.estimated_cells,
+                "y_plus": g.y_plus,
+            }
+            for g in grid_suite.grids
+        ],
+        "snappy_hex_mesh_dict": snappy,
+        "su2_cfg": su2_cfg,
+        "openfoam_snappy_dict": snappy,
+        "su2_mesh_config": su2_cfg,
+        **suite_dict,
+    }
 
 
 @router.post("/hil/step-telemetry")
 def post_hil_step(req: HilStepRequest) -> Dict[str, Any]:
     """Steps the real-time 100 Hz Hardware-in-the-Loop simulation cycle."""
+    steps = req.steps or 1
+    target_roll = req.target_roll_deg or 0.0
+    target_pitch = req.target_pitch_deg or 0.0
+    for _ in range(steps):
+        hil_bridge_singleton.step(target_roll_deg=target_roll, target_pitch_deg=target_pitch)
     frame = hil_bridge_singleton.step_simulation_cycle(dt=req.dt_sec)
-    return frame.to_dict()
+    frame_dict = frame.to_dict()
+    return {
+        "status": "SUCCESS",
+        "telemetry": frame_dict,
+        **frame_dict,
+    }
 
 
 @router.post("/hil/inject-failure")
 def post_hil_inject_failure(req: HilInjectFaultRequest) -> Dict[str, Any]:
     """Injects or clears flight hardware fault into the active HIL bridge."""
-    status_msg = hil_bridge_singleton.inject_failure(req.fault_mode)
-    return {"status": status_msg, "active_fault": hil_bridge_singleton.active_fault}
+    mode_str = req.failure_mode or req.fault_mode or "NOMINAL"
+    f_mode = getattr(HilFailureMode, mode_str, mode_str)
+    hil_bridge_singleton.inject_failure(f_mode, magnitude=req.magnitude)
+    active_str = str(hil_bridge_singleton.status.active_failure)
+    return {
+        "status": "INJECTED",
+        "active_failure": active_str,
+        "active_fault": hil_bridge_singleton.active_fault,
+    }
 
 
 @router.post("/space/tmr-evaluate")
 def post_tmr_evaluate(req: TmrEvaluateRequest) -> Dict[str, Any]:
     """Executes on-orbit Triple Modular Redundancy (TMR) evaluation with AdaSkip pruning."""
-    res = tmr_exec_singleton.evaluate_with_tmr(
-        alpha_deg=req.alpha_deg,
-        inject_seu_channel=req.inject_seu_channel
-    )
-    return res.to_dict()
+    ch = req.inject_bitflip_channel if req.inject_bitflip_channel is not None else req.inject_seu_channel
+    if req.test_vector is not None:
+        voted_vec, seu_detected = tmr_exec_singleton.evaluate_with_tmr(
+            test_state=req.test_vector,
+            inject_bitflip_channel=ch,
+        )
+        return {
+            "status": "SUCCESS",
+            "seu_detected": seu_detected,
+            "voted_vector": voted_vec,
+            "seu_events_detected": tmr_exec_singleton.seu_events_detected,
+        }
+    else:
+        res = tmr_exec_singleton.evaluate_with_tmr(
+            alpha_deg=req.alpha_deg or 4.0,
+            inject_seu_channel=ch,
+        )
+        res_dict = res.to_dict()
+        res_dict["status"] = "SUCCESS"
+        res_dict["seu_detected"] = res.seu_fault_detected
+        res_dict["voted_vector"] = [res.voted_consensus_value]
+        return res_dict
 
 
 @router.post("/export/autopilot")
 def post_export_autopilot(req: AutopilotExportRequest) -> Dict[str, Any]:
     """Synthesizes ready-to-flash ArduPilot .param and PX4 mixer configurations."""
+    v_name = req.vehicle_name or req.airframe_name or "TRIBAL_TACTICAL_UAV"
+    v_cruise = req.cruise_airspeed_mps or req.v_cruise_mps or 28.0
+    derivs = req.stability_derivatives or {}
+    cl_a = req.cl_alpha or derivs.get("cl_alpha", derivs.get("CL_alpha", 5.85))
+    cm_a = req.cm_alpha or derivs.get("cm_alpha", derivs.get("Cm_alpha", -0.62))
+
     pkg = AutopilotHardwareExporter.generate_autopilot_package(
-        airframe_name=req.airframe_name,
+        airframe_name=v_name,
         mass_kg=req.mass_kg,
         span_m=req.span_m,
         chord_m=req.chord_m,
-        v_cruise_mps=req.v_cruise_mps,
-        cl_alpha=req.cl_alpha,
-        cm_alpha=req.cm_alpha,
+        v_cruise_mps=v_cruise,
+        cl_alpha=cl_a,
+        cm_alpha=cm_a,
     )
-    return pkg.to_dict()
+    return {
+        "status": "SUCCESS",
+        "ardupilot_param": pkg.ardupilot_param_text,
+        "px4_mixer_toml": pkg.px4_mixer_text,
+        "c_header": pkg.embedded_c_header_text,
+        **pkg.to_dict(),
+    }
 
 

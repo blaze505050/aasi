@@ -40,6 +40,30 @@ class CadGeometryMetrics:
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
+    @property
+    def span(self) -> float:
+        return self.span_b_m
+
+    @property
+    def root_chord(self) -> float:
+        return self.root_chord_m
+
+    @property
+    def tip_chord(self) -> float:
+        return self.tip_chord_m
+
+    @property
+    def planform_area(self) -> float:
+        return self.projected_planform_area_m2
+
+    @property
+    def wetted_area(self) -> float:
+        return self.wetted_surface_area_m2
+
+    @property
+    def mean_aerodynamic_chord(self) -> float:
+        return self.mean_aerodynamic_chord_m
+
 
 class CadGeometryEngine:
     """
@@ -67,6 +91,19 @@ class CadGeometryEngine:
         area = 0.5 * norm
         unit_normal = (cx / norm, cy / norm, cz / norm)
         return area, unit_normal
+
+    @classmethod
+    def inspect_stl_bytes(cls, data: bytes, filename: str = "AERO_BODY") -> CadGeometryMetrics:
+        """Inspects STL binary or ASCII bytes and returns geometric and aerodynamic metrics."""
+        if data.strip().startswith(b"solid") and b"facet normal" in data[:500]:
+            try:
+                return cls.parse_stl_ascii(data.decode("utf-8", errors="ignore"), name=filename)
+            except Exception:
+                pass
+        return cls.parse_stl_binary(data, name=filename)
+
+    def inspect_stl(self, data: bytes, filename: str = "AERO_BODY") -> CadGeometryMetrics:
+        return self.inspect_stl_bytes(data, filename)
 
     @classmethod
     def parse_stl_binary(cls, data: bytes, name: str = "AERO_BODY") -> CadGeometryMetrics:
@@ -233,44 +270,61 @@ class CadGeometryEngine:
         )
 
     @classmethod
-    def generate_sample_uav_wing_stl(cls) -> bytes:
+    def generate_sample_uav_wing_stl(
+        cls,
+        span: float = 2.4,
+        root_chord: float = 0.45,
+        tip_chord: float = 0.22,
+    ) -> bytes:
         """
         Synthesizes a clean binary STL model of a high-efficiency tactical UAV wing
-        (taper ratio 0.55, span 2.4m, root chord 0.45m) for automated test suites and presets.
+        for automated test suites and presets.
         """
         # Header (80 bytes)
         header = b"AASI Sovereign Aerospace UAV Wing Model - High-Efficiency Aerodynamic Surface"
         header = header.ljust(80, b"\x00")
 
+        semi_span = span / 2.0
+        tip_x_le = max(0.0, root_chord - tip_chord) * 0.7
+        tip_x_te = tip_x_le + tip_chord
+
         # Create vertices for a trapezoidal swept wingbox (12 triangles)
-        # Root section: x in [0, 0.45], y=0, z in [-0.02, 0.02]
-        # Tip section: x in [0.2, 0.45], y=1.2, z in [-0.01, 0.01]
         triangles: List[Tuple[Tuple[float, float, float], Tuple[float, float, float], Tuple[float, float, float]]] = [
             # Upper surface (root LE, root TE, tip LE)
-            ((0.0, 0.0, 0.02), (0.45, 0.0, 0.01), (0.20, 1.2, 0.01)),
-            ((0.45, 0.0, 0.01), (0.45, 1.2, 0.005), (0.20, 1.2, 0.01)),
+            ((0.0, 0.0, 0.02), (root_chord, 0.0, 0.01), (tip_x_le, semi_span, 0.01)),
+            ((root_chord, 0.0, 0.01), (tip_x_te, semi_span, 0.005), (tip_x_le, semi_span, 0.01)),
             # Lower surface
-            ((0.0, 0.0, -0.02), (0.20, 1.2, -0.01), (0.45, 0.0, -0.01)),
-            ((0.45, 0.0, -0.01), (0.20, 1.2, -0.01), (0.45, 1.2, -0.005)),
+            ((0.0, 0.0, -0.02), (tip_x_le, semi_span, -0.01), (root_chord, 0.0, -0.01)),
+            ((root_chord, 0.0, -0.01), (tip_x_le, semi_span, -0.01), (tip_x_te, semi_span, -0.005)),
             # Leading edge cap
-            ((0.0, 0.0, 0.02), (0.20, 1.2, 0.01), (0.0, 0.0, -0.02)),
-            ((0.20, 1.2, 0.01), (0.20, 1.2, -0.01), (0.0, 0.0, -0.02)),
+            ((0.0, 0.0, 0.02), (tip_x_le, semi_span, 0.01), (0.0, 0.0, -0.02)),
+            ((tip_x_le, semi_span, 0.01), (tip_x_le, semi_span, -0.01), (0.0, 0.0, -0.02)),
             # Trailing edge cap
-            ((0.45, 0.0, 0.01), (0.45, 0.0, -0.01), (0.45, 1.2, 0.005)),
-            ((0.45, 0.0, -0.01), (0.45, 1.2, -0.005), (0.45, 1.2, 0.005)),
+            ((root_chord, 0.0, 0.01), (root_chord, 0.0, -0.01), (tip_x_te, semi_span, 0.005)),
+            ((root_chord, 0.0, -0.01), (tip_x_te, semi_span, -0.005), (tip_x_te, semi_span, 0.005)),
             # Root rib cap
-            ((0.0, 0.0, 0.02), (0.0, 0.0, -0.02), (0.45, 0.0, 0.01)),
-            ((0.45, 0.0, 0.01), (0.0, 0.0, -0.02), (0.45, 0.0, -0.01)),
+            ((0.0, 0.0, 0.02), (0.0, 0.0, -0.02), (root_chord, 0.0, 0.01)),
+            ((root_chord, 0.0, 0.01), (0.0, 0.0, -0.02), (root_chord, 0.0, -0.01)),
             # Tip rib cap
-            ((0.20, 1.2, 0.01), (0.45, 1.2, 0.005), (0.20, 1.2, -0.01)),
-            ((0.45, 1.2, 0.005), (0.45, 1.2, -0.005), (0.20, 1.2, -0.01)),
+            ((tip_x_le, semi_span, 0.01), (tip_x_te, semi_span, 0.005), (tip_x_le, semi_span, -0.01)),
+            ((tip_x_te, semi_span, 0.005), (tip_x_te, semi_span, -0.005), (tip_x_le, semi_span, -0.01)),
         ]
+
+        # Mirror across y=0 to create full aircraft wing
+        right_triangles = triangles[:]
+        left_triangles = []
+        for v1, v2, v3 in right_triangles:
+            lv1 = (v1[0], -v1[1], v1[2])
+            lv2 = (v3[0], -v3[1], v3[2])
+            lv3 = (v2[0], -v2[1], v2[2])
+            left_triangles.append((lv1, lv2, lv3))
+        all_triangles = right_triangles + left_triangles
 
         buf = bytearray()
         buf.extend(header)
-        buf.extend(struct.pack("<I", len(triangles)))
+        buf.extend(struct.pack("<I", len(all_triangles)))
 
-        for v1, v2, v3 in triangles:
+        for v1, v2, v3 in all_triangles:
             area, normal = cls._triangle_area_and_normal(v1, v2, v3)
             # Normal (3f), Vertices (9f), Attribute (H)
             buf.extend(struct.pack("<12fH", normal[0], normal[1], normal[2],
@@ -280,4 +334,8 @@ class CadGeometryEngine:
                                    0))
 
         return bytes(buf)
+
+
+# Module-level alias for convenient importing
+generate_sample_uav_wing_stl = CadGeometryEngine.generate_sample_uav_wing_stl
 

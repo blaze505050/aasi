@@ -205,3 +205,62 @@ extern "C" {{
             stability_derivatives=derivatives,
         )
 
+    @classmethod
+    def generate_ardupilot_param(
+        cls,
+        vehicle_name: str = "AASI_TACTICAL_UAV",
+        stability_derivatives: Optional[Dict[str, float]] = None,
+        cruise_airspeed_mps: float = 28.0,
+    ) -> str:
+        derivatives = stability_derivatives or {}
+        pkg = cls.generate_autopilot_package(
+            airframe_name=vehicle_name,
+            v_cruise_mps=cruise_airspeed_mps,
+            cl_alpha=derivatives.get("cl_alpha", derivatives.get("CL_alpha", 5.85)),
+            cm_alpha=derivatives.get("cm_alpha", derivatives.get("Cm_alpha", -0.62)),
+            cl_beta=derivatives.get("cl_beta", derivatives.get("Cl_beta", -0.12)),
+            cn_beta=derivatives.get("cn_beta", derivatives.get("Cn_beta", 0.085)),
+            cm_de=derivatives.get("cm_de", derivatives.get("Cm_de", -1.15)),
+            cl_da=derivatives.get("cl_da", derivatives.get("Cl_da", 0.18)),
+            cn_dr=derivatives.get("cn_dr", derivatives.get("Cn_dr", -0.065)),
+        )
+        return pkg.ardupilot_param_text
+
+    @classmethod
+    def generate_px4_mixer_config(
+        cls,
+        vehicle_name: str = "AASI_TACTICAL_UAV",
+        stability_derivatives: Optional[Dict[str, float]] = None,
+    ) -> str:
+        derivatives = stability_derivatives or {}
+        pkg = cls.generate_autopilot_package(
+            airframe_name=vehicle_name,
+            cl_alpha=derivatives.get("cl_alpha", derivatives.get("CL_alpha", 5.85)),
+            cm_alpha=derivatives.get("cm_alpha", derivatives.get("Cm_alpha", -0.62)),
+            cl_beta=derivatives.get("cl_beta", derivatives.get("Cl_beta", -0.12)),
+            cn_beta=derivatives.get("cn_beta", derivatives.get("Cn_beta", 0.085)),
+            cm_de=derivatives.get("cm_de", derivatives.get("Cm_de", -1.15)),
+            cl_da=derivatives.get("cl_da", derivatives.get("Cl_da", 0.18)),
+            cn_dr=derivatives.get("cn_dr", derivatives.get("Cn_dr", -0.065)),
+        )
+        return pkg.px4_mixer_text
+
+    @classmethod
+    def generate_c_flight_table_header(
+        cls,
+        vehicle_name: str = "AASI_TACTICAL_UAV",
+        stability_derivatives: Optional[Dict[str, float]] = None,
+    ) -> str:
+        derivatives = stability_derivatives or {}
+        pkg = cls.generate_autopilot_package(
+            airframe_name=vehicle_name,
+            cl_alpha=derivatives.get("cl_alpha", derivatives.get("CL_alpha", 5.85)),
+            cm_alpha=derivatives.get("cm_alpha", derivatives.get("Cm_alpha", -0.62)),
+            cl_beta=derivatives.get("cl_beta", derivatives.get("Cl_beta", -0.12)),
+            cn_beta=derivatives.get("cn_beta", derivatives.get("Cn_beta", 0.085)),
+            cm_de=derivatives.get("cm_de", derivatives.get("Cm_de", -1.15)),
+            cl_da=derivatives.get("cl_da", derivatives.get("Cl_da", 0.18)),
+            cn_dr=derivatives.get("cn_dr", derivatives.get("Cn_dr", -0.065)),
+        )
+        return pkg.embedded_c_header_text
+
