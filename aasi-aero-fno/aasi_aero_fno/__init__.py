@@ -43,6 +43,14 @@ from .equivariant_gnn import (
     verify_so3_orthonormality,
     AEROSPACE_3D_BENCHMARKS,
 )
+from .conformal_uncertainty import (
+    ConformalAerospaceSafetyEngine,
+    ConformalEvaluationResult,
+    ConformalCalibrationDeck,
+    generate_aerospace_calibration_deck,
+    compute_conformal_quantile,
+    LatentAerospaceOODDetector,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -78,6 +86,12 @@ __all__ = [
     "euler_to_rotation_matrix",
     "verify_so3_orthonormality",
     "AEROSPACE_3D_BENCHMARKS",
+    "ConformalAerospaceSafetyEngine",
+    "ConformalEvaluationResult",
+    "ConformalCalibrationDeck",
+    "generate_aerospace_calibration_deck",
+    "compute_conformal_quantile",
+    "LatentAerospaceOODDetector",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

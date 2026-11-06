@@ -43,6 +43,10 @@ try:
         AEROSPACE_3D_BENCHMARKS,
         generate_canonical_airframe_mesh,
     )
+    from aasi_aero_fno.conformal_uncertainty import (
+        ConformalAerospaceSafetyEngine,
+        generate_aerospace_calibration_deck,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -57,6 +61,8 @@ except ImportError:
     SE3EquivariantAirframeGNN = None
     AEROSPACE_3D_BENCHMARKS = {}
     generate_canonical_airframe_mesh = None
+    ConformalAerospaceSafetyEngine = None
+    generate_aerospace_calibration_deck = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -403,3 +409,64 @@ class NeuralOperatorAdapter:
     def get_aerospace_3d_benchmarks(cls) -> Dict[str, Any]:
         """Returns standard 3D aerospace reference benchmarks (NASA CRM, LCA Tejas, RLV-TD)."""
         return AEROSPACE_3D_BENCHMARKS
+
+    @classmethod
+    def evaluate_conformal_safety(
+        cls,
+        mach: float = 0.85,
+        alpha_deg: float = 2.2,
+        reynolds: float = 6.5e6,
+        confidence_level_pct: float = 95.0,
+        thickness_ratio: float = 0.12,
+        sweep_deg: float = 28.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 5: Evaluates finite-sample conformal prediction bounds and ASTM F3269-21 RTA fallback.
+        """
+        if ConformalAerospaceSafetyEngine is None:
+            raise RuntimeError("ConformalAerospaceSafetyEngine module is not loaded.")
+        result = ConformalAerospaceSafetyEngine.evaluate(
+            mach=mach,
+            alpha_deg=alpha_deg,
+            reynolds=reynolds,
+            confidence_level_pct=confidence_level_pct,
+            thickness_ratio=thickness_ratio,
+            sweep_deg=sweep_deg,
+        )
+        return {
+            "mach": result.mach,
+            "alpha_deg": result.alpha_deg,
+            "reynolds": result.reynolds,
+            "coverage_level_pct": result.coverage_level_pct,
+            "alpha_miscoverage": result.alpha_miscoverage,
+            "conformal_quantile_q": result.conformal_quantile_q,
+            "mahalanobis_distance": result.mahalanobis_distance,
+            "is_ood": result.is_ood,
+            "epistemic_safety_tier": result.epistemic_safety_tier,
+            "cl_prediction": result.cl_prediction,
+            "cl_interval": list(result.cl_interval),
+            "cl_interval_width": result.cl_interval_width,
+            "cd_prediction": result.cd_prediction,
+            "cd_interval": list(result.cd_interval),
+            "cd_interval_width": result.cd_interval_width,
+            "cm_prediction": result.cm_prediction,
+            "cm_interval": list(result.cm_interval),
+            "rta_action": result.rta_action,
+            "rta_subsystem": result.rta_subsystem,
+            "provenance_hash": result.provenance_hash,
+        }
+
+    @classmethod
+    def get_conformal_calibration_summary(cls) -> Dict[str, Any]:
+        """Returns calibration deck metrics for verification."""
+        if ConformalAerospaceSafetyEngine is None:
+            raise RuntimeError("ConformalAerospaceSafetyEngine module is not loaded.")
+        deck = ConformalAerospaceSafetyEngine.get_calibration_deck()
+        return {
+            "num_calibration_samples": len(deck.sample_ids),
+            "mean_nonconformity_score": round(float(np.mean(deck.nonconformity_scores)), 4),
+            "median_nonconformity_score": round(float(np.median(deck.nonconformity_scores)), 4),
+            "quantile_90": round(float(np.quantile(deck.nonconformity_scores, 0.90)), 4),
+            "quantile_95": round(float(np.quantile(deck.nonconformity_scores, 0.95)), 4),
+            "quantile_99": round(float(np.quantile(deck.nonconformity_scores, 0.99)), 4),
+        }

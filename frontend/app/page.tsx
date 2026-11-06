@@ -31,6 +31,7 @@ import {
   Sun,
   Moon,
   Waves,
+  ShieldAlert,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -52,6 +53,7 @@ import { AeroCraftStudio } from "../components/AeroCraftStudio";
 import { TransonicTransolverStudio } from "../components/TransonicTransolverStudio";
 import TurbulenceSciMLStudio from "../components/TurbulenceSciMLStudio";
 import EquivariantGNNStudio from "../components/EquivariantGNNStudio";
+import ConformalUncertaintyStudio from "../components/ConformalUncertaintyStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -70,6 +72,7 @@ export default function AASIApp() {
   const [transonicStudioOpen, setTransonicStudioOpen] = useState(false);
   const [turbulenceStudioOpen, setTurbulenceStudioOpen] = useState(false);
   const [egnnStudioOpen, setEgnnStudioOpen] = useState(false);
+  const [conformalStudioOpen, setConformalStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -240,6 +243,15 @@ export default function AASIApp() {
       badge: "Stage 4 Lie Group",
       icon: <Compass size={16} />,
       action: () => setEgnnStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-conformal",
+      category: "Workspaces",
+      title: "Launch Epistemic Conformal Uncertainty Studio (Stage 5)",
+      description: "Split conformal prediction bounds P(y in C) >= 1 - alpha, Mahalanobis latent OOD screening, and ASTM F3269-21 RTA failsafe.",
+      badge: "Stage 5 RTA",
+      icon: <ShieldAlert size={16} />,
+      action: () => setConformalStudioOpen(true),
     },
     {
       id: "cmd-ws-aerocraft",
@@ -626,6 +638,35 @@ export default function AASIApp() {
                         <span style={{ fontSize: "0.6rem", background: "#6366f1", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 4</span>
                       </div>
                       <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Continuous Lie Group SO(3) ⋉ ℝ³</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setConformalStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(217, 119, 6, 0.08)",
+                      border: "1px solid rgba(217, 119, 6, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <ShieldAlert size={14} color="#d97706" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Conformal Safety Studio</span>
+                        <span style={{ fontSize: "0.6rem", background: "#d97706", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 5</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>ASTM F3269 RTA • OOD Screening</div>
                     </div>
                   </button>
 
@@ -1047,6 +1088,13 @@ export default function AASIApp() {
       <EquivariantGNNStudio
         isOpen={egnnStudioOpen}
         onClose={() => setEgnnStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 5: Epistemic Uncertainty & Conformal Prediction Studio Modal ─── */}
+      <ConformalUncertaintyStudio
+        isOpen={conformalStudioOpen}
+        onClose={() => setConformalStudioOpen(false)}
         apiBase={API_BASE}
       />
 
