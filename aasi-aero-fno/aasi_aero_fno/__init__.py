@@ -15,6 +15,15 @@ from .theodorsen_aeroelasticity import (
     AeroelasticState,
     AeroelasticModalResult,
 )
+from .transonic_transolver import (
+    TransonicTransolverEngine,
+    TransonicSolverResult,
+    TransonicShockMetrics,
+    TransonicFlowfieldGrid,
+    rankine_hugoniot_normal_shock,
+    calculate_cp_critical,
+    AGARD_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -28,6 +37,13 @@ __all__ = [
     "TheodorsenAeroelasticSolver",
     "AeroelasticState",
     "AeroelasticModalResult",
+    "TransonicTransolverEngine",
+    "TransonicSolverResult",
+    "TransonicShockMetrics",
+    "TransonicFlowfieldGrid",
+    "rankine_hugoniot_normal_shock",
+    "calculate_cp_critical",
+    "AGARD_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

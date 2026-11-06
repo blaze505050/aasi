@@ -12,9 +12,31 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 import numpy as np
 from pydantic import BaseModel, Field
+
+# Ensure aasi-aero-fno is in python path
+_pkg_path = Path(__file__).resolve().parent.parent.parent / "aasi-aero-fno"
+if str(_pkg_path) not in sys.path:
+    sys.path.insert(0, str(_pkg_path))
+
+try:
+    from aasi_aero_fno.transonic_transolver import (
+        TransonicTransolverEngine,
+        TransonicSolverResult,
+        AGARD_BENCHMARKS,
+        calculate_cp_critical,
+        rankine_hugoniot_normal_shock,
+    )
+except ImportError:
+    TransonicTransolverEngine = None
+    TransonicSolverResult = None
+    AGARD_BENCHMARKS = {}
+    calculate_cp_critical = None
+    rankine_hugoniot_normal_shock = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -150,3 +172,88 @@ class NeuralOperatorAdapter:
             provenance_hash=prov_hash,
             epistemic_tier="SURROGATE",
         )
+
+    @classmethod
+    def predict_transonic_flow(
+        cls,
+        airfoil: str = "RAE 2822",
+        mach_infinity: float = 0.730,
+        alpha_deg: float = 3.19,
+        reynolds: float = 6.5e6,
+        num_surface_points: int = 120,
+        include_field_grid: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Stage 2 Transonic Shock-Capturing Neural Operator evaluation.
+        Enforces Rankine-Hugoniot jump relations and extracts supersonic expansion bubbles.
+        """
+        if TransonicTransolverEngine is None:
+            raise RuntimeError("TransonicTransolverEngine is not available.")
+
+        result = TransonicTransolverEngine.solve(
+            airfoil=airfoil,
+            mach_infinity=mach_infinity,
+            alpha_deg=alpha_deg,
+            reynolds=reynolds,
+            num_surface_points=num_surface_points,
+            include_field_grid=include_field_grid,
+        )
+
+        # Convert dataclasses to dict
+        shock_dict = {
+            "x_shock_c": result.shock_metrics.x_shock_c,
+            "mach_pre_shock": result.shock_metrics.mach_pre_shock,
+            "mach_post_shock": result.shock_metrics.mach_post_shock,
+            "static_pressure_ratio": result.shock_metrics.static_pressure_ratio,
+            "density_ratio": result.shock_metrics.density_ratio,
+            "temperature_ratio": result.shock_metrics.temperature_ratio,
+            "total_pressure_recovery": result.shock_metrics.total_pressure_recovery,
+            "entropy_jump_ds_r": result.shock_metrics.entropy_jump_ds_r,
+            "wave_drag_cd_wave": result.shock_metrics.wave_drag_cd_wave,
+            "supersonic_bubble_area_normalized": result.shock_metrics.supersonic_bubble_area_normalized,
+            "cp_critical": result.shock_metrics.cp_critical,
+            "shock_detected": result.shock_metrics.shock_detected,
+        }
+
+        flowfield_dict = None
+        if result.flowfield is not None:
+            flowfield_dict = {
+                "nx": result.flowfield.nx,
+                "ny": result.flowfield.ny,
+                "x_grid": result.flowfield.x_grid,
+                "y_grid": result.flowfield.y_grid,
+                "mach_field": result.flowfield.mach_field,
+                "cp_field": result.flowfield.cp_field,
+                "sonic_line_coords": result.flowfield.sonic_line_coords,
+            }
+
+        return {
+            "airfoil": result.airfoil,
+            "mach_infinity": result.mach_infinity,
+            "alpha_deg": result.alpha_deg,
+            "reynolds": result.reynolds,
+            "num_points": result.num_points,
+            "x_coords": result.x_coords,
+            "cp_upper": result.cp_upper,
+            "cp_lower": result.cp_lower,
+            "mach_upper": result.mach_upper,
+            "mach_lower": result.mach_lower,
+            "cl": result.cl,
+            "cd_total": result.cd_total,
+            "cd_wave": result.cd_wave,
+            "cd_friction": result.cd_friction,
+            "cm_quarter_chord": result.cm_quarter_chord,
+            "shock_metrics": shock_dict,
+            "flowfield": flowfield_dict,
+            "matched_benchmark": result.matched_benchmark,
+            "inference_time_ms": result.inference_time_ms,
+            "epistemic_uncertainty_sigma": result.epistemic_uncertainty_sigma,
+            "asme_gci_fine_pct": result.asme_gci_fine_pct,
+            "provenance_hash": result.provenance_hash,
+            "epistemic_tier": result.epistemic_tier,
+        }
+
+    @classmethod
+    def get_transonic_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard AGARD / NASA reference experimental benchmarks."""
+        return AGARD_BENCHMARKS

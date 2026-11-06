@@ -48,6 +48,7 @@ import { IsroNasaMissionStudio } from "../components/IsroNasaMissionStudio";
 import { AutonomousResearchCockpit } from "../components/AutonomousResearchCockpit";
 import { SovereignMissionControlDashboard } from "../components/SovereignMissionControlDashboard";
 import { AeroCraftStudio } from "../components/AeroCraftStudio";
+import { TransonicTransolverStudio } from "../components/TransonicTransolverStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -63,6 +64,7 @@ export default function AASIApp() {
   const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
   const [mesh3DOpen, setMesh3DOpen] = useState(false);
   const [optStudioOpen, setOptStudioOpen] = useState(false);
+  const [transonicStudioOpen, setTransonicStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -206,6 +208,15 @@ export default function AASIApp() {
       badge: "EXP 3",
       icon: <Zap size={16} />,
       action: () => setActiveNavMode("INVESTIGATION"),
+    },
+    {
+      id: "cmd-ws-transonic",
+      category: "Workspaces",
+      title: "Launch Transonic Shock-Capturing Neural Operator (Stage 2)",
+      description: "Continuous-space Transolver-3D / FNO, Rankine-Hugoniot jump relations, and AGARD AR-138 benchmarks.",
+      badge: "Stage 2 Breakthrough",
+      icon: <Zap size={16} />,
+      action: () => setTransonicStudioOpen(true),
     },
     {
       id: "cmd-ws-aerocraft",
@@ -508,6 +519,35 @@ export default function AASIApp() {
                     gap: "2px",
                   }}
                 >
+                  <button
+                    onClick={() => {
+                      setTransonicStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(2, 132, 199, 0.08)",
+                      border: "1px solid rgba(2, 132, 199, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Zap size={14} color="var(--accent-cyan, #0284c7)" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Transonic Transolver 3D</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0284c7", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 2</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Rankine-Hugoniot Shock Capturing FNO</div>
+                    </div>
+                  </button>
+
                   <button
                     onClick={() => {
                       setMesh3DOpen(true);
@@ -905,6 +945,13 @@ export default function AASIApp() {
       <ThreeDimensionalPressureMesh
         isOpen={mesh3DOpen}
         onClose={() => setMesh3DOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 2: Transonic Shock-Capturing Neural Operator Studio Modal ─── */}
+      <TransonicTransolverStudio
+        isOpen={transonicStudioOpen}
+        onClose={() => setTransonicStudioOpen(false)}
         apiBase={API_BASE}
       />
 
