@@ -31,12 +31,24 @@ try:
         calculate_cp_critical,
         rankine_hugoniot_normal_shock,
     )
+    from aasi_aero_fno.turbulence_tbnn import (
+        HighReTurbulenceEngine,
+        TensorBasisNeuralNetwork,
+        check_realizability,
+        project_to_lumley_triangle,
+        TURBULENCE_BENCHMARKS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
     AGARD_BENCHMARKS = {}
     calculate_cp_critical = None
     rankine_hugoniot_normal_shock = None
+    HighReTurbulenceEngine = None
+    TensorBasisNeuralNetwork = None
+    check_realizability = None
+    project_to_lumley_triangle = None
+    TURBULENCE_BENCHMARKS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -257,3 +269,70 @@ class NeuralOperatorAdapter:
     def get_transonic_benchmarks(cls) -> Dict[str, Any]:
         """Returns standard AGARD / NASA reference experimental benchmarks."""
         return AGARD_BENCHMARKS
+
+    @classmethod
+    def evaluate_tbnn_closure(
+        cls,
+        grad_u: List[List[float]],
+        k: float,
+        omega: float,
+        enforce_lumley_realizability: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Stage 3: Evaluates Pope's 10-tensor integrity basis and Lumley realizability.
+        """
+        if TensorBasisNeuralNetwork is None:
+            raise RuntimeError("HighReTurbulenceEngine module is not loaded.")
+        grad_u_np = np.array(grad_u, dtype=np.float64)
+        return TensorBasisNeuralNetwork.evaluate(
+            grad_u=grad_u_np,
+            k=k,
+            omega=omega,
+            enforce_lumley_realizability=enforce_lumley_realizability,
+        )
+
+    @classmethod
+    def solve_turbulent_boundary_layer(
+        cls,
+        airfoil: str = "RAE 2822",
+        reynolds: float = 6.5e6,
+        mach: float = 0.730,
+        alpha_deg: float = 3.19,
+        num_stations: int = 60,
+    ) -> Dict[str, Any]:
+        """
+        Stage 3: Solves boundary layer profile with SciML anisotropic Reynolds stress closure.
+        """
+        if HighReTurbulenceEngine is None:
+            raise RuntimeError("HighReTurbulenceEngine module is not loaded.")
+        result = HighReTurbulenceEngine.solve_boundary_layer(
+            airfoil=airfoil,
+            reynolds=reynolds,
+            mach=mach,
+            alpha_deg=alpha_deg,
+            num_stations=num_stations,
+        )
+        return {
+            "airfoil": result.airfoil,
+            "reynolds": result.reynolds,
+            "mach": result.mach,
+            "alpha_deg": result.alpha_deg,
+            "x_c": result.x_c,
+            "cf": result.cf,
+            "boundary_layer_thickness_mm": result.boundary_layer_thickness_mm,
+            "displacement_thickness_delta_star_mm": result.displacement_thickness_delta_star_mm,
+            "momentum_thickness_theta_mm": result.momentum_thickness_theta_mm,
+            "shape_factor_h": result.shape_factor_h,
+            "turbulent_kinetic_energy_k": result.turbulent_kinetic_energy_k,
+            "separation_onset_x_c": result.separation_onset_x_c,
+            "reattachment_x_c": result.reattachment_x_c,
+            "is_separated": result.is_separated,
+            "tbnn_anisotropy_at_separation": result.tbnn_anisotropy_at_separation,
+            "asme_gci_fine_pct": result.asme_gci_fine_pct,
+            "provenance_hash": result.provenance_hash,
+        }
+
+    @classmethod
+    def get_turbulence_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard NASA TMR / ERCOFTAC reference turbulence benchmarks."""
+        return TURBULENCE_BENCHMARKS

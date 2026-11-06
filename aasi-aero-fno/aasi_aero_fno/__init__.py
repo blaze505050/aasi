@@ -24,6 +24,16 @@ from .transonic_transolver import (
     calculate_cp_critical,
     AGARD_BENCHMARKS,
 )
+from .turbulence_tbnn import (
+    HighReTurbulenceEngine,
+    TensorBasisNeuralNetwork,
+    BoundaryLayerProfileResult,
+    SSTTurbulenceState,
+    check_realizability,
+    project_to_lumley_triangle,
+    compute_turbulent_tensors_and_invariants,
+    TURBULENCE_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -44,6 +54,14 @@ __all__ = [
     "rankine_hugoniot_normal_shock",
     "calculate_cp_critical",
     "AGARD_BENCHMARKS",
+    "HighReTurbulenceEngine",
+    "TensorBasisNeuralNetwork",
+    "BoundaryLayerProfileResult",
+    "SSTTurbulenceState",
+    "check_realizability",
+    "project_to_lumley_triangle",
+    "compute_turbulent_tensors_and_invariants",
+    "TURBULENCE_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

@@ -30,6 +30,7 @@ import {
   Globe,
   Sun,
   Moon,
+  Waves,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -49,6 +50,7 @@ import { AutonomousResearchCockpit } from "../components/AutonomousResearchCockp
 import { SovereignMissionControlDashboard } from "../components/SovereignMissionControlDashboard";
 import { AeroCraftStudio } from "../components/AeroCraftStudio";
 import { TransonicTransolverStudio } from "../components/TransonicTransolverStudio";
+import TurbulenceSciMLStudio from "../components/TurbulenceSciMLStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -65,6 +67,7 @@ export default function AASIApp() {
   const [mesh3DOpen, setMesh3DOpen] = useState(false);
   const [optStudioOpen, setOptStudioOpen] = useState(false);
   const [transonicStudioOpen, setTransonicStudioOpen] = useState(false);
+  const [turbulenceStudioOpen, setTurbulenceStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -217,6 +220,15 @@ export default function AASIApp() {
       badge: "Stage 2 Breakthrough",
       icon: <Zap size={16} />,
       action: () => setTransonicStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-turbulence",
+      category: "Workspaces",
+      title: "Launch High-Reynolds Turbulence SciML Studio (Stage 3)",
+      description: "Pope's 10-tensor integrity basis, Lumley realizability projection, Menter k-omega SST coupling, and boundary layer separation marching.",
+      badge: "Stage 3 SciML",
+      icon: <Waves size={16} />,
+      action: () => setTurbulenceStudioOpen(true),
     },
     {
       id: "cmd-ws-aerocraft",
@@ -545,6 +557,35 @@ export default function AASIApp() {
                         <span style={{ fontSize: "0.6rem", background: "#0284c7", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 2</span>
                       </div>
                       <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Rankine-Hugoniot Shock Capturing FNO</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setTurbulenceStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(13, 148, 136, 0.08)",
+                      border: "1px solid rgba(13, 148, 136, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Waves size={14} color="#0d9488" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Turbulence SciML Studio</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0d9488", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 3</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>TBNN • Lumley Realizability • SST</div>
                     </div>
                   </button>
 
@@ -952,6 +993,13 @@ export default function AASIApp() {
       <TransonicTransolverStudio
         isOpen={transonicStudioOpen}
         onClose={() => setTransonicStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 3: High-Reynolds Turbulence SciML Studio Modal ─── */}
+      <TurbulenceSciMLStudio
+        isOpen={turbulenceStudioOpen}
+        onClose={() => setTurbulenceStudioOpen(false)}
         apiBase={API_BASE}
       />
 
