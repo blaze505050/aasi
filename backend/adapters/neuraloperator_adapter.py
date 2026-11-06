@@ -38,6 +38,11 @@ try:
         project_to_lumley_triangle,
         TURBULENCE_BENCHMARKS,
     )
+    from aasi_aero_fno.equivariant_gnn import (
+        SE3EquivariantAirframeGNN,
+        AEROSPACE_3D_BENCHMARKS,
+        generate_canonical_airframe_mesh,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -49,6 +54,9 @@ except ImportError:
     check_realizability = None
     project_to_lumley_triangle = None
     TURBULENCE_BENCHMARKS = {}
+    SE3EquivariantAirframeGNN = None
+    AEROSPACE_3D_BENCHMARKS = {}
+    generate_canonical_airframe_mesh = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -336,3 +344,62 @@ class NeuralOperatorAdapter:
     def get_turbulence_benchmarks(cls) -> Dict[str, Any]:
         """Returns standard NASA TMR / ERCOFTAC reference turbulence benchmarks."""
         return TURBULENCE_BENCHMARKS
+
+    @classmethod
+    def predict_equivariant_3d_airframe(
+        cls,
+        airframe_type: str = "nasa_crm",
+        mach: float = 0.85,
+        alpha_deg: float = 2.2,
+        beta_deg: float = 0.0,
+        reynolds: float = 5.0e6,
+        yaw_deg: float = 0.0,
+        pitch_deg: float = 0.0,
+        roll_deg: float = 0.0,
+        translation_m: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+        grid_density: int = 40,
+    ) -> Dict[str, Any]:
+        """
+        Stage 4: Evaluates SE(3)-equivariant Graph Neural Network on 3D airframe geometry.
+        """
+        if SE3EquivariantAirframeGNN is None:
+            raise RuntimeError("SE3EquivariantAirframeGNN module is not loaded.")
+        result = SE3EquivariantAirframeGNN.evaluate(
+            airframe_type=airframe_type,
+            mach=mach,
+            alpha_deg=alpha_deg,
+            beta_deg=beta_deg,
+            reynolds=reynolds,
+            yaw_deg=yaw_deg,
+            pitch_deg=pitch_deg,
+            roll_deg=roll_deg,
+            translation_m=translation_m,
+            grid_density=grid_density,
+        )
+        return {
+            "airframe_name": result.airframe_name,
+            "num_nodes": result.num_nodes,
+            "mach": result.mach,
+            "alpha_deg": result.alpha_deg,
+            "beta_deg": result.beta_deg,
+            "reynolds": result.reynolds,
+            "rotation_euler_deg": list(result.rotation_euler_deg),
+            "translation_vector": list(result.translation_vector),
+            "cl": result.cl,
+            "cd": result.cd,
+            "cy": result.cy,
+            "cm": result.cm,
+            "cl_over_cd": result.cl_over_cd,
+            "force_vector_N": result.force_vector_N,
+            "moment_vector_Nm": result.moment_vector_Nm,
+            "so3_equivariance_error_norm": result.so3_equivariance_error_norm,
+            "scalar_invariance_error": result.scalar_invariance_error,
+            "is_strictly_equivariant": result.is_strictly_equivariant,
+            "asme_gci_fine_pct": result.asme_gci_fine_pct,
+            "provenance_hash": result.provenance_hash,
+        }
+
+    @classmethod
+    def get_aerospace_3d_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard 3D aerospace reference benchmarks (NASA CRM, LCA Tejas, RLV-TD)."""
+        return AEROSPACE_3D_BENCHMARKS

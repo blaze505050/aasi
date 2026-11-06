@@ -34,6 +34,15 @@ from .turbulence_tbnn import (
     compute_turbulent_tensors_and_invariants,
     TURBULENCE_BENCHMARKS,
 )
+from .equivariant_gnn import (
+    SE3EquivariantAirframeGNN,
+    EGNNPredictionResult,
+    AirframeMesh,
+    generate_canonical_airframe_mesh,
+    euler_to_rotation_matrix,
+    verify_so3_orthonormality,
+    AEROSPACE_3D_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -62,6 +71,13 @@ __all__ = [
     "project_to_lumley_triangle",
     "compute_turbulent_tensors_and_invariants",
     "TURBULENCE_BENCHMARKS",
+    "SE3EquivariantAirframeGNN",
+    "EGNNPredictionResult",
+    "AirframeMesh",
+    "generate_canonical_airframe_mesh",
+    "euler_to_rotation_matrix",
+    "verify_so3_orthonormality",
+    "AEROSPACE_3D_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
