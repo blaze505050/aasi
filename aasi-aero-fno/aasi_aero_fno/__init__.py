@@ -87,6 +87,14 @@ from .asme_vv20_engine import (
     FlightCertificationDossier,
     ASME_VV20_BENCHMARKS,
 )
+from .orbital_dynamics import (
+    HighPrecisionOrbitalEngine,
+    OrbitalVehicleProperties,
+    KeplerianElements,
+    PropagationStepOutput,
+    SymplecticOrbitalIntegrator,
+    ISRO_MISSION_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -154,6 +162,12 @@ __all__ = [
     "NasaCasDimensionScore",
     "FlightCertificationDossier",
     "ASME_VV20_BENCHMARKS",
+    "HighPrecisionOrbitalEngine",
+    "OrbitalVehicleProperties",
+    "KeplerianElements",
+    "PropagationStepOutput",
+    "SymplecticOrbitalIntegrator",
+    "ISRO_MISSION_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

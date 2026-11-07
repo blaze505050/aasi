@@ -34,6 +34,7 @@ import {
   ShieldAlert,
   Flame,
   FileCheck2,
+  Orbit,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -61,6 +62,7 @@ import FSIFlutterStudio from "../components/FSIFlutterStudio";
 import InverseDiffusionStudio from "../components/InverseDiffusionStudio";
 import ActiveFlowControlStudio from "../components/ActiveFlowControlStudio";
 import AsmeCertificationDossierStudio from "../components/AsmeCertificationDossierStudio";
+import OrbitalDynamicsStudio from "../components/OrbitalDynamicsStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -85,6 +87,7 @@ export default function AASIApp() {
   const [diffusionStudioOpen, setDiffusionStudioOpen] = useState(false);
   const [afcStudioOpen, setAfcStudioOpen] = useState(false);
   const [asmeStudioOpen, setAsmeStudioOpen] = useState(false);
+  const [orbitalStudioOpen, setOrbitalStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -318,6 +321,15 @@ export default function AASIApp() {
       badge: "Stage 10 Turnkey",
       icon: <FileCheck2 size={16} />,
       action: () => setAsmeStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-orbital-dynamics",
+      category: "Workspaces",
+      title: "Launch High-Precision Orbital Dynamics & Gravity Studio (Stage 11)",
+      description: "Symplectic Yoshida Hamiltonian propagation, J2-J4 geopotential, dynamic atmospheric drag, and ISRO presets (Gaganyaan, SpaDeX).",
+      badge: "Stage 11 Sovereign",
+      icon: <Orbit size={16} />,
+      action: () => setOrbitalStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -874,6 +886,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setOrbitalStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(2, 132, 199, 0.08)",
+                      border: "1px solid rgba(2, 132, 199, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Orbit size={14} color="#0284c7" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Orbital Dynamics &amp; Gravity</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0284c7", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 11</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>J2-J4 Gravity • Symplectic Yoshida • ISRO Presets</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1332,6 +1373,13 @@ export default function AASIApp() {
       <AsmeCertificationDossierStudio
         isOpen={asmeStudioOpen}
         onClose={() => setAsmeStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 11: High-Precision Orbital Dynamics Studio Modal ─── */}
+      <OrbitalDynamicsStudio
+        isOpen={orbitalStudioOpen}
+        onClose={() => setOrbitalStudioOpen(false)}
         apiBase={API_BASE}
       />
 
