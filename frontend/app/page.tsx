@@ -57,6 +57,7 @@ import EquivariantGNNStudio from "../components/EquivariantGNNStudio";
 import ConformalUncertaintyStudio from "../components/ConformalUncertaintyStudio";
 import HypersonicAerothermoStudio from "../components/HypersonicAerothermoStudio";
 import FSIFlutterStudio from "../components/FSIFlutterStudio";
+import InverseDiffusionStudio from "../components/InverseDiffusionStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -78,6 +79,7 @@ export default function AASIApp() {
   const [conformalStudioOpen, setConformalStudioOpen] = useState(false);
   const [hypersonicStudioOpen, setHypersonicStudioOpen] = useState(false);
   const [flutterStudioOpen, setFlutterStudioOpen] = useState(false);
+  const [diffusionStudioOpen, setDiffusionStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -284,6 +286,15 @@ export default function AASIApp() {
       badge: "Stage 7 SciML",
       icon: <Wind size={16} />,
       action: () => setFlutterStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-diffusion",
+      category: "Workspaces",
+      title: "Launch Inverse Generative Diffusion Studio (Stage 8)",
+      description: "Score-based reverse SDE sampler for transonic shock-free supercritical airfoils and wings.",
+      badge: "Stage 8 SciML",
+      icon: <Sparkles size={16} />,
+      action: () => setDiffusionStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -753,6 +764,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setDiffusionStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(147, 51, 234, 0.08)",
+                      border: "1px solid rgba(147, 51, 234, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Sparkles size={14} color="#9333ea" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Inverse Generative Diffusion</span>
+                        <span style={{ fontSize: "0.6rem", background: "#9333ea", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 8</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Shock-Free Rooftop • SDE • Wave Drag</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1190,6 +1230,13 @@ export default function AASIApp() {
       <FSIFlutterStudio
         isOpen={flutterStudioOpen}
         onClose={() => setFlutterStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 8: Inverse Generative Diffusion Studio Modal ─── */}
+      <InverseDiffusionStudio
+        isOpen={diffusionStudioOpen}
+        onClose={() => setDiffusionStudioOpen(false)}
         apiBase={API_BASE}
       />
 

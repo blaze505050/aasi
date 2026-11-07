@@ -41,6 +41,7 @@ from backend.api.routes_equivariant_gnn import router as gnn_router
 from backend.api.routes_conformal_uncertainty import router as conformal_router
 from backend.api.routes_hypersonic_aerothermo import router as hypersonic_router
 from backend.api.routes_fsi_flutter import router as flutter_router
+from backend.api.routes_inverse_diffusion import router as diffusion_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -79,6 +80,7 @@ api_router.include_router(gnn_router)
 api_router.include_router(conformal_router)
 api_router.include_router(hypersonic_router)
 api_router.include_router(flutter_router)
+api_router.include_router(diffusion_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -116,6 +118,7 @@ api_v1_router.include_router(gnn_router)
 api_v1_router.include_router(conformal_router)
 api_v1_router.include_router(hypersonic_router)
 api_v1_router.include_router(flutter_router)
+api_v1_router.include_router(diffusion_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

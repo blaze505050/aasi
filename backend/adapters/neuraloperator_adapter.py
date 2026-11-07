@@ -55,6 +55,10 @@ try:
         PKFlutterSolver,
         AEROELASTIC_BENCHMARKS,
     )
+    from aasi_aero_fno.inverse_diffusion import (
+        InverseAirfoilDiffusionEngine,
+        INVERSE_DIFFUSION_BENCHMARKS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -75,6 +79,8 @@ except ImportError:
     HYPERSONIC_BENCHMARKS = {}
     PKFlutterSolver = None
     AEROELASTIC_BENCHMARKS = {}
+    InverseAirfoilDiffusionEngine = None
+    INVERSE_DIFFUSION_BENCHMARKS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -611,3 +617,69 @@ class NeuralOperatorAdapter:
     def get_aeroelastic_benchmarks(cls) -> Dict[str, Any]:
         """Returns standard aeroelastic flutter benchmarks (AGARD 445.6, Isogai 2-DOF)."""
         return AEROELASTIC_BENCHMARKS
+
+    @classmethod
+    def sample_shock_free_airfoil(
+        cls,
+        target_mach: float = 0.78,
+        target_cl: float = 0.70,
+        target_thickness_pct: float = 12.0,
+        guidance_strength: float = 3.5,
+        num_diffusion_steps: int = 50,
+        random_seed: int = 42,
+    ) -> Dict[str, Any]:
+        """
+        Stage 8: Synthesizes shock-free supercritical airfoil via inverse generative diffusion.
+        """
+        if InverseAirfoilDiffusionEngine is None:
+            raise RuntimeError("InverseAirfoilDiffusionEngine module is not loaded.")
+        res = InverseAirfoilDiffusionEngine.sample_shock_free_airfoil(
+            target_mach=target_mach,
+            target_cl=target_cl,
+            target_thickness_pct=target_thickness_pct,
+            guidance_strength=guidance_strength,
+            num_diffusion_steps=num_diffusion_steps,
+            random_seed=random_seed,
+        )
+        return {
+            "design_id": res.design_id,
+            "target_mach": res.target_mach,
+            "target_cl": res.target_cl,
+            "target_thickness_pct": res.target_thickness_pct,
+            "guidance_strength": res.guidance_strength,
+            "is_shock_free": bool(res.is_shock_free),
+            "achieved_cl": res.achieved_cl,
+            "achieved_cd_total_counts": res.achieved_cd_total_counts,
+            "achieved_cd_wave_counts": res.achieved_cd_wave_counts,
+            "baseline_cd_wave_counts": res.baseline_cd_wave_counts,
+            "wave_drag_reduction_pct": res.wave_drag_reduction_pct,
+            "max_thickness_ratio_pct": res.max_thickness_ratio_pct,
+            "max_thickness_x_c": res.max_thickness_x_c,
+            "leading_edge_radius_r_le_c": res.leading_edge_radius_r_le_c,
+            "geometry": {
+                "x_upper": res.geometry.x_upper,
+                "y_upper": res.geometry.y_upper,
+                "x_lower": res.geometry.x_lower,
+                "y_lower": res.geometry.y_lower,
+                "camber_x": res.geometry.camber_x,
+                "camber_y": res.geometry.camber_y,
+                "thickness_x": res.geometry.thickness_x,
+                "thickness_y": res.geometry.thickness_y,
+            },
+            "pressure_distribution": {
+                "x_c": res.pressure_distribution.x_c,
+                "cp_upper": res.pressure_distribution.cp_upper,
+                "cp_lower": res.pressure_distribution.cp_lower,
+                "cp_sonic_star": res.pressure_distribution.cp_sonic_star,
+                "has_shock_discontinuity": bool(res.pressure_distribution.has_shock_discontinuity),
+                "shock_location_x_c": res.pressure_distribution.shock_location_x_c,
+            },
+            "diffusion_steps_executed": int(res.diffusion_steps_executed),
+            "asme_gci_pct": res.asme_gci_pct,
+            "provenance_hash": res.provenance_hash,
+        }
+
+    @classmethod
+    def get_inverse_diffusion_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard supercritical benchmark data (RAE 2822, NASA SC(2)-0714, Whitcomb)."""
+        return INVERSE_DIFFUSION_BENCHMARKS

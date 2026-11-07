@@ -66,6 +66,13 @@ from .fsi_flutter import (
     FlutterBoundaryResult,
     AEROELASTIC_BENCHMARKS,
 )
+from .inverse_diffusion import (
+    InverseAirfoilDiffusionEngine,
+    InverseAirfoilGenerationResult,
+    AirfoilCoordinates,
+    SurfacePressureProfile,
+    INVERSE_DIFFUSION_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -118,6 +125,11 @@ __all__ = [
     "FlutterVelocityStation",
     "FlutterBoundaryResult",
     "AEROELASTIC_BENCHMARKS",
+    "InverseAirfoilDiffusionEngine",
+    "InverseAirfoilGenerationResult",
+    "AirfoilCoordinates",
+    "SurfacePressureProfile",
+    "INVERSE_DIFFUSION_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
