@@ -59,6 +59,13 @@ from .hypersonic_aerothermo import (
     get_freestream_atmospheric_properties,
     HYPERSONIC_BENCHMARKS,
 )
+from .fsi_flutter import (
+    PKFlutterSolver,
+    AeroelasticModeState,
+    FlutterVelocityStation,
+    FlutterBoundaryResult,
+    AEROELASTIC_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -106,6 +113,11 @@ __all__ = [
     "compute_hypersonic_chemical_equilibrium",
     "get_freestream_atmospheric_properties",
     "HYPERSONIC_BENCHMARKS",
+    "PKFlutterSolver",
+    "AeroelasticModeState",
+    "FlutterVelocityStation",
+    "FlutterBoundaryResult",
+    "AEROELASTIC_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

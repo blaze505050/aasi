@@ -56,6 +56,7 @@ import TurbulenceSciMLStudio from "../components/TurbulenceSciMLStudio";
 import EquivariantGNNStudio from "../components/EquivariantGNNStudio";
 import ConformalUncertaintyStudio from "../components/ConformalUncertaintyStudio";
 import HypersonicAerothermoStudio from "../components/HypersonicAerothermoStudio";
+import FSIFlutterStudio from "../components/FSIFlutterStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -76,6 +77,7 @@ export default function AASIApp() {
   const [egnnStudioOpen, setEgnnStudioOpen] = useState(false);
   const [conformalStudioOpen, setConformalStudioOpen] = useState(false);
   const [hypersonicStudioOpen, setHypersonicStudioOpen] = useState(false);
+  const [flutterStudioOpen, setFlutterStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -273,6 +275,15 @@ export default function AASIApp() {
       badge: "Sovereign CAE",
       icon: <Cpu size={16} />,
       action: () => setActiveNavMode("AEROCRAFT_STUDIO"),
+    },
+    {
+      id: "cmd-ws-flutter",
+      category: "Workspaces",
+      title: "Launch FSI & Transonic Flutter Studio (Stage 7)",
+      description: "Iterative p-k eigenvalue method, V-g/V-f stability curves, transonic dip, and FAR 25.629 clearance.",
+      badge: "Stage 7 SciML",
+      icon: <Wind size={16} />,
+      action: () => setFlutterStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -713,6 +724,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setFlutterStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(14, 165, 233, 0.08)",
+                      border: "1px solid rgba(14, 165, 233, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Wind size={14} color="#0ea5e9" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>FSI &amp; Transonic Flutter</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0ea5e9", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 7</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>p-k Method • V-g Curves • FAR 25.629</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1143,6 +1183,13 @@ export default function AASIApp() {
       <HypersonicAerothermoStudio
         isOpen={hypersonicStudioOpen}
         onClose={() => setHypersonicStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 7: FSI & Transonic Flutter Prediction Studio Modal ─── */}
+      <FSIFlutterStudio
+        isOpen={flutterStudioOpen}
+        onClose={() => setFlutterStudioOpen(false)}
         apiBase={API_BASE}
       />
 

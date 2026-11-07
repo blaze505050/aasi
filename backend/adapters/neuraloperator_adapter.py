@@ -51,6 +51,10 @@ try:
         HypersonicAerothermoEngine,
         HYPERSONIC_BENCHMARKS,
     )
+    from aasi_aero_fno.fsi_flutter import (
+        PKFlutterSolver,
+        AEROELASTIC_BENCHMARKS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -69,6 +73,8 @@ except ImportError:
     generate_aerospace_calibration_deck = None
     HypersonicAerothermoEngine = None
     HYPERSONIC_BENCHMARKS = {}
+    PKFlutterSolver = None
+    AEROELASTIC_BENCHMARKS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -534,3 +540,74 @@ class NeuralOperatorAdapter:
     def get_hypersonic_benchmarks(cls) -> Dict[str, Any]:
         """Returns standard hypersonic flight benchmarks (RAM-C II, SRE-1, Gaganyaan, Apollo 4)."""
         return HYPERSONIC_BENCHMARKS
+
+    @classmethod
+    def solve_aeroelastic_flutter(
+        cls,
+        wing_name: str = "AGARD 445.6 Standard Aeroelastic Wing",
+        mach: float = 0.90,
+        altitude_km: float = 0.0,
+        semichord_b: float = 0.279,
+        mass_ratio_mu: float = 33.2,
+        omega_h_rad_s: float = 60.3,
+        omega_alpha_rad_s: float = 240.0,
+        v_min: float = 100.0,
+        v_max: float = 480.0,
+        num_v_steps: int = 35,
+    ) -> Dict[str, Any]:
+        """
+        Stage 7: Solves dynamic aeroelastic flutter stability boundary via p-k eigenvalue method.
+        """
+        if PKFlutterSolver is None:
+            raise RuntimeError("PKFlutterSolver module is not loaded.")
+        res = PKFlutterSolver.solve_flutter_boundary(
+            wing_name=wing_name,
+            mach=mach,
+            altitude_km=altitude_km,
+            semichord_b=semichord_b,
+            mass_ratio_mu=mass_ratio_mu,
+            omega_h_rad_s=omega_h_rad_s,
+            omega_alpha_rad_s=omega_alpha_rad_s,
+            v_min=v_min,
+            v_max=v_max,
+            num_v_steps=num_v_steps,
+        )
+        return {
+            "wing_name": res.wing_name,
+            "mach": res.mach,
+            "altitude_km": res.altitude_km,
+            "air_density_kg_m3": res.air_density_kg_m3,
+            "semichord_b_m": res.semichord_b_m,
+            "flutter_speed_vf_m_s": res.flutter_speed_vf_m_s,
+            "flutter_frequency_hz": res.flutter_frequency_hz,
+            "flutter_dynamic_pressure_kpa": res.flutter_dynamic_pressure_kpa,
+            "flutter_mode_index": res.flutter_mode_index,
+            "transonic_dip_factor": res.transonic_dip_factor,
+            "far_25_629_safe_dive_speed_m_s": res.far_25_629_safe_dive_speed_m_s,
+            "is_flutter_free_in_envelope": res.is_flutter_free_in_envelope,
+            "velocity_stations": [
+                {
+                    "velocity_m_s": s.velocity_m_s,
+                    "mach": s.mach,
+                    "dynamic_pressure_kpa": s.dynamic_pressure_kpa,
+                    "modes": [
+                        {
+                            "mode_index": m.mode_index,
+                            "mode_name": m.mode_name,
+                            "frequency_hz": m.frequency_hz,
+                            "damping_factor_g": m.damping_factor_g,
+                            "is_flutter_unstable": m.is_flutter_unstable,
+                        }
+                        for m in s.modes
+                    ],
+                }
+                for s in res.velocity_stations
+            ],
+            "asme_gci_fine_pct": res.asme_gci_fine_pct,
+            "provenance_hash": res.provenance_hash,
+        }
+
+    @classmethod
+    def get_aeroelastic_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard aeroelastic flutter benchmarks (AGARD 445.6, Isogai 2-DOF)."""
+        return AEROELASTIC_BENCHMARKS
