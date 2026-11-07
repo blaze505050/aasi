@@ -117,3 +117,4 @@ def test_fastapi_conformal_endpoints():
     assert cal_data["status"] == "SUCCESS"
     assert cal_data["summary"]["num_calibration_samples"] > 50
     assert cal_data["summary"]["quantile_95"] > 0.0
+

@@ -147,3 +147,4 @@ def test_fastapi_gnn_endpoints():
     assert bm_data["status"] == "SUCCESS"
     assert "nasa_crm_dpw4" in bm_data["benchmarks"]
     assert "lca_tejas_high_alpha" in bm_data["benchmarks"]
+
