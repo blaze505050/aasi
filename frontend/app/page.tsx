@@ -58,6 +58,7 @@ import ConformalUncertaintyStudio from "../components/ConformalUncertaintyStudio
 import HypersonicAerothermoStudio from "../components/HypersonicAerothermoStudio";
 import FSIFlutterStudio from "../components/FSIFlutterStudio";
 import InverseDiffusionStudio from "../components/InverseDiffusionStudio";
+import ActiveFlowControlStudio from "../components/ActiveFlowControlStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -80,6 +81,7 @@ export default function AASIApp() {
   const [hypersonicStudioOpen, setHypersonicStudioOpen] = useState(false);
   const [flutterStudioOpen, setFlutterStudioOpen] = useState(false);
   const [diffusionStudioOpen, setDiffusionStudioOpen] = useState(false);
+  const [afcStudioOpen, setAfcStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -295,6 +297,15 @@ export default function AASIApp() {
       badge: "Stage 8 SciML",
       icon: <Sparkles size={16} />,
       action: () => setDiffusionStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-afc",
+      category: "Workspaces",
+      title: "Launch Active Flow Control Studio (Stage 9)",
+      description: "Closed-loop ZNMF synthetic jet actuation, dynamic stall delay > 6 deg, and COP energy balance.",
+      badge: "Stage 9 SciML",
+      icon: <Zap size={16} />,
+      action: () => setAfcStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -793,6 +804,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setAfcStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(13, 148, 136, 0.08)",
+                      border: "1px solid rgba(13, 148, 136, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Zap size={14} color="#0d9488" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Active Flow Control (AFC)</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0d9488", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 9</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>ZNMF Synthetic Jet • Stall Delay &gt; 6° • COP</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1237,6 +1277,13 @@ export default function AASIApp() {
       <InverseDiffusionStudio
         isOpen={diffusionStudioOpen}
         onClose={() => setDiffusionStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 9: Deep RL Closed-Loop Active Flow Control Studio Modal ─── */}
+      <ActiveFlowControlStudio
+        isOpen={afcStudioOpen}
+        onClose={() => setAfcStudioOpen(false)}
         apiBase={API_BASE}
       />
 

@@ -73,6 +73,13 @@ from .inverse_diffusion import (
     SurfacePressureProfile,
     INVERSE_DIFFUSION_BENCHMARKS,
 )
+from .active_flow_control import (
+    ActiveFlowControlEngine,
+    FlowSeparationState,
+    DynamicStallPolarPoint,
+    AFCSystemResult,
+    FLOW_CONTROL_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -130,6 +137,11 @@ __all__ = [
     "AirfoilCoordinates",
     "SurfacePressureProfile",
     "INVERSE_DIFFUSION_BENCHMARKS",
+    "ActiveFlowControlEngine",
+    "FlowSeparationState",
+    "DynamicStallPolarPoint",
+    "AFCSystemResult",
+    "FLOW_CONTROL_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

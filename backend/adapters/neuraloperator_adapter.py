@@ -59,6 +59,10 @@ try:
         InverseAirfoilDiffusionEngine,
         INVERSE_DIFFUSION_BENCHMARKS,
     )
+    from aasi_aero_fno.active_flow_control import (
+        ActiveFlowControlEngine,
+        FLOW_CONTROL_BENCHMARKS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -81,6 +85,8 @@ except ImportError:
     AEROELASTIC_BENCHMARKS = {}
     InverseAirfoilDiffusionEngine = None
     INVERSE_DIFFUSION_BENCHMARKS = {}
+    ActiveFlowControlEngine = None
+    FLOW_CONTROL_BENCHMARKS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -683,3 +689,84 @@ class NeuralOperatorAdapter:
     def get_inverse_diffusion_benchmarks(cls) -> Dict[str, Any]:
         """Returns standard supercritical benchmark data (RAE 2822, NASA SC(2)-0714, Whitcomb)."""
         return INVERSE_DIFFUSION_BENCHMARKS
+
+    @classmethod
+    def evaluate_flow_control(
+        cls,
+        airfoil: str = "NACA 0015 Standard Flow Control Section",
+        mach: float = 0.15,
+        reynolds: float = 1.0e6,
+        alpha_deg: float = 16.0,
+        actuator_type: str = "ZNMF_Synthetic_Jet",
+        actuation_frequency_f_plus: float = 1.20,
+        momentum_coefficient_c_mu: float = 0.015,
+        slot_location_x_c: float = 0.12,
+        is_afc_active: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Stage 9: Evaluates closed-loop active flow control (ZNMF synthetic jets / DBD plasma).
+        """
+        if ActiveFlowControlEngine is None:
+            raise RuntimeError("ActiveFlowControlEngine module is not loaded.")
+        res = ActiveFlowControlEngine.evaluate_flow_control(
+            airfoil=airfoil,
+            mach=mach,
+            reynolds=reynolds,
+            alpha_deg=alpha_deg,
+            actuator_type=actuator_type,
+            actuation_frequency_f_plus=actuation_frequency_f_plus,
+            momentum_coefficient_c_mu=momentum_coefficient_c_mu,
+            slot_location_x_c=slot_location_x_c,
+            is_afc_active=is_afc_active,
+        )
+        return {
+            "airfoil": res.airfoil,
+            "mach": res.mach,
+            "reynolds": res.reynolds,
+            "alpha_deg": res.alpha_deg,
+            "actuator_type": res.actuator_type,
+            "actuation_frequency_f_plus": res.actuation_frequency_f_plus,
+            "momentum_coefficient_c_mu": res.momentum_coefficient_c_mu,
+            "slot_location_x_c": res.slot_location_x_c,
+            "is_afc_active": bool(res.is_afc_active),
+            "cl_achieved": res.cl_achieved,
+            "cd_achieved": res.cd_achieved,
+            "cl_baseline": res.cl_baseline,
+            "cd_baseline": res.cd_baseline,
+            "delta_cl_pct": res.delta_cl_pct,
+            "delta_cd_pct": res.delta_cd_pct,
+            "stall_alpha_baseline_deg": res.stall_alpha_baseline_deg,
+            "stall_alpha_afc_deg": res.stall_alpha_afc_deg,
+            "stall_delay_deg": res.stall_delay_deg,
+            "actuation_power_watts_per_m": res.actuation_power_watts_per_m,
+            "aerodynamic_power_saved_watts_per_m": res.aerodynamic_power_saved_watts_per_m,
+            "coefficient_of_performance_cop": res.coefficient_of_performance_cop,
+            "separation_profile": {
+                "x_c": res.separation_profile.x_c,
+                "wall_shear_stress_pa": res.separation_profile.wall_shear_stress_pa,
+                "is_separated": [bool(b) for b in res.separation_profile.is_separated],
+                "separation_onset_x_c": res.separation_profile.separation_onset_x_c,
+                "separation_bubble_length_c": res.separation_profile.separation_bubble_length_c,
+            },
+            "polar_curve": [
+                {
+                    "alpha_deg": pt.alpha_deg,
+                    "cl_baseline": pt.cl_baseline,
+                    "cl_afc": pt.cl_afc,
+                    "cd_baseline": pt.cd_baseline,
+                    "cd_afc": pt.cd_afc,
+                    "cm_baseline": pt.cm_baseline,
+                    "cm_afc": pt.cm_afc,
+                    "is_stalled_baseline": bool(pt.is_stalled_baseline),
+                    "is_stalled_afc": bool(pt.is_stalled_afc),
+                }
+                for pt in res.polar_curve
+            ],
+            "asme_gci_pct": res.asme_gci_pct,
+            "provenance_hash": res.provenance_hash,
+        }
+
+    @classmethod
+    def get_flow_control_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard flow control benchmark datasets (Seifert, Greenblatt, ISRO RLV)."""
+        return FLOW_CONTROL_BENCHMARKS
