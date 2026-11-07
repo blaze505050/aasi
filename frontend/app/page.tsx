@@ -33,6 +33,7 @@ import {
   Waves,
   ShieldAlert,
   Flame,
+  FileCheck2,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -59,6 +60,7 @@ import HypersonicAerothermoStudio from "../components/HypersonicAerothermoStudio
 import FSIFlutterStudio from "../components/FSIFlutterStudio";
 import InverseDiffusionStudio from "../components/InverseDiffusionStudio";
 import ActiveFlowControlStudio from "../components/ActiveFlowControlStudio";
+import AsmeCertificationDossierStudio from "../components/AsmeCertificationDossierStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -82,6 +84,7 @@ export default function AASIApp() {
   const [flutterStudioOpen, setFlutterStudioOpen] = useState(false);
   const [diffusionStudioOpen, setDiffusionStudioOpen] = useState(false);
   const [afcStudioOpen, setAfcStudioOpen] = useState(false);
+  const [asmeStudioOpen, setAsmeStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -306,6 +309,15 @@ export default function AASIApp() {
       badge: "Stage 9 SciML",
       icon: <Zap size={16} />,
       action: () => setAfcStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-asme-vv20",
+      category: "Workspaces",
+      title: "Launch ASME V&V 20 & NASA CAS Certification Studio (Stage 10)",
+      description: "3-grid Richardson extrapolation, Roache GCI fine/medium, NASA-STD-7009B CAS 8-factor score, and SHA-256 Merkle root signing.",
+      badge: "Stage 10 Turnkey",
+      icon: <FileCheck2 size={16} />,
+      action: () => setAsmeStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -833,6 +845,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setAsmeStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(37, 99, 235, 0.08)",
+                      border: "1px solid rgba(37, 99, 235, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <FileCheck2 size={14} color="#2563eb" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>ASME V&amp;V 20 Flight Dossier</span>
+                        <span style={{ fontSize: "0.6rem", background: "#2563eb", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 10</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Richardson GCI • NASA CAS Level 4 • Merkle</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1284,6 +1325,13 @@ export default function AASIApp() {
       <ActiveFlowControlStudio
         isOpen={afcStudioOpen}
         onClose={() => setAfcStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 10: Automated ASME V&V 20 & NASA-STD-7009B CAS Dossier Studio Modal ─── */}
+      <AsmeCertificationDossierStudio
+        isOpen={asmeStudioOpen}
+        onClose={() => setAsmeStudioOpen(false)}
         apiBase={API_BASE}
       />
 

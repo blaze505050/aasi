@@ -145,3 +145,4 @@ def test_api_flutter_benchmarks(client):
     assert data["status"] == "SUCCESS"
     assert data["stage"] == 7
     assert "agard_445_6_mach_096" in data["benchmarks"]
+

@@ -77,3 +77,4 @@ async def get_flow_control_benchmarks() -> Dict[str, Any]:
         "standard": "AIAA Journal / Prog. Aerospace Sci. / ASME V&V 20-2009",
         "benchmarks": NeuralOperatorAdapter.get_flow_control_benchmarks(),
     }
+

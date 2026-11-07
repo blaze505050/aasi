@@ -80,6 +80,13 @@ from .active_flow_control import (
     AFCSystemResult,
     FLOW_CONTROL_BENCHMARKS,
 )
+from .asme_vv20_engine import (
+    AsmeCertificationEngine,
+    RichardsonExtrapolationMetrics,
+    NasaCasDimensionScore,
+    FlightCertificationDossier,
+    ASME_VV20_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -142,6 +149,11 @@ __all__ = [
     "DynamicStallPolarPoint",
     "AFCSystemResult",
     "FLOW_CONTROL_BENCHMARKS",
+    "AsmeCertificationEngine",
+    "RichardsonExtrapolationMetrics",
+    "NasaCasDimensionScore",
+    "FlightCertificationDossier",
+    "ASME_VV20_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

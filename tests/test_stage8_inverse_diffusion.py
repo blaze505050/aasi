@@ -121,3 +121,4 @@ def test_api_diffusion_benchmarks(client):
     assert data["status"] == "SUCCESS"
     assert data["stage"] == 8
     assert "nasa_sc2_0714_whitcomb" in data["benchmarks"]
+

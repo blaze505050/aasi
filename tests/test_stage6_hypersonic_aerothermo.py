@@ -116,3 +116,4 @@ def test_fastapi_hypersonic_endpoints():
     assert bm_data["status"] == "SUCCESS"
     assert "isro_sre1_reentry" in bm_data["benchmarks"]
     assert "nasa_ram_c2_blackout" in bm_data["benchmarks"]
+

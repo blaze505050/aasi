@@ -79,3 +79,4 @@ async def get_aeroelastic_benchmarks() -> Dict[str, Any]:
         "standard": "NASA TM-88358 / AIAA JFM / ASME V&V 20-2009",
         "benchmarks": NeuralOperatorAdapter.get_aeroelastic_benchmarks(),
     }
+

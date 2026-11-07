@@ -70,3 +70,4 @@ async def get_hypersonic_benchmarks() -> Dict[str, Any]:
         "stage": 6,
         "benchmarks": HYPERSONIC_BENCHMARKS,
     }
+

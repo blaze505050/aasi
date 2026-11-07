@@ -63,6 +63,10 @@ try:
         ActiveFlowControlEngine,
         FLOW_CONTROL_BENCHMARKS,
     )
+    from aasi_aero_fno.asme_vv20_engine import (
+        AsmeCertificationEngine,
+        ASME_VV20_BENCHMARKS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -87,6 +91,8 @@ except ImportError:
     INVERSE_DIFFUSION_BENCHMARKS = {}
     ActiveFlowControlEngine = None
     FLOW_CONTROL_BENCHMARKS = {}
+    AsmeCertificationEngine = None
+    ASME_VV20_BENCHMARKS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -770,3 +776,74 @@ class NeuralOperatorAdapter:
     def get_flow_control_benchmarks(cls) -> Dict[str, Any]:
         """Returns standard flow control benchmark datasets (Seifert, Greenblatt, ISRO RLV)."""
         return FLOW_CONTROL_BENCHMARKS
+
+    @classmethod
+    def generate_flight_certification_dossier(
+        cls,
+        aircraft_mission: str = "ISRO RLV-TD Transonic Descent Clearance",
+        target_metric: str = "Total Lift Coefficient C_L",
+        f1_fine: float = 0.824,
+        f2_medium: float = 0.812,
+        f3_coarse: float = 0.791,
+        h1_fine: float = 1.0,
+        h2_medium: float = 1.414,
+        h3_coarse: float = 2.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 10: Synthesizes official ASME V&V 20-2009 & NASA-STD-7009B Flight Certification Dossier.
+        """
+        if AsmeCertificationEngine is None:
+            raise RuntimeError("AsmeCertificationEngine module is not loaded.")
+        res = AsmeCertificationEngine.generate_flight_certification_dossier(
+            aircraft_mission=aircraft_mission,
+            target_metric=target_metric,
+            f1_fine=f1_fine,
+            f2_medium=f2_medium,
+            f3_coarse=f3_coarse,
+            h1_fine=h1_fine,
+            h2_medium=h2_medium,
+            h3_coarse=h3_coarse,
+        )
+        return {
+            "dossier_id": res.dossier_id,
+            "aircraft_mission": res.aircraft_mission,
+            "target_metric": res.target_metric,
+            "nominal_value": res.nominal_value,
+            "nominal_uncertainty_interval": list(res.nominal_uncertainty_interval),
+            "richardson_metrics": {
+                "grid_ratio_r21": res.richardson_metrics.grid_ratio_r21,
+                "grid_ratio_r32": res.richardson_metrics.grid_ratio_r32,
+                "order_of_accuracy_p": res.richardson_metrics.order_of_accuracy_p,
+                "theoretical_order_p": res.richardson_metrics.theoretical_order_p,
+                "apparent_to_formal_order_ratio": res.richardson_metrics.apparent_to_formal_order_ratio,
+                "apparent_value_f_extrapolated": res.richardson_metrics.apparent_value_f_extrapolated,
+                "discretization_error_fine_pct": res.richardson_metrics.discretization_error_fine_pct,
+                "gci_fine_pct": res.richardson_metrics.gci_fine_pct,
+                "gci_medium_pct": res.richardson_metrics.gci_medium_pct,
+                "asymptotic_range_ratio": res.richardson_metrics.asymptotic_range_ratio,
+                "is_in_asymptotic_range": bool(res.richardson_metrics.is_in_asymptotic_range),
+                "convergence_type": res.richardson_metrics.convergence_type,
+            },
+            "nasa_cas_score_composite": res.nasa_cas_score_composite,
+            "nasa_cas_rating": res.nasa_cas_rating,
+            "nasa_cas_dimensions": [
+                {
+                    "factor_id": d.factor_id,
+                    "dimension_name": d.dimension_name,
+                    "score": d.score,
+                    "max_score": d.max_score,
+                    "level_label": d.level_label,
+                    "justification": d.justification,
+                }
+                for d in res.nasa_cas_dimensions
+            ],
+            "astm_f3269_rta_status": res.astm_f3269_rta_status,
+            "do178c_level_assurance": res.do178c_level_assurance,
+            "merkle_root_hash": res.merkle_root_hash,
+            "audit_trail_hashes": res.audit_trail_hashes,
+        }
+
+    @classmethod
+    def get_asme_vv20_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard ASME V&V 20 / NASA TMR benchmark verification datasets."""
+        return ASME_VV20_BENCHMARKS

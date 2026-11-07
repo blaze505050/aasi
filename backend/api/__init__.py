@@ -43,6 +43,7 @@ from backend.api.routes_hypersonic_aerothermo import router as hypersonic_router
 from backend.api.routes_fsi_flutter import router as flutter_router
 from backend.api.routes_inverse_diffusion import router as diffusion_router
 from backend.api.routes_active_flow_control import router as afc_router
+from backend.api.routes_asme_vv20 import router as asme_vv20_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -83,6 +84,7 @@ api_router.include_router(hypersonic_router)
 api_router.include_router(flutter_router)
 api_router.include_router(diffusion_router)
 api_router.include_router(afc_router)
+api_router.include_router(asme_vv20_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -122,6 +124,7 @@ api_v1_router.include_router(hypersonic_router)
 api_v1_router.include_router(flutter_router)
 api_v1_router.include_router(diffusion_router)
 api_v1_router.include_router(afc_router)
+api_v1_router.include_router(asme_vv20_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

@@ -121,3 +121,4 @@ def test_api_afc_benchmarks(client):
     assert data["status"] == "SUCCESS"
     assert data["stage"] == 9
     assert "seifert_naca0015_periodic" in data["benchmarks"]
+

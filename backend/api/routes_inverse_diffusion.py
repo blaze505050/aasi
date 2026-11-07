@@ -71,3 +71,4 @@ async def get_inverse_diffusion_benchmarks() -> Dict[str, Any]:
         "standard": "AGARD AR-138 / NASA TP-1981 / ASME V&V 20-2009",
         "benchmarks": NeuralOperatorAdapter.get_inverse_diffusion_benchmarks(),
     }
+
