@@ -51,6 +51,14 @@ from .conformal_uncertainty import (
     compute_conformal_quantile,
     LatentAerospaceOODDetector,
 )
+from .hypersonic_aerothermo import (
+    HypersonicAerothermoEngine,
+    HypersonicAerothermoResult,
+    ChemicalCompositionState,
+    compute_hypersonic_chemical_equilibrium,
+    get_freestream_atmospheric_properties,
+    HYPERSONIC_BENCHMARKS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -92,6 +100,12 @@ __all__ = [
     "generate_aerospace_calibration_deck",
     "compute_conformal_quantile",
     "LatentAerospaceOODDetector",
+    "HypersonicAerothermoEngine",
+    "HypersonicAerothermoResult",
+    "ChemicalCompositionState",
+    "compute_hypersonic_chemical_equilibrium",
+    "get_freestream_atmospheric_properties",
+    "HYPERSONIC_BENCHMARKS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

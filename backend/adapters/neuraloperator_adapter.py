@@ -47,6 +47,10 @@ try:
         ConformalAerospaceSafetyEngine,
         generate_aerospace_calibration_deck,
     )
+    from aasi_aero_fno.hypersonic_aerothermo import (
+        HypersonicAerothermoEngine,
+        HYPERSONIC_BENCHMARKS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -63,6 +67,8 @@ except ImportError:
     generate_canonical_airframe_mesh = None
     ConformalAerospaceSafetyEngine = None
     generate_aerospace_calibration_deck = None
+    HypersonicAerothermoEngine = None
+    HYPERSONIC_BENCHMARKS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -470,3 +476,61 @@ class NeuralOperatorAdapter:
             "quantile_95": round(float(np.quantile(deck.nonconformity_scores, 0.95)), 4),
             "quantile_99": round(float(np.quantile(deck.nonconformity_scores, 0.99)), 4),
         }
+
+    @classmethod
+    def solve_hypersonic_aerothermodynamics(
+        cls,
+        vehicle_name: str = "ISRO Gaganyaan Crew Module",
+        altitude_km: float = 65.0,
+        mach: float = 18.0,
+        nose_radius_m: float = 1.8,
+        flight_path_angle_deg: float = -1.6,
+        reentry_duration_s: float = 480.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 6: Solves hypersonic re-entry non-equilibrium aerothermodynamics (Mach 5 to 25).
+        """
+        if HypersonicAerothermoEngine is None:
+            raise RuntimeError("HypersonicAerothermoEngine module is not loaded.")
+        res = HypersonicAerothermoEngine.solve_reentry_state(
+            vehicle_name=vehicle_name,
+            altitude_km=altitude_km,
+            mach=mach,
+            nose_radius_m=nose_radius_m,
+            flight_path_angle_deg=flight_path_angle_deg,
+            reentry_duration_s=reentry_duration_s,
+        )
+        return {
+            "vehicle_name": res.vehicle_name,
+            "altitude_km": res.altitude_km,
+            "mach": res.mach,
+            "velocity_m_s": res.velocity_m_s,
+            "nose_radius_m": res.nose_radius_m,
+            "freestream_density": res.freestream_density,
+            "freestream_pressure_pa": res.freestream_pressure_pa,
+            "freestream_temperature_k": res.freestream_temperature_k,
+            "stagnation_pressure_pa": res.stagnation_pressure_pa,
+            "stagnation_temperature_k": res.stagnation_temperature_k,
+            "shock_standoff_distance_mm": res.shock_standoff_distance_mm,
+            "convective_heat_flux_mw_m2": res.convective_heat_flux_mw_m2,
+            "radiative_heat_flux_mw_m2": res.radiative_heat_flux_mw_m2,
+            "total_heat_flux_mw_m2": res.total_heat_flux_mw_m2,
+            "integrated_heat_load_mj_m2": res.integrated_heat_load_mj_m2,
+            "chemical_state": {
+                "mole_fractions": res.chemical_state.mole_fractions,
+                "mass_fractions": res.chemical_state.mass_fractions,
+                "mixture_molar_mass_g_mol": res.chemical_state.mixture_molar_mass_g_mol,
+                "electron_number_density_per_m3": res.chemical_state.electron_number_density_per_m3,
+                "plasma_cutoff_frequency_ghz": res.chemical_state.plasma_cutoff_frequency_ghz,
+                "is_rf_blackout": res.chemical_state.is_rf_blackout,
+                "translational_temp_k": res.chemical_state.translational_temp_k,
+                "vibrational_temp_k": res.chemical_state.vibrational_temp_k,
+            },
+            "asme_gci_fine_pct": res.asme_gci_fine_pct,
+            "provenance_hash": res.provenance_hash,
+        }
+
+    @classmethod
+    def get_hypersonic_benchmarks(cls) -> Dict[str, Any]:
+        """Returns standard hypersonic flight benchmarks (RAM-C II, SRE-1, Gaganyaan, Apollo 4)."""
+        return HYPERSONIC_BENCHMARKS

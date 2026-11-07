@@ -71,3 +71,4 @@ async def get_calibration_deck_summary() -> Dict[str, Any]:
         }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to fetch calibration summary: {str(exc)}")
+

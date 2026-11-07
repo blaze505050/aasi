@@ -32,6 +32,7 @@ import {
   Moon,
   Waves,
   ShieldAlert,
+  Flame,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -54,6 +55,7 @@ import { TransonicTransolverStudio } from "../components/TransonicTransolverStud
 import TurbulenceSciMLStudio from "../components/TurbulenceSciMLStudio";
 import EquivariantGNNStudio from "../components/EquivariantGNNStudio";
 import ConformalUncertaintyStudio from "../components/ConformalUncertaintyStudio";
+import HypersonicAerothermoStudio from "../components/HypersonicAerothermoStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -73,6 +75,7 @@ export default function AASIApp() {
   const [turbulenceStudioOpen, setTurbulenceStudioOpen] = useState(false);
   const [egnnStudioOpen, setEgnnStudioOpen] = useState(false);
   const [conformalStudioOpen, setConformalStudioOpen] = useState(false);
+  const [hypersonicStudioOpen, setHypersonicStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -252,6 +255,15 @@ export default function AASIApp() {
       badge: "Stage 5 RTA",
       icon: <ShieldAlert size={16} />,
       action: () => setConformalStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-hypersonic",
+      category: "Workspaces",
+      title: "Launch Hypersonic Aerothermodynamics Studio (Stage 6)",
+      description: "Mach 5 to 25 planetary re-entry, Park 7-species reacting chemistry, Fay-Riddell heat flux, and plasma blackout envelope.",
+      badge: "Stage 6 Hypersonic",
+      icon: <Flame size={16} />,
+      action: () => setHypersonicStudioOpen(true),
     },
     {
       id: "cmd-ws-aerocraft",
@@ -667,6 +679,35 @@ export default function AASIApp() {
                         <span style={{ fontSize: "0.6rem", background: "#d97706", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 5</span>
                       </div>
                       <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>ASTM F3269 RTA • OOD Screening</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setHypersonicStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(234, 88, 12, 0.08)",
+                      border: "1px solid rgba(234, 88, 12, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Flame size={14} color="#ea580c" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Hypersonic Aerothermo</span>
+                        <span style={{ fontSize: "0.6rem", background: "#ea580c", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 6</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Mach 5-25 • Park 7-Species • Blackout</div>
                     </div>
                   </button>
 
@@ -1095,6 +1136,13 @@ export default function AASIApp() {
       <ConformalUncertaintyStudio
         isOpen={conformalStudioOpen}
         onClose={() => setConformalStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 6: Hypersonic Non-Equilibrium Aerothermodynamics Studio Modal ─── */}
+      <HypersonicAerothermoStudio
+        isOpen={hypersonicStudioOpen}
+        onClose={() => setHypersonicStudioOpen(false)}
         apiBase={API_BASE}
       />
 

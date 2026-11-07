@@ -110,3 +110,4 @@ async def get_aerospace_benchmarks() -> Dict[str, Any]:
         "stage": 4,
         "benchmarks": AEROSPACE_3D_BENCHMARKS,
     }
+
