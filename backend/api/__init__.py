@@ -51,6 +51,7 @@ from backend.api.routes_neural_lyapunov import router as neural_lyapunov_router
 from backend.api.routes_airspace_catfm import router as catfm_router
 from backend.api.routes_popperian_discovery import router as discovery_router
 from backend.api.routes_rotating_detonation import router as rde_router
+from backend.api.routes_certified_code import router as certified_code_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -99,6 +100,7 @@ api_router.include_router(neural_lyapunov_router)
 api_router.include_router(catfm_router)
 api_router.include_router(discovery_router)
 api_router.include_router(rde_router)
+api_router.include_router(certified_code_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -146,6 +148,7 @@ api_v1_router.include_router(neural_lyapunov_router)
 api_v1_router.include_router(catfm_router)
 api_v1_router.include_router(discovery_router)
 api_v1_router.include_router(rde_router)
+api_v1_router.include_router(certified_code_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

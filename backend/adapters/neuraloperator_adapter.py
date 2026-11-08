@@ -104,6 +104,10 @@ try:
         RotatingDetonationEngine,
         RDE_PRESETS,
     )
+    from aasi_aero_fno.certified_code_synthesizer import (
+        synthesize_flight_certification_dossier,
+        STAGE18_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -153,6 +157,8 @@ except ImportError:
     DISCOVERY_PRESETS = {}
     RotatingDetonationEngine = None
     RDE_PRESETS = {}
+    synthesize_flight_certification_dossier = None
+    STAGE18_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1496,3 +1502,109 @@ class NeuralOperatorAdapter:
     def get_rde_presets(cls) -> Dict[str, Any]:
         """Returns RDE propulsion configuration presets."""
         return RDE_PRESETS
+
+    @classmethod
+    def synthesize_certified_flight_software(
+        cls,
+        preset_id: str = "ISRO_GAGANYAAN_CM_DESCENT_RTA",
+        alpha_max: Optional[float] = None,
+        nz_max: Optional[float] = None,
+        u_min: Optional[float] = None,
+        u_max: Optional[float] = None,
+        cbf_gamma: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Stage 18: Generates formally verified DO-178C Level A & ECSS Class A flight software,
+        MISRA-C:2012 Amendment 2, Safe-Rust no_std, and Lean-4 machine-checked proof certificates.
+        """
+        if synthesize_flight_certification_dossier is None:
+            raise RuntimeError("synthesize_flight_certification_dossier module is not loaded.")
+
+        overrides = {}
+        if alpha_max is not None:
+            overrides["alpha_max"] = alpha_max
+        if nz_max is not None:
+            overrides["nz_max"] = nz_max
+        if u_min is not None:
+            overrides["u_min"] = u_min
+        if u_max is not None:
+            overrides["u_max"] = u_max
+        if cbf_gamma is not None:
+            overrides["cbf_gamma"] = cbf_gamma
+
+        dossier = synthesize_flight_certification_dossier(
+            preset_id=preset_id,
+            override_params=overrides if overrides else None,
+        )
+
+        return {
+            "dossier_id": dossier.dossier_id,
+            "preset_id": dossier.preset_id,
+            "target_vehicle": dossier.target_vehicle,
+            "mission_profile": dossier.mission_profile,
+            "standards_applied": dossier.standards_applied,
+            "synthesized_c": {
+                "language": dossier.synthesized_c.language,
+                "filename": dossier.synthesized_c.filename,
+                "code_text": dossier.synthesized_c.code_text,
+                "line_count": dossier.synthesized_c.line_count,
+                "wcet_microseconds": dossier.synthesized_c.wcet_microseconds,
+                "heap_allocation_bytes": dossier.synthesized_c.heap_allocation_bytes,
+                "recursion_depth_max": dossier.synthesized_c.recursion_depth_max,
+                "sha256_hash": dossier.synthesized_c.sha256_hash,
+            },
+            "synthesized_rust": {
+                "language": dossier.synthesized_rust.language,
+                "filename": dossier.synthesized_rust.filename,
+                "code_text": dossier.synthesized_rust.code_text,
+                "line_count": dossier.synthesized_rust.line_count,
+                "wcet_microseconds": dossier.synthesized_rust.wcet_microseconds,
+                "heap_allocation_bytes": dossier.synthesized_rust.heap_allocation_bytes,
+                "recursion_depth_max": dossier.synthesized_rust.recursion_depth_max,
+                "sha256_hash": dossier.synthesized_rust.sha256_hash,
+            },
+            "synthesized_lean4": {
+                "language": dossier.synthesized_lean4.language,
+                "filename": dossier.synthesized_lean4.filename,
+                "code_text": dossier.synthesized_lean4.code_text,
+                "line_count": dossier.synthesized_lean4.line_count,
+                "wcet_microseconds": dossier.synthesized_lean4.wcet_microseconds,
+                "heap_allocation_bytes": dossier.synthesized_lean4.heap_allocation_bytes,
+                "recursion_depth_max": dossier.synthesized_lean4.recursion_depth_max,
+                "sha256_hash": dossier.synthesized_lean4.sha256_hash,
+            },
+            "invariants": [
+                {
+                    "invariant_id": inv.invariant_id,
+                    "property_name": inv.property_name,
+                    "mathematical_formula": inv.mathematical_formula,
+                    "verification_method": inv.verification_method,
+                    "status": inv.status,
+                    "lean4_theorem_signature": inv.lean4_theorem_signature,
+                    "margin_percentage": inv.margin_percentage,
+                }
+                for inv in dossier.invariants
+            ],
+            "mcdc_coverage": [
+                {
+                    "decision_id": cov.decision_id,
+                    "boolean_expression": cov.boolean_expression,
+                    "conditions": cov.conditions,
+                    "independent_toggle_verified": cov.independent_toggle_verified,
+                    "coverage_percentage": cov.coverage_percentage,
+                }
+                for cov in dossier.mcdc_coverage
+            ],
+            "overall_mcdc_percentage": dossier.overall_mcdc_percentage,
+            "worst_case_execution_time_us": dossier.worst_case_execution_time_us,
+            "max_allowable_period_us": dossier.max_allowable_period_us,
+            "schedulability_utilization_pct": dossier.schedulability_utilization_pct,
+            "formal_proof_status": dossier.formal_proof_status,
+            "certification_verdict": dossier.certification_verdict,
+            "generated_at": dossier.generated_at,
+        }
+
+    @classmethod
+    def get_certified_code_presets(cls) -> Dict[str, Any]:
+        """Returns certified flight code synthesizer presets."""
+        return STAGE18_PRESETS

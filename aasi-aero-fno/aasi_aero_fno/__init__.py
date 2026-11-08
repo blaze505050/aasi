@@ -148,6 +148,18 @@ from .rotating_detonation import (
     PROPELLANT_DATABASE,
     RDE_PRESETS,
 )
+from .certified_code_synthesizer import (
+    FlightCertificationStandard,
+    SafetyInvariantProof,
+    McdcCoverageItem,
+    SynthesizedSourceCode,
+    FlightCertificationDossier,
+    generate_misra_c_code,
+    generate_safe_rust_code,
+    generate_lean4_proof_certificate,
+    synthesize_flight_certification_dossier,
+    STAGE18_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -262,6 +274,16 @@ __all__ = [
     "RdeSimulationResult",
     "PROPELLANT_DATABASE",
     "RDE_PRESETS",
+    "FlightCertificationStandard",
+    "SafetyInvariantProof",
+    "McdcCoverageItem",
+    "SynthesizedSourceCode",
+    "FlightCertificationDossier",
+    "generate_misra_c_code",
+    "generate_safe_rust_code",
+    "generate_lean4_proof_certificate",
+    "synthesize_flight_certification_dossier",
+    "STAGE18_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

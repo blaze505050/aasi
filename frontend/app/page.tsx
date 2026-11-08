@@ -72,6 +72,7 @@ import NeuralLyapunovStudio from "../components/NeuralLyapunovStudio";
 import CatfmAirspaceStudio from "../components/CatfmAirspaceStudio";
 import PopperianDiscoveryStudio from "../components/PopperianDiscoveryStudio";
 import RotatingDetonationStudio from "../components/RotatingDetonationStudio";
+import CertifiedCodeSynthesizerStudio from "../components/CertifiedCodeSynthesizerStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -103,6 +104,7 @@ export default function AASIApp() {
   const [catfmStudioOpen, setCatfmStudioOpen] = useState(false);
   const [discoveryStudioOpen, setDiscoveryStudioOpen] = useState(false);
   const [rdeStudioOpen, setRdeStudioOpen] = useState(false);
+  const [certifiedCodeStudioOpen, setCertifiedCodeStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -399,6 +401,15 @@ export default function AASIApp() {
       badge: "Stage 17 Sovereign",
       icon: <Flame size={16} />,
       action: () => setRdeStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-certified-code",
+      category: "Workspaces",
+      title: "Launch DO-178C Level A Flight Code Synthesizer (Stage 18)",
+      description: "MISRA-C:2012 Amendment 2, Safe-Rust no_std, Lean-4 machine proofs, and 100% MC/DC verification.",
+      badge: "Stage 18 Sovereign",
+      icon: <FileCheck2 size={16} />,
+      action: () => setCertifiedCodeStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1158,6 +1169,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setCertifiedCodeStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(37, 99, 235, 0.08)",
+                      border: "1px solid rgba(37, 99, 235, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <FileCheck2 size={14} color="#2563eb" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>DO-178C Code Synthesizer</span>
+                        <span style={{ fontSize: "0.6rem", background: "#2563eb", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 18</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>MISRA-C • Safe-Rust no_std • Lean-4 Machine Proofs</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1665,6 +1705,13 @@ export default function AASIApp() {
       <RotatingDetonationStudio
         isOpen={rdeStudioOpen}
         onClose={() => setRdeStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 18: Formally Verified DO-178C Level A Flight Code Synthesizer Studio Modal ─── */}
+      <CertifiedCodeSynthesizerStudio
+        isOpen={certifiedCodeStudioOpen}
+        onClose={() => setCertifiedCodeStudioOpen(false)}
         apiBase={API_BASE}
       />
 
