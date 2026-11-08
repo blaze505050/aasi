@@ -66,6 +66,7 @@ import AsmeCertificationDossierStudio from "../components/AsmeCertificationDossi
 import OrbitalDynamicsStudio from "../components/OrbitalDynamicsStudio";
 import SpadexDockingStudio from "../components/SpadexDockingStudio";
 import ProjectNetraSSAStudio from "../components/ProjectNetraSSAStudio";
+import NeuralLyapunovStudio from "../components/NeuralLyapunovStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -93,6 +94,7 @@ export default function AASIApp() {
   const [orbitalStudioOpen, setOrbitalStudioOpen] = useState(false);
   const [spadexStudioOpen, setSpadexStudioOpen] = useState(false);
   const [netraStudioOpen, setNetraStudioOpen] = useState(false);
+  const [lyapunovStudioOpen, setLyapunovStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -353,6 +355,15 @@ export default function AASIApp() {
       badge: "Stage 13 Sovereign",
       icon: <ShieldAlert size={16} />,
       action: () => setNetraStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-neural-lyapunov",
+      category: "Workspaces",
+      title: "Launch Neural Lyapunov Flight Envelope & RTA Studio (Stage 14)",
+      description: "Control Barrier Functions, CBF-QP safety filter, ASTM F3269-21 Tri-Level RTA, and DO-178C Level A recovery shield.",
+      badge: "Stage 14 Sovereign",
+      icon: <ShieldCheck size={16} />,
+      action: () => setLyapunovStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -996,6 +1007,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setLyapunovStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(16, 185, 129, 0.08)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <ShieldCheck size={14} color="#10b981" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Neural Lyapunov &amp; RTA</span>
+                        <span style={{ fontSize: "0.6rem", background: "#10b981", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 14</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Control Barrier Functions • ASTM F3269-21 • DO-178C</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1475,6 +1515,13 @@ export default function AASIApp() {
       <ProjectNetraSSAStudio
         isOpen={netraStudioOpen}
         onClose={() => setNetraStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 14: Neural Lyapunov Flight Envelope & RTA Studio Modal ─── */}
+      <NeuralLyapunovStudio
+        isOpen={lyapunovStudioOpen}
+        onClose={() => setLyapunovStudioOpen(false)}
         apiBase={API_BASE}
       />
 

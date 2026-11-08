@@ -113,6 +113,13 @@ from .netra_cam_synthesizer import (
     DebrisCatalogItem,
     NETRA_SCENARIO_PRESETS,
 )
+from .neural_lyapunov_rta import (
+    NeuralLyapunovRTAEngine,
+    AircraftEnvelopeLimits,
+    EnvelopeProtectionStep,
+    NeuralLyapunovSimulationResult,
+    LYAPUNOV_SCENARIO_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -200,6 +207,11 @@ __all__ = [
     "CamManeuverBurn",
     "DebrisCatalogItem",
     "NETRA_SCENARIO_PRESETS",
+    "NeuralLyapunovRTAEngine",
+    "AircraftEnvelopeLimits",
+    "EnvelopeProtectionStep",
+    "NeuralLyapunovSimulationResult",
+    "LYAPUNOV_SCENARIO_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

@@ -85,6 +85,11 @@ try:
         NetraCamOptimizer,
         NETRA_SCENARIO_PRESETS,
     )
+    from aasi_aero_fno.neural_lyapunov_rta import (
+        NeuralLyapunovRTAEngine,
+        AircraftEnvelopeLimits,
+        LYAPUNOV_SCENARIO_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -123,6 +128,9 @@ except ImportError:
     FosterCollisionProbabilityEngine = None
     NetraCamOptimizer = None
     NETRA_SCENARIO_PRESETS = {}
+    NeuralLyapunovRTAEngine = None
+    AircraftEnvelopeLimits = None
+    LYAPUNOV_SCENARIO_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1189,3 +1197,70 @@ class NeuralOperatorAdapter:
     def get_netra_presets(cls) -> Dict[str, Any]:
         """Returns Project NETRA conjunction presets."""
         return NETRA_SCENARIO_PRESETS
+
+    @classmethod
+    def simulate_neural_lyapunov_envelope(
+        cls,
+        preset_key: str = "LCA_TEJAS_COMBAT_MANEUVER",
+        enable_rta: bool = True,
+        gust_intensity: float = 1.0,
+        duration_s: float = 12.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 14: Simulates Neural Lyapunov Flight Envelope Protection & ASTM F3269-21 Run-Time Assurance (RTA).
+        Enforces forward invariance: B(x) <= 0, Lie derivative dissipation dot(B) <= -alpha_B * B,
+        and tri-level RTA switching (Tier 0 AI -> Tier 1 CBF-QP Filter -> Tier 2 DO-178C Level A Recovery Shield).
+        """
+        if NeuralLyapunovRTAEngine is None:
+            raise RuntimeError("NeuralLyapunovRTAEngine module is not loaded.")
+
+        res = NeuralLyapunovRTAEngine.simulate_envelope_mission(
+            preset_key=preset_key,
+            enable_rta=enable_rta,
+            gust_intensity=gust_intensity,
+            duration_s=duration_s,
+        )
+
+        return {
+            "aircraft_name": res.aircraft_name,
+            "flight_regime": res.flight_regime,
+            "total_duration_s": float(res.total_duration_s),
+            "total_steps": res.total_steps,
+            "unprotected_departures": res.unprotected_departures,
+            "protected_departures": res.protected_departures,
+            "recovery_switch_events": res.recovery_switch_events,
+            "max_aoa_reached_deg": float(res.max_aoa_reached_deg),
+            "max_nz_reached_g": float(res.max_nz_reached_g),
+            "min_airspeed_reached_mps": float(res.min_airspeed_reached_mps),
+            "astm_f3269_compliance": res.astm_f3269_compliance,
+            "merkle_provenance_hash": res.merkle_provenance_hash,
+            "steps": [
+                {
+                    "time_s": float(s.time_s),
+                    "airspeed_mps": float(s.airspeed_mps),
+                    "aoa_deg": float(s.aoa_deg),
+                    "pitch_rate_deg_s": float(s.pitch_rate_deg_s),
+                    "pitch_deg": float(s.pitch_deg),
+                    "flight_path_angle_deg": float(s.flight_path_angle_deg),
+                    "load_factor_g": float(s.load_factor_g),
+                    "wind_gust_vertical_mps": float(s.wind_gust_vertical_mps),
+                    "u_ai_demanded_elevator_deg": float(s.u_ai_demanded_elevator_deg),
+                    "u_filtered_elevator_deg": float(s.u_filtered_elevator_deg),
+                    "u_actual_elevator_deg": float(s.u_actual_elevator_deg),
+                    "throttle_pct": float(s.throttle_pct),
+                    "barrier_value_b": float(s.barrier_value_b),
+                    "barrier_lie_derivative": float(s.barrier_lie_derivative),
+                    "barrier_admissible": bool(s.barrier_admissible),
+                    "rta_active_tier": s.rta_active_tier,
+                    "stall_prevented": bool(s.stall_prevented),
+                    "envelope_departure_prevented": bool(s.envelope_departure_prevented),
+                }
+                for s in res.steps
+            ],
+            "safety_standard": "ASTM_F3269_21_DO_178C_LEVEL_A",
+        }
+
+    @classmethod
+    def get_lyapunov_presets(cls) -> Dict[str, Any]:
+        """Returns Neural Lyapunov aircraft flight envelope presets."""
+        return LYAPUNOV_SCENARIO_PRESETS
