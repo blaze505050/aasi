@@ -96,6 +96,10 @@ try:
         INDIAN_AIRPORTS,
         WAKE_SEPARATION_MINIMA_NM,
     )
+    from aasi_aero_fno.popperian_discovery import (
+        PopperianDiscoveryEngine,
+        DISCOVERY_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -141,6 +145,8 @@ except ImportError:
     CATFM_SCENARIO_PRESETS = {}
     INDIAN_AIRPORTS = {}
     WAKE_SEPARATION_MINIMA_NM = {}
+    PopperianDiscoveryEngine = None
+    DISCOVERY_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1362,3 +1368,65 @@ class NeuralOperatorAdapter:
             "airports": INDIAN_AIRPORTS,
             "wake_minima_nm": WAKE_SEPARATION_MINIMA_NM,
         }
+
+    @classmethod
+    def execute_popperian_discovery(
+        cls,
+        preset_key: str = "SUPERCRITICAL_BUFFET_DELAY",
+        adversarial_rigor: float = 1.0,
+        enable_adaptive_meshing: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Stage 16: Executes autonomous multi-agent scientific discovery loop with Lead Scientist,
+        Discretization Agent, Adversarial Popperian Agent, and Epistemic Metrology Auditor.
+        """
+        if PopperianDiscoveryEngine is None:
+            raise RuntimeError("PopperianDiscoveryEngine module is not loaded.")
+
+        dossier = PopperianDiscoveryEngine.execute_discovery_campaign(
+            preset_key=preset_key,
+            adversarial_rigor=adversarial_rigor,
+            enable_adaptive_meshing=enable_adaptive_meshing,
+        )
+
+        return {
+            "campaign_id": dossier.campaign_id,
+            "hypothesis_title": dossier.hypothesis_title,
+            "domain": dossier.domain,
+            "proposed_mechanism": dossier.proposed_mechanism,
+            "simulation_fidelity": dossier.simulation_fidelity,
+            "bayes_factor": float(dossier.bayes_factor),
+            "asme_gci_fine_pct": float(dossier.asme_gci_fine_pct),
+            "verdict": dossier.verdict,
+            "novelty_score_pct": float(dossier.novelty_score_pct),
+            "scientific_impact_index": float(dossier.scientific_impact_index),
+            "publication_readiness": dossier.publication_readiness,
+            "merkle_provenance_hash": dossier.merkle_provenance_hash,
+            "falsification_criteria": [
+                {
+                    "metric_name": c.metric_name,
+                    "target_value": float(c.target_value),
+                    "tolerance_threshold": float(c.tolerance_threshold),
+                    "operator": c.operator,
+                    "mathematical_formula": c.mathematical_formula,
+                }
+                for c in dossier.falsification_criteria
+            ],
+            "agent_dialogue": [
+                {
+                    "step_number": m.step_number,
+                    "agent_role": m.agent_role,
+                    "message_title": m.message_title,
+                    "content": m.content,
+                    "quantitative_data": m.quantitative_data,
+                    "epistemic_confidence": float(m.epistemic_confidence),
+                    "timestamp_s": float(m.timestamp_s),
+                }
+                for m in dossier.agent_dialogue
+            ],
+        }
+
+    @classmethod
+    def get_popperian_discovery_presets(cls) -> Dict[str, Any]:
+        """Returns autonomous Popperian hypothesis falsification presets."""
+        return DISCOVERY_PRESETS

@@ -120,6 +120,25 @@ from .neural_lyapunov_rta import (
     NeuralLyapunovSimulationResult,
     LYAPUNOV_SCENARIO_PRESETS,
 )
+from .airspace_catfm import (
+    SovereignCatfmEngine,
+    AircraftPerformanceProfile,
+    FlightPlan4D,
+    TrajectoryPoint4D,
+    ConvectiveWeatherCell,
+    NegotiatedFlightSchedule,
+    AirspaceNegotiationResult,
+    CATFM_SCENARIO_PRESETS,
+    INDIAN_AIRPORTS,
+    WAKE_SEPARATION_MINIMA_NM,
+)
+from .popperian_discovery import (
+    PopperianDiscoveryEngine,
+    AgentMessage,
+    FalsificationCriterion,
+    DiscoveryIterationDossier,
+    DISCOVERY_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -212,6 +231,21 @@ __all__ = [
     "EnvelopeProtectionStep",
     "NeuralLyapunovSimulationResult",
     "LYAPUNOV_SCENARIO_PRESETS",
+    "SovereignCatfmEngine",
+    "AircraftPerformanceProfile",
+    "FlightPlan4D",
+    "TrajectoryPoint4D",
+    "ConvectiveWeatherCell",
+    "NegotiatedFlightSchedule",
+    "AirspaceNegotiationResult",
+    "CATFM_SCENARIO_PRESETS",
+    "INDIAN_AIRPORTS",
+    "WAKE_SEPARATION_MINIMA_NM",
+    "PopperianDiscoveryEngine",
+    "AgentMessage",
+    "FalsificationCriterion",
+    "DiscoveryIterationDossier",
+    "DISCOVERY_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

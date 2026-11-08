@@ -37,6 +37,7 @@ import {
   Orbit,
   Target,
   Navigation,
+  Microscope,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -69,6 +70,7 @@ import SpadexDockingStudio from "../components/SpadexDockingStudio";
 import ProjectNetraSSAStudio from "../components/ProjectNetraSSAStudio";
 import NeuralLyapunovStudio from "../components/NeuralLyapunovStudio";
 import CatfmAirspaceStudio from "../components/CatfmAirspaceStudio";
+import PopperianDiscoveryStudio from "../components/PopperianDiscoveryStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -98,6 +100,7 @@ export default function AASIApp() {
   const [netraStudioOpen, setNetraStudioOpen] = useState(false);
   const [lyapunovStudioOpen, setLyapunovStudioOpen] = useState(false);
   const [catfmStudioOpen, setCatfmStudioOpen] = useState(false);
+  const [discoveryStudioOpen, setDiscoveryStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -376,6 +379,15 @@ export default function AASIApp() {
       badge: "Stage 15 Sovereign",
       icon: <Navigation size={16} />,
       action: () => setCatfmStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-popperian-discovery",
+      category: "Workspaces",
+      title: "Launch Autonomous Popperian Hypothesis Discovery Studio (Stage 16)",
+      description: "4-Agent closed-loop scientific discovery, ASME V&V 20 Richardson GCI, adversarial shock flutter testing, and Bayesian model evidence.",
+      badge: "Stage 16 Sovereign",
+      icon: <Microscope size={16} />,
+      action: () => setDiscoveryStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1077,6 +1089,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setDiscoveryStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(147, 51, 234, 0.08)",
+                      border: "1px solid rgba(147, 51, 234, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Microscope size={14} color="#9333ea" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Popperian Scientific Discovery</span>
+                        <span style={{ fontSize: "0.6rem", background: "#9333ea", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 16</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>4-Agent Loop • ASME GCI • Bayesian Model Selection</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1570,6 +1611,13 @@ export default function AASIApp() {
       <CatfmAirspaceStudio
         isOpen={catfmStudioOpen}
         onClose={() => setCatfmStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 16: Autonomous Popperian Hypothesis Discovery Studio Modal ─── */}
+      <PopperianDiscoveryStudio
+        isOpen={discoveryStudioOpen}
+        onClose={() => setDiscoveryStudioOpen(false)}
         apiBase={API_BASE}
       />
 
