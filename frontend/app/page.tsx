@@ -38,6 +38,7 @@ import {
   Target,
   Navigation,
   Microscope,
+  Award,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -74,6 +75,7 @@ import PopperianDiscoveryStudio from "../components/PopperianDiscoveryStudio";
 import RotatingDetonationStudio from "../components/RotatingDetonationStudio";
 import CertifiedCodeSynthesizerStudio from "../components/CertifiedCodeSynthesizerStudio";
 import AvionicsHILTestbedStudio from "../components/AvionicsHILTestbedStudio";
+import LandmarkPublicationStudio from "../components/LandmarkPublicationStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -107,6 +109,7 @@ export default function AASIApp() {
   const [rdeStudioOpen, setRdeStudioOpen] = useState(false);
   const [certifiedCodeStudioOpen, setCertifiedCodeStudioOpen] = useState(false);
   const [hilStudioOpen, setHilStudioOpen] = useState(false);
+  const [publicationStudioOpen, setPublicationStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -421,6 +424,15 @@ export default function AASIApp() {
       badge: "Stage 19 Sovereign",
       icon: <Cpu size={16} />,
       action: () => setHilStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-landmark-publication",
+      category: "Workspaces",
+      title: "Launch Autonomous Discovery Machine: Landmark Publication (Stage 20)",
+      description: "Clean-sheet supercritical airframe (AASI-Apex-S1), ASME V&V 20 multi-grid GCI, and Nature/Science LaTeX manuscript.",
+      badge: "Stage 20 Flagship",
+      icon: <Award size={16} />,
+      action: () => setPublicationStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1238,6 +1250,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setPublicationStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(124, 58, 237, 0.08)",
+                      border: "1px solid rgba(124, 58, 237, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Award size={14} color="#7c3aed" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Landmark Publication Synthesizer</span>
+                        <span style={{ fontSize: "0.6rem", background: "#7c3aed", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 20</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Nature / Science • AASI-Apex-S1 • ASME V&V 20 GCI</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1759,6 +1800,13 @@ export default function AASIApp() {
       <AvionicsHILTestbedStudio
         isOpen={hilStudioOpen}
         onClose={() => setHilStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 20: The Autonomous Discovery Machine & Landmark Publication Studio Modal ─── */}
+      <LandmarkPublicationStudio
+        isOpen={publicationStudioOpen}
+        onClose={() => setPublicationStudioOpen(false)}
         apiBase={API_BASE}
       />
 

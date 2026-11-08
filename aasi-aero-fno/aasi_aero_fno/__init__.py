@@ -172,6 +172,17 @@ from .hil_avionics_testbed import (
     encode_mavlink_v2_hil_sensor,
     encode_can_aerospace_frame,
 )
+from .landmark_publication_synthesizer import (
+    JournalTarget,
+    DiscoveredAirframeMetrics,
+    PublicationFigure,
+    LandmarkPublicationDossier,
+    LandmarkPublicationSynthesizer,
+    PUBLICATION_PRESETS,
+    generate_nature_latex_manuscript,
+    generate_bibtex_citations,
+    generate_reproducibility_dockerfile,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -306,6 +317,15 @@ __all__ = [
     "HIL_SCENARIO_PRESETS",
     "encode_mavlink_v2_hil_sensor",
     "encode_can_aerospace_frame",
+    "JournalTarget",
+    "DiscoveredAirframeMetrics",
+    "PublicationFigure",
+    "LandmarkPublicationDossier",
+    "LandmarkPublicationSynthesizer",
+    "PUBLICATION_PRESETS",
+    "generate_nature_latex_manuscript",
+    "generate_bibtex_citations",
+    "generate_reproducibility_dockerfile",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

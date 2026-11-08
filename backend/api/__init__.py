@@ -53,6 +53,7 @@ from backend.api.routes_popperian_discovery import router as discovery_router
 from backend.api.routes_rotating_detonation import router as rde_router
 from backend.api.routes_certified_code import router as certified_code_router
 from backend.api.routes_hil_avionics import router as hil_avionics_router
+from backend.api.routes_landmark_publication import router as publication_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -103,6 +104,7 @@ api_router.include_router(discovery_router)
 api_router.include_router(rde_router)
 api_router.include_router(certified_code_router)
 api_router.include_router(hil_avionics_router)
+api_router.include_router(publication_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -152,6 +154,7 @@ api_v1_router.include_router(discovery_router)
 api_v1_router.include_router(rde_router)
 api_v1_router.include_router(certified_code_router)
 api_v1_router.include_router(hil_avionics_router)
+api_v1_router.include_router(publication_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

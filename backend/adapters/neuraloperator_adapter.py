@@ -112,6 +112,10 @@ try:
         HILAvionicsTestbedEngine,
         HIL_SCENARIO_PRESETS,
     )
+    from aasi_aero_fno.landmark_publication_synthesizer import (
+        LandmarkPublicationSynthesizer,
+        PUBLICATION_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -165,6 +169,8 @@ except ImportError:
     STAGE18_PRESETS = {}
     HILAvionicsTestbedEngine = None
     HIL_SCENARIO_PRESETS = {}
+    LandmarkPublicationSynthesizer = None
+    PUBLICATION_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1683,3 +1689,69 @@ class NeuralOperatorAdapter:
     def get_hil_presets(cls) -> Dict[str, Any]:
         """Returns HIL avionics presets."""
         return HIL_SCENARIO_PRESETS
+
+    @classmethod
+    def synthesize_landmark_publication(
+        cls,
+        preset_key: str = "NATURE_AEROSPACE_LANDMARK",
+        target_journal: Optional[str] = None,
+        target_mach: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Stage 20: Synthesizes camera-ready academic publication dossier, multi-fidelity
+        ASME V&V 20 evidence, LaTeX manuscript text, BibTeX, vector figures, and Docker reproducibility.
+        """
+        if LandmarkPublicationSynthesizer is None:
+            raise RuntimeError("LandmarkPublicationSynthesizer module is not loaded.")
+
+        dossier = LandmarkPublicationSynthesizer.synthesize_publication(
+            preset_key=preset_key,
+            target_journal=target_journal,
+            target_mach=target_mach,
+        )
+
+        return {
+            "dossier_id": dossier.dossier_id,
+            "target_journal": dossier.target_journal,
+            "title": dossier.title,
+            "authors": dossier.authors,
+            "affiliations": dossier.affiliations,
+            "abstract": dossier.abstract,
+            "discovered_airframe": {
+                "airframe_designation": dossier.discovered_airframe.airframe_designation,
+                "baseline_reference": dossier.discovered_airframe.baseline_reference,
+                "buffet_onset_mach": dossier.discovered_airframe.buffet_onset_mach,
+                "buffet_mach_improvement_pct": dossier.discovered_airframe.buffet_mach_improvement_pct,
+                "cruise_lift_to_drag": dossier.discovered_airframe.cruise_lift_to_drag,
+                "ld_improvement_pct": dossier.discovered_airframe.ld_improvement_pct,
+                "wave_drag_coefficient_cdw": dossier.discovered_airframe.wave_drag_coefficient_cdw,
+                "wave_drag_reduction_pct": dossier.discovered_airframe.wave_drag_reduction_pct,
+                "critical_cp_min": dossier.discovered_airframe.critical_cp_min,
+                "shock_peak_mach": dossier.discovered_airframe.shock_peak_mach,
+                "boundary_layer_separation_pct": dossier.discovered_airframe.boundary_layer_separation_pct,
+                "asme_richardson_gci_pct": dossier.discovered_airframe.asme_richardson_gci_pct,
+                "epistemic_confidence_pct": dossier.discovered_airframe.epistemic_confidence_pct,
+            },
+            "latex_manuscript_text": dossier.latex_manuscript_text,
+            "bibtex_citations": dossier.bibtex_citations,
+            "dockerfile_reproducibility": dossier.dockerfile_reproducibility,
+            "figures": [
+                {
+                    "figure_id": f.figure_id,
+                    "figure_number": f.figure_number,
+                    "title": f.title,
+                    "caption": f.caption,
+                    "data_series": f.data_series,
+                }
+                for f in dossier.figures
+            ],
+            "peer_review_checklist": dossier.peer_review_checklist,
+            "merkle_provenance_root": dossier.merkle_provenance_root,
+            "publication_readiness_score": dossier.publication_readiness_score,
+            "generated_at": dossier.generated_at,
+        }
+
+    @classmethod
+    def get_publication_presets(cls) -> Dict[str, Any]:
+        """Returns landmark publication presets."""
+        return PUBLICATION_PRESETS
