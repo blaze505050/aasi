@@ -140,6 +140,11 @@ try:
         simulate_tactical_swarm_mission,
         SwarmFormation,
     )
+    from aasi_aero_fno.hypersonic_interceptor_guidance import (
+        simulate_hypersonic_interception,
+        GuidanceLaw,
+        TargetEvasionManeuver,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -207,6 +212,9 @@ except ImportError:
     execute_optical_qkd_dossier = None
     simulate_tactical_swarm_mission = None
     SwarmFormation = None
+    simulate_hypersonic_interception = None
+    GuidanceLaw = None
+    TargetEvasionManeuver = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2148,5 +2156,69 @@ class NeuralOperatorAdapter:
                 "d_safe_m": 15.0,
                 "roles": "Fleet Screen, ASW Sonobuoy Relay, Anti-Ship Decoy",
                 "description": "Coordinated double-pincer envelopment screen with Byzantine fault-tolerant target consensus under jamming.",
+            },
+        }
+
+    @classmethod
+    def execute_interceptor_simulation(
+        cls,
+        mission_id: str = "GLIDE_PHASE_INTERCEPTOR",
+        guidance_law: str = "DIFFERENTIAL_GAME_ZEM",
+        target_evasion: str = "SINUSOIDAL_WEAVE",
+        nav_ratio: float = 4.2,
+        enable_dacs_divert: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Stage 27: Simulates Hypersonic Boost-Glide Interceptor Guidance under
+        Zero Effort Miss (ZEM), Differential Games, and Mach 8+ Proportional Navigation.
+        """
+        if simulate_hypersonic_interception is None:
+            raise RuntimeError("simulate_hypersonic_interception module is not loaded.")
+
+        try:
+            gl = GuidanceLaw(guidance_law)
+        except (ValueError, TypeError):
+            gl = GuidanceLaw.DIFFERENTIAL_GAME_ZEM
+
+        try:
+            te = TargetEvasionManeuver(target_evasion)
+        except (ValueError, TypeError):
+            te = TargetEvasionManeuver.SINUSOIDAL_WEAVE
+
+        return simulate_hypersonic_interception(
+            mission_id=mission_id,
+            guidance_law=gl,
+            target_evasion=te,
+            nav_ratio=nav_ratio,
+            enable_dacs_divert=enable_dacs_divert,
+        )
+
+    @classmethod
+    def get_interceptor_presets(cls) -> Dict[str, Any]:
+        """Returns available hypersonic interceptor engagement presets."""
+        return {
+            "GLIDE_PHASE_INTERCEPTOR": {
+                "name": "Glide Phase Interceptor (GPI) vs Mach 9.5 HGV",
+                "altitude_km": 38.0,
+                "closing_speed_mach": 17.4,
+                "target_type": "Hypersonic Boost-Glide Vehicle",
+                "interceptor_type": "Mach 8.0 Dual-Pulse Hit-to-Kill Interceptor with DACS",
+                "description": "Midcourse glide phase interception in the stratosphere (38 km) counteracting 5g weave maneuvers via Differential Game ZEM guidance.",
+            },
+            "ENDOCRUIRSER_HACM": {
+                "name": "Endo-atmospheric Interception vs Mach 6.2 HACM",
+                "altitude_km": 22.0,
+                "closing_speed_mach": 12.5,
+                "target_type": "Hypersonic Attack Cruise Missile (Air-Breathing Scramjet)",
+                "interceptor_type": "Stratospheric High-G Interceptor with Canard Thrust Vectoring",
+                "description": "Dense upper atmosphere engagement under extreme aerothermal dynamic pressure and high aerodynamic load factors.",
+            },
+            "EXO_ORBITAL_FOBS": {
+                "name": "Exo-atmospheric Hit-to-Kill vs FOBS Warhead",
+                "altitude_km": 85.0,
+                "closing_speed_mach": 28.5,
+                "target_type": "Fractional Orbital Bombardment Re-entry Vehicle",
+                "interceptor_type": "Exo-atmospheric Kinetic Kill Vehicle (KKV) with Multimode DACS",
+                "description": "High-altitude hit-to-kill interception at 85 km where vacuum thruster DACS delivers 100% of divert maneuvering authority.",
             },
         }

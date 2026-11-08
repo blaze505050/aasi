@@ -41,6 +41,7 @@ import {
   Award,
   Radio,
   Users,
+  Crosshair,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -84,6 +85,7 @@ import MhdPlasmaShieldStudio from "../components/MhdPlasmaShieldStudio";
 import NeuromorphicSsaStudio from "../components/NeuromorphicSsaStudio";
 import OpticalQkdStudio from "../components/OpticalQkdStudio";
 import SwarmCoordinatorStudio from "../components/SwarmCoordinatorStudio";
+import HypersonicInterceptorStudio from "../components/HypersonicInterceptorStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -124,6 +126,7 @@ export default function AASIApp() {
   const [ssaStudioOpen, setSsaStudioOpen] = useState(false);
   const [qkdStudioOpen, setQkdStudioOpen] = useState(false);
   const [swarmStudioOpen, setSwarmStudioOpen] = useState(false);
+  const [interceptorStudioOpen, setInterceptorStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -501,6 +504,15 @@ export default function AASIApp() {
       badge: "Stage 26 Sovereign",
       icon: <Users size={16} />,
       action: () => setSwarmStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-hypersonic-interceptor",
+      category: "Workspaces",
+      title: "Launch Hypersonic Interceptor Guidance Studio (Stage 27)",
+      description: "Mach 8+ Zero Effort Miss (ZEM) differential games, Sutton-Graves aerothermo, 35g structural limit, and DACS divert pulses.",
+      badge: "Stage 27 Sovereign",
+      icon: <Crosshair size={16} />,
+      action: () => setInterceptorStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1521,6 +1533,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setInterceptorStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(225, 29, 72, 0.08)",
+                      border: "1px solid rgba(225, 29, 72, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Crosshair size={14} color="#e11d48" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Hypersonic Interceptor Guidance</span>
+                        <span style={{ fontSize: "0.6rem", background: "#e11d48", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 27</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Mach 8+ Hit-to-Kill • ZEM Differential Games • Sutton-Graves</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2091,6 +2132,13 @@ export default function AASIApp() {
       <SwarmCoordinatorStudio
         isOpen={swarmStudioOpen}
         onClose={() => setSwarmStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 27: Hypersonic Interceptor Guidance Studio Modal ─── */}
+      <HypersonicInterceptorStudio
+        isOpen={interceptorStudioOpen}
+        onClose={() => setInterceptorStudioOpen(false)}
         apiBase={API_BASE}
       />
 

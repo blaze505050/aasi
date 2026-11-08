@@ -238,6 +238,13 @@ from .swarm_tactical_coordinator import (
     verify_byzantine_fault_consensus,
     simulate_tactical_swarm_mission,
 )
+from .hypersonic_interceptor_guidance import (
+    GuidanceLaw,
+    TargetEvasionManeuver,
+    compute_zem_vector,
+    compute_guidance_acceleration,
+    simulate_hypersonic_interception,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -424,6 +431,11 @@ __all__ = [
     "solve_cbf_collision_avoidance",
     "verify_byzantine_fault_consensus",
     "simulate_tactical_swarm_mission",
+    "GuidanceLaw",
+    "TargetEvasionManeuver",
+    "compute_zem_vector",
+    "compute_guidance_acceleration",
+    "simulate_hypersonic_interception",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
