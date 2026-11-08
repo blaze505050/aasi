@@ -108,6 +108,10 @@ try:
         synthesize_flight_certification_dossier,
         STAGE18_PRESETS,
     )
+    from aasi_aero_fno.hil_avionics_testbed import (
+        HILAvionicsTestbedEngine,
+        HIL_SCENARIO_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -159,6 +163,8 @@ except ImportError:
     RDE_PRESETS = {}
     synthesize_flight_certification_dossier = None
     STAGE18_PRESETS = {}
+    HILAvionicsTestbedEngine = None
+    HIL_SCENARIO_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1608,3 +1614,72 @@ class NeuralOperatorAdapter:
     def get_certified_code_presets(cls) -> Dict[str, Any]:
         """Returns certified flight code synthesizer presets."""
         return STAGE18_PRESETS
+
+    @classmethod
+    def run_hil_avionics_simulation(
+        cls,
+        preset_key: str = "PIXHAWK6X_AUTONOMOUS_TRANSITION",
+        override_fault: Optional[str] = None,
+        duration_seconds: float = 1.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 19: Executes 1000 Hz real-time Hardware-in-the-Loop avionics simulation testbed
+        with MAVLink v2 & CAN-Aerospace telemetry bridges and in-flight actuator fault injection.
+        """
+        if HILAvionicsTestbedEngine is None:
+            raise RuntimeError("HILAvionicsTestbedEngine module is not loaded.")
+
+        dossier = HILAvionicsTestbedEngine.run_hil_simulation(
+            preset_key=preset_key,
+            override_fault=override_fault,
+            duration_seconds=duration_seconds,
+        )
+
+        return {
+            "session_id": dossier.session_id,
+            "preset_key": dossier.preset_key,
+            "hardware_target": dossier.hardware_target,
+            "bus_protocol": dossier.bus_protocol,
+            "fault_injected": dossier.fault_injected,
+            "benchmark": {
+                "total_cycles_executed": dossier.benchmark.total_cycles_executed,
+                "duration_seconds": dossier.benchmark.duration_seconds,
+                "nominal_loop_period_us": dossier.benchmark.nominal_loop_period_us,
+                "mean_latency_us": dossier.benchmark.mean_latency_us,
+                "max_latency_us": dossier.benchmark.max_latency_us,
+                "max_jitter_us": dossier.benchmark.max_jitter_us,
+                "deadline_misses": dossier.benchmark.deadline_misses,
+                "real_time_schedulability_ratio": dossier.benchmark.real_time_schedulability_ratio,
+                "fault_recovery_time_ms": dossier.benchmark.fault_recovery_time_ms,
+                "protocol_frames_transmitted": dossier.benchmark.protocol_frames_transmitted,
+                "telemetry_crc_pass_rate_pct": dossier.benchmark.telemetry_crc_pass_rate_pct,
+                "hil_compliance_status": dossier.benchmark.hil_compliance_status,
+                "provenance_hash": dossier.benchmark.provenance_hash,
+            },
+            "telemetry_samples": [
+                {
+                    "timestamp_us": p.timestamp_us,
+                    "step_index": p.step_index,
+                    "roll_deg": p.roll_deg,
+                    "pitch_deg": p.pitch_deg,
+                    "yaw_deg": p.yaw_deg,
+                    "alpha_deg": p.alpha_deg,
+                    "airspeed_mps": p.airspeed_mps,
+                    "nz_load_factor": p.nz_load_factor,
+                    "u_command_nominal": p.u_command_nominal,
+                    "u_command_filtered": p.u_command_filtered,
+                    "cbf_margin": p.cbf_margin,
+                    "rta_intervention": p.rta_intervention,
+                    "fault_active": p.fault_active,
+                    "loop_latency_us": p.loop_latency_us,
+                    "loop_jitter_us": p.loop_jitter_us,
+                    "protocol_crc_valid": p.protocol_crc_valid,
+                }
+                for p in dossier.telemetry_samples
+            ],
+        }
+
+    @classmethod
+    def get_hil_presets(cls) -> Dict[str, Any]:
+        """Returns HIL avionics presets."""
+        return HIL_SCENARIO_PRESETS

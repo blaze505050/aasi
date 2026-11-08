@@ -160,6 +160,18 @@ from .certified_code_synthesizer import (
     synthesize_flight_certification_dossier,
     STAGE18_PRESETS,
 )
+from .hil_avionics_testbed import (
+    AvionicsProtocol,
+    HILTargetHardware,
+    ActuatorFaultType,
+    HILTelemetryPacket,
+    HILBenchmarkSummary,
+    HILSessionDossier,
+    HILAvionicsTestbedEngine,
+    HIL_SCENARIO_PRESETS,
+    encode_mavlink_v2_hil_sensor,
+    encode_can_aerospace_frame,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -284,6 +296,16 @@ __all__ = [
     "generate_lean4_proof_certificate",
     "synthesize_flight_certification_dossier",
     "STAGE18_PRESETS",
+    "AvionicsProtocol",
+    "HILTargetHardware",
+    "ActuatorFaultType",
+    "HILTelemetryPacket",
+    "HILBenchmarkSummary",
+    "HILSessionDossier",
+    "HILAvionicsTestbedEngine",
+    "HIL_SCENARIO_PRESETS",
+    "encode_mavlink_v2_hil_sensor",
+    "encode_can_aerospace_frame",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

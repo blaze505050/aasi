@@ -73,6 +73,7 @@ import CatfmAirspaceStudio from "../components/CatfmAirspaceStudio";
 import PopperianDiscoveryStudio from "../components/PopperianDiscoveryStudio";
 import RotatingDetonationStudio from "../components/RotatingDetonationStudio";
 import CertifiedCodeSynthesizerStudio from "../components/CertifiedCodeSynthesizerStudio";
+import AvionicsHILTestbedStudio from "../components/AvionicsHILTestbedStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -105,6 +106,7 @@ export default function AASIApp() {
   const [discoveryStudioOpen, setDiscoveryStudioOpen] = useState(false);
   const [rdeStudioOpen, setRdeStudioOpen] = useState(false);
   const [certifiedCodeStudioOpen, setCertifiedCodeStudioOpen] = useState(false);
+  const [hilStudioOpen, setHilStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -410,6 +412,15 @@ export default function AASIApp() {
       badge: "Stage 18 Sovereign",
       icon: <FileCheck2 size={16} />,
       action: () => setCertifiedCodeStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-hil-avionics",
+      category: "Workspaces",
+      title: "Launch Hardware-in-the-Loop 1000 Hz Avionics Testbed (Stage 19)",
+      description: "Real-time 1000 Hz neural plant, MAVLink v2 & CAN-Aerospace bus, and fault injection verification.",
+      badge: "Stage 19 Sovereign",
+      icon: <Cpu size={16} />,
+      action: () => setHilStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1198,6 +1209,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setHilStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(217, 119, 6, 0.08)",
+                      border: "1px solid rgba(217, 119, 6, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Cpu size={14} color="#d97706" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>1000 Hz Avionics HIL Testbed</span>
+                        <span style={{ fontSize: "0.6rem", background: "#d97706", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 19</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Hard Real-Time • MAVLink v2 • Pixhawk 6X / STM32H7</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1712,6 +1752,13 @@ export default function AASIApp() {
       <CertifiedCodeSynthesizerStudio
         isOpen={certifiedCodeStudioOpen}
         onClose={() => setCertifiedCodeStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 19: Hardware-in-the-Loop 1000 Hz Avionics Testbed Studio Modal ─── */}
+      <AvionicsHILTestbedStudio
+        isOpen={hilStudioOpen}
+        onClose={() => setHilStudioOpen(false)}
         apiBase={API_BASE}
       />
 
