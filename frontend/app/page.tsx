@@ -77,6 +77,7 @@ import CertifiedCodeSynthesizerStudio from "../components/CertifiedCodeSynthesiz
 import AvionicsHILTestbedStudio from "../components/AvionicsHILTestbedStudio";
 import LandmarkPublicationStudio from "../components/LandmarkPublicationStudio";
 import CislunarManifoldStudio from "../components/CislunarManifoldStudio";
+import PlanetaryEdlStudio from "../components/PlanetaryEdlStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -112,6 +113,7 @@ export default function AASIApp() {
   const [hilStudioOpen, setHilStudioOpen] = useState(false);
   const [publicationStudioOpen, setPublicationStudioOpen] = useState(false);
   const [cislunarStudioOpen, setCislunarStudioOpen] = useState(false);
+  const [edlStudioOpen, setEdlStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -444,6 +446,15 @@ export default function AASIApp() {
       badge: "Stage 21 Sovereign",
       icon: <Orbit size={16} />,
       action: () => setCislunarStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-planetary-edl",
+      category: "Workspaces",
+      title: "Launch Relativistic Planetary EDL & Optical TRN Studio (Stage 22)",
+      description: "Post-Newtonian PPN gravity, Sutton-Graves stagnation heat flux, supersonic parachute, and Optical TRN sub-5m precision.",
+      badge: "Stage 22 Sovereign",
+      icon: <Flame size={16} />,
+      action: () => setEdlStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1319,6 +1330,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setEdlStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(244, 63, 94, 0.08)",
+                      border: "1px solid rgba(244, 63, 94, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Flame size={14} color="#f43f5e" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Relativistic Planetary EDL &amp; Optical TRN</span>
+                        <span style={{ fontSize: "0.6rem", background: "#f43f5e", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 22</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>PPN Relativistic • Sutton-Graves • Optical TRN &lt; 5m • Skycrane</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1854,6 +1894,13 @@ export default function AASIApp() {
       <CislunarManifoldStudio
         isOpen={cislunarStudioOpen}
         onClose={() => setCislunarStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 22: Relativistic Planetary EDL & Optical TRN Studio Modal ─── */}
+      <PlanetaryEdlStudio
+        isOpen={edlStudioOpen}
+        onClose={() => setEdlStudioOpen(false)}
         apiBase={API_BASE}
       />
 

@@ -195,6 +195,16 @@ from .cislunar_manifolds import (
     generate_halo_orbit,
     compute_invariant_manifold_tubes,
 )
+from .planetary_edl_trn import (
+    PlanetaryBody,
+    EDLPhase,
+    PlanetaryProperties,
+    PlanetaryEDLEngine,
+    PlanetaryEDLNavigator,
+    EDLMissionDossier,
+    EDL_PRESETS,
+    PLANETARY_DATABASE,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -348,6 +358,14 @@ __all__ = [
     "CISLUNAR_MISSION_PRESETS",
     "generate_halo_orbit",
     "compute_invariant_manifold_tubes",
+    "PlanetaryBody",
+    "EDLPhase",
+    "PlanetaryProperties",
+    "PlanetaryEDLEngine",
+    "PlanetaryEDLNavigator",
+    "EDLMissionDossier",
+    "EDL_PRESETS",
+    "PLANETARY_DATABASE",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

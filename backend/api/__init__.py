@@ -55,6 +55,7 @@ from backend.api.routes_certified_code import router as certified_code_router
 from backend.api.routes_hil_avionics import router as hil_avionics_router
 from backend.api.routes_landmark_publication import router as publication_router
 from backend.api.routes_cislunar_manifolds import router as cislunar_router
+from backend.api.routes_planetary_edl import router as edl_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -157,6 +158,7 @@ api_v1_router.include_router(certified_code_router)
 api_v1_router.include_router(hil_avionics_router)
 api_v1_router.include_router(publication_router)
 api_v1_router.include_router(cislunar_router)
+api_v1_router.include_router(edl_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

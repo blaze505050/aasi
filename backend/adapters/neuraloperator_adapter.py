@@ -120,6 +120,11 @@ try:
         CislunarManifoldNavigator,
         CISLUNAR_MISSION_PRESETS,
     )
+    from aasi_aero_fno.planetary_edl_trn import (
+        PlanetaryEDLNavigator,
+        EDL_PRESETS,
+        PLANETARY_DATABASE,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -177,6 +182,9 @@ except ImportError:
     PUBLICATION_PRESETS = {}
     CislunarManifoldNavigator = None
     CISLUNAR_MISSION_PRESETS = {}
+    PlanetaryEDLNavigator = None
+    EDL_PRESETS = {}
+    PLANETARY_DATABASE = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1837,3 +1845,62 @@ class NeuralOperatorAdapter:
         if CislunarManifoldNavigator is None:
             raise RuntimeError("CislunarManifoldNavigator module is not loaded.")
         return CislunarManifoldNavigator.get_lagrange_points_summary()
+
+    @classmethod
+    def execute_planetary_edl(
+        cls,
+        preset_key: str = "MARS_JEZERO_CRATER_SKYCRANE",
+        override_entry_mass_kg: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Stage 22: Relativistic & Post-Newtonian Planetary Entry, Descent & Landing (EDL) with Optical TRN.
+        Integrates PPN gravity, Sutton-Graves heat flux, parachute, TRN EKF covariance collapse, and LHA.
+        """
+        if PlanetaryEDLNavigator is None:
+            raise RuntimeError("PlanetaryEDLNavigator module is not loaded.")
+
+        dossier = PlanetaryEDLNavigator.execute_edl_simulation(
+            preset_key=preset_key,
+            override_entry_mass_kg=override_entry_mass_kg,
+        )
+
+        return {
+            "mission_id": dossier.mission_id,
+            "preset_key": dossier.preset_key,
+            "target_planet": dossier.target_planet,
+            "target_site_name": dossier.target_site_name,
+            "entry_mass_kg": dossier.entry_mass_kg,
+            "heatshield_radius_m": dossier.heatshield_radius_m,
+            "ballistic_coefficient_kg_m2": dossier.ballistic_coefficient_kg_m2,
+            "peak_heat_flux_mw_m2": dossier.peak_heat_flux_mw_m2,
+            "peak_g_load": dossier.peak_g_load,
+            "landing_error_cep_m": dossier.landing_error_cep_m,
+            "optical_trn_fixes": dossier.optical_trn_fixes,
+            "hazard_detected": dossier.hazard_detected,
+            "final_touchdown_speed_mps": dossier.final_touchdown_speed_mps,
+            "trajectory": dossier.trajectory,
+            "optical_features": dossier.optical_features,
+            "merkle_provenance_hash": dossier.merkle_provenance_hash,
+            "generated_at": dossier.generated_at,
+        }
+
+    @classmethod
+    def get_edl_presets(cls) -> Dict[str, Any]:
+        """Returns planetary EDL mission presets."""
+        return EDL_PRESETS
+
+    @classmethod
+    def get_planetary_environments(cls) -> Dict[str, Any]:
+        """Returns planetary physical parameters and atmospheric scale heights."""
+        out = {}
+        for k, v in PLANETARY_DATABASE.items():
+            out[k] = {
+                "name": v.name,
+                "mass_kg": v.mass_kg,
+                "radius_m": v.radius_m,
+                "surface_density_kg_m3": v.surface_density_kg_m3,
+                "scale_height_m": v.scale_height_m,
+                "surface_gravity_m_s2": v.surface_gravity_m_s2,
+                "sutton_graves_k": v.sutton_graves_k,
+            }
+        return out
