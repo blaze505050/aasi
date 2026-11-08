@@ -32,6 +32,7 @@ import {
   Moon,
   Waves,
   ShieldAlert,
+  Shield,
   Flame,
   FileCheck2,
   Orbit,
@@ -86,6 +87,7 @@ import NeuromorphicSsaStudio from "../components/NeuromorphicSsaStudio";
 import OpticalQkdStudio from "../components/OpticalQkdStudio";
 import SwarmCoordinatorStudio from "../components/SwarmCoordinatorStudio";
 import HypersonicInterceptorStudio from "../components/HypersonicInterceptorStudio";
+import MetamaterialRcsStudio from "../components/MetamaterialRcsStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -127,6 +129,7 @@ export default function AASIApp() {
   const [qkdStudioOpen, setQkdStudioOpen] = useState(false);
   const [swarmStudioOpen, setSwarmStudioOpen] = useState(false);
   const [interceptorStudioOpen, setInterceptorStudioOpen] = useState(false);
+  const [rcsStudioOpen, setRcsStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -513,6 +516,15 @@ export default function AASIApp() {
       badge: "Stage 27 Sovereign",
       icon: <Crosshair size={16} />,
       action: () => setInterceptorStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-metamaterial-rcs",
+      category: "Workspaces",
+      title: "Launch Metamaterial RCS & Stealth Synthesizer (Stage 28)",
+      description: "Physical Optics RCS polar backscatter, Salisbury resonant screen absorber, and phase gradient metasurface steering.",
+      badge: "Stage 28 Sovereign",
+      icon: <Shield size={16} />,
+      action: () => setRcsStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1562,6 +1574,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setRcsStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(13, 148, 136, 0.08)",
+                      border: "1px solid rgba(13, 148, 136, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Shield size={14} color="#0d9488" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Metamaterial RCS & Stealth</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0d9488", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 28</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Physical Optics 360° Polar • Salisbury Resonant RAM • Metasurface Phase</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2139,6 +2180,13 @@ export default function AASIApp() {
       <HypersonicInterceptorStudio
         isOpen={interceptorStudioOpen}
         onClose={() => setInterceptorStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 28: Metamaterial RCS & Inverse Stealth Synthesizer Modal ─── */}
+      <MetamaterialRcsStudio
+        isOpen={rcsStudioOpen}
+        onClose={() => setRcsStudioOpen(false)}
         apiBase={API_BASE}
       />
 

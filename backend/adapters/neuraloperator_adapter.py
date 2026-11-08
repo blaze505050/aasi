@@ -145,6 +145,10 @@ try:
         GuidanceLaw,
         TargetEvasionManeuver,
     )
+    from aasi_aero_fno.metamaterial_rcs_synthesizer import (
+        synthesize_airframe_rcs_profile,
+        RadarBand,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -215,6 +219,8 @@ except ImportError:
     simulate_hypersonic_interception = None
     GuidanceLaw = None
     TargetEvasionManeuver = None
+    synthesize_airframe_rcs_profile = None
+    RadarBand = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2220,5 +2226,64 @@ class NeuralOperatorAdapter:
                 "target_type": "Fractional Orbital Bombardment Re-entry Vehicle",
                 "interceptor_type": "Exo-atmospheric Kinetic Kill Vehicle (KKV) with Multimode DACS",
                 "description": "High-altitude hit-to-kill interception at 85 km where vacuum thruster DACS delivers 100% of divert maneuvering authority.",
+            },
+        }
+
+    @classmethod
+    def execute_rcs_simulation(
+        cls,
+        model_name: str = "AMCA_5TH_GEN_STEALTH",
+        radar_band: str = "X_BAND",
+        frequency_ghz: float = 10.0,
+        enable_metamaterial_ram: bool = True,
+        ram_thickness_mm: float = 2.8,
+    ) -> Dict[str, Any]:
+        """
+        Stage 28: Simulates Electromagnetic Metamaterial Radar Cross Section (RCS)
+        and Inverse Stealth Synthesis using Physical Optics and Impedance Boundary Conditions.
+        """
+        if synthesize_airframe_rcs_profile is None:
+            raise RuntimeError("synthesize_airframe_rcs_profile module is not loaded.")
+
+        try:
+            rb = RadarBand(radar_band)
+        except (ValueError, TypeError):
+            rb = RadarBand.X_BAND
+
+        return synthesize_airframe_rcs_profile(
+            model_name=model_name,
+            radar_band=rb,
+            frequency_ghz=frequency_ghz,
+            enable_metamaterial_ram=enable_metamaterial_ram,
+            ram_thickness_mm=ram_thickness_mm,
+        )
+
+    @classmethod
+    def get_rcs_presets(cls) -> Dict[str, Any]:
+        """Returns available stealth airframe RCS presets."""
+        return {
+            "AMCA_5TH_GEN_STEALTH": {
+                "name": "Indian AMCA 5th/6th Gen Air Superiority Stealth",
+                "default_band": "X_BAND",
+                "target_rcs_dbsm": -40.0,
+                "airframe_type": "Chined forebody, 48° swept wings, 28° canted fins, serpentine DSI intake",
+                "metamaterial_coating": "Multilayer Salisbury screen with nano-ferrite resonant absorbing layer",
+                "description": "Very Low Observable (VLO) frontal RCS signature (< 0.0001 m²) optimized against modern AESA fire-control radars.",
+            },
+            "HYPERSONIC_STRIKE_HGV": {
+                "name": "Hypersonic Boost-Glide Vehicle (HGV Diamond Facet)",
+                "default_band": "S_BAND",
+                "target_rcs_dbsm": -42.0,
+                "airframe_type": "72° high-sweep delta wedge with ultra-sharp leading edges and flat bottom",
+                "metamaterial_coating": "High-temperature ceramic RAM (ZrB2-SiC) tuned for plasma sheath reflection deflection",
+                "description": "Ultra-low cross-section hypersonic penetration vehicle with edge diffraction deflection.",
+            },
+            "CONVENTIONAL_FIGHTER_BASELINE": {
+                "name": "4th Gen Conventional Fighter (Unstealthy Baseline)",
+                "default_band": "X_BAND",
+                "target_rcs_dbsm": 5.4,
+                "airframe_type": "Conventional vertical stabilizers, right-angle corner reflectors, external pylons",
+                "metamaterial_coating": "None / Bare metallic skin (high specular backscatter comparison)",
+                "description": "Reference conventional airframe exhibiting high 3.5 m² radar cross section for benchmark validation.",
             },
         }

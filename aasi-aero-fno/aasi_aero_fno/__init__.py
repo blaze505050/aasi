@@ -245,6 +245,12 @@ from .hypersonic_interceptor_guidance import (
     compute_guidance_acceleration,
     simulate_hypersonic_interception,
 )
+from .metamaterial_rcs_synthesizer import (
+    RadarBand,
+    compute_salisbury_screen_reflection,
+    compute_physical_optics_rcs_facet,
+    synthesize_airframe_rcs_profile,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -436,6 +442,10 @@ __all__ = [
     "compute_zem_vector",
     "compute_guidance_acceleration",
     "simulate_hypersonic_interception",
+    "RadarBand",
+    "compute_salisbury_screen_reflection",
+    "compute_physical_optics_rcs_facet",
+    "synthesize_airframe_rcs_profile",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
