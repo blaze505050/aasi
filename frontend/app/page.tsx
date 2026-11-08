@@ -40,6 +40,7 @@ import {
   Microscope,
   Award,
   Radio,
+  Users,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -82,6 +83,7 @@ import PlanetaryEdlStudio from "../components/PlanetaryEdlStudio";
 import MhdPlasmaShieldStudio from "../components/MhdPlasmaShieldStudio";
 import NeuromorphicSsaStudio from "../components/NeuromorphicSsaStudio";
 import OpticalQkdStudio from "../components/OpticalQkdStudio";
+import SwarmCoordinatorStudio from "../components/SwarmCoordinatorStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -121,6 +123,7 @@ export default function AASIApp() {
   const [mhdStudioOpen, setMhdStudioOpen] = useState(false);
   const [ssaStudioOpen, setSsaStudioOpen] = useState(false);
   const [qkdStudioOpen, setQkdStudioOpen] = useState(false);
+  const [swarmStudioOpen, setSwarmStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -489,6 +492,15 @@ export default function AASIApp() {
       badge: "Stage 25 Sovereign",
       icon: <Radio size={16} />,
       action: () => setQkdStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-swarm-coordinator",
+      category: "Workspaces",
+      title: "Launch Heterogeneous UAV Swarm Coordinator (Stage 26)",
+      description: "Control Barrier Functions (CBF) zero-collision QP, Byzantine consensus under EW jamming, and aerodynamic V-formation wake upwash.",
+      badge: "Stage 26 Sovereign",
+      icon: <Users size={16} />,
+      action: () => setSwarmStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1480,6 +1492,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setSwarmStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(16, 185, 129, 0.08)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Users size={14} color="#10b981" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Autonomous UAV Swarm Coordinator</span>
+                        <span style={{ fontSize: "0.6rem", background: "#10b981", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 26</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Control Barrier Functions • Byzantine Quorum • -16% Wake Drag</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2043,6 +2084,13 @@ export default function AASIApp() {
       <OpticalQkdStudio
         isOpen={qkdStudioOpen}
         onClose={() => setQkdStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 26: Autonomous UAV Swarm Coordinator Modal ─── */}
+      <SwarmCoordinatorStudio
+        isOpen={swarmStudioOpen}
+        onClose={() => setSwarmStudioOpen(false)}
         apiBase={API_BASE}
       />
 

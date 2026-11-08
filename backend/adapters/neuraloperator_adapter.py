@@ -136,6 +136,10 @@ try:
     from aasi_aero_fno.optical_qkd_pointing import (
         execute_optical_qkd_dossier,
     )
+    from aasi_aero_fno.swarm_tactical_coordinator import (
+        simulate_tactical_swarm_mission,
+        SwarmFormation,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -201,6 +205,8 @@ except ImportError:
     NeuromorphicSSANavigator = None
     SSA_PRESETS = {}
     execute_optical_qkd_dossier = None
+    simulate_tactical_swarm_mission = None
+    SwarmFormation = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2081,5 +2087,66 @@ class NeuralOperatorAdapter:
                 "zenith_angle_deg": 0.0,
                 "eve_present": True,
                 "description": "Crosslink space intercept challenge demonstrating instantaneous eavesdropper detection via QBER thresholding.",
+            },
+        }
+
+    @classmethod
+    def execute_swarm_simulation(
+        cls,
+        mission_id: str = "INDIAN_AF_ALFAS_SWARM",
+        formation_type: str = "V_FORMATION",
+        num_uavs: int = 18,
+        d_safe: float = 12.0,
+        byzantine_adversary_present: bool = False,
+        steps: int = 60,
+    ) -> Dict[str, Any]:
+        """
+        Stage 26: Simulates Heterogeneous UAV Swarm Tactical Coordination under
+        Control Barrier Functions (CBF), Byzantine Fault Consensus, and Aerodynamic V-Formation.
+        """
+        if simulate_tactical_swarm_mission is None:
+            raise RuntimeError("simulate_tactical_swarm_mission module is not loaded.")
+        
+        try:
+            fmt = SwarmFormation(formation_type)
+        except (ValueError, TypeError):
+            fmt = SwarmFormation.V_FORMATION
+
+        return simulate_tactical_swarm_mission(
+            mission_id=mission_id,
+            formation_type=fmt,
+            num_uavs=num_uavs,
+            d_safe=d_safe,
+            byzantine_adversary_present=byzantine_adversary_present,
+            steps=steps,
+        )
+
+    @classmethod
+    def get_swarm_presets(cls) -> Dict[str, Any]:
+        """Returns available UAV swarm mission presets."""
+        return {
+            "INDIAN_AF_ALFAS_SWARM": {
+                "name": "Indian AF ALFA-S Swarm Strike Package",
+                "default_formation": "V_FORMATION",
+                "uav_count": 18,
+                "d_safe_m": 12.0,
+                "roles": "Leader, Scout, Electronic Attack, Kinetic Strike, Relay",
+                "description": "Autonomous saturation attack on air defense radar with CBF collision-free envelope and 16% induced drag reduction.",
+            },
+            "PERIMETER_BASE_DEFENSE": {
+                "name": "Sovereign Airbase Perimeter Ring Defense",
+                "default_formation": "DEFENSIVE_RING",
+                "uav_count": 16,
+                "d_safe_m": 10.0,
+                "roles": "Perimeter Radar Sentinels & Interceptors",
+                "description": "Continuous 360-degree perimeter patrol with provable zero-collision guarantees under high-density crossings.",
+            },
+            "MARITIME_CARRIER_SCREEN": {
+                "name": "INS Vikrant Maritime Air Defense Screen",
+                "default_formation": "PINCER_ENVELOPMENT",
+                "uav_count": 24,
+                "d_safe_m": 15.0,
+                "roles": "Fleet Screen, ASW Sonobuoy Relay, Anti-Ship Decoy",
+                "description": "Coordinated double-pincer envelopment screen with Byzantine fault-tolerant target consensus under jamming.",
             },
         }

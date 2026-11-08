@@ -230,6 +230,14 @@ from .optical_qkd_pointing import (
     simulate_fine_pointing_assembly,
     execute_optical_qkd_dossier,
 )
+from .swarm_tactical_coordinator import (
+    UAVRole,
+    SwarmFormation,
+    compute_induced_drag_reduction,
+    solve_cbf_collision_avoidance,
+    verify_byzantine_fault_consensus,
+    simulate_tactical_swarm_mission,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -410,6 +418,12 @@ __all__ = [
     "simulate_decoy_state_bb84_qkd",
     "simulate_fine_pointing_assembly",
     "execute_optical_qkd_dossier",
+    "UAVRole",
+    "SwarmFormation",
+    "compute_induced_drag_reduction",
+    "solve_cbf_collision_avoidance",
+    "verify_byzantine_fault_consensus",
+    "simulate_tactical_swarm_mission",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
