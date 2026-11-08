@@ -40,3 +40,4 @@ def get_netra_presets() -> Dict[str, Any]:
         return NeuralOperatorAdapter.get_netra_presets()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch NETRA presets: {str(e)}")
+

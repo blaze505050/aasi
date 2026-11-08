@@ -145,3 +145,4 @@ def test_api_netra_presets(test_client):
     assert "CARTOSAT3_COSMOS2251" in presets
     assert "SPADEX_ROCKET_STAGE" in presets
     assert "GSAT24_GEO_DEBRIS" in presets
+
