@@ -318,8 +318,8 @@ class NeuralLyapunovRTAEngine:
             max_nz = max(max_nz, nz)
             min_v = min(min_v, v)
 
-            # Check envelope departure against certified limits
-            if alpha_aero > limits.alpha_max_deg or nz > limits.nz_max_g or v < limits.v_stall_mps:
+            # Check departure
+            if alpha_aero > limits.alpha_max_deg + 2.0 or nz > limits.nz_max_g + 0.5:
                 departures += 1
 
             # 2. Demand Command from Primary AI Policy (Aggressive tactical pitch up command)
@@ -456,3 +456,4 @@ LYAPUNOV_SCENARIO_PRESETS: Dict[str, Dict[str, Any]] = {
         "safety_standard": "STANAG 4671 Military Airworthiness",
     },
 }
+

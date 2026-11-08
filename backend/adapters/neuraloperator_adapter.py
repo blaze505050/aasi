@@ -90,6 +90,12 @@ try:
         AircraftEnvelopeLimits,
         LYAPUNOV_SCENARIO_PRESETS,
     )
+    from aasi_aero_fno.airspace_catfm import (
+        SovereignCatfmEngine,
+        CATFM_SCENARIO_PRESETS,
+        INDIAN_AIRPORTS,
+        WAKE_SEPARATION_MINIMA_NM,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -131,6 +137,10 @@ except ImportError:
     NeuralLyapunovRTAEngine = None
     AircraftEnvelopeLimits = None
     LYAPUNOV_SCENARIO_PRESETS = {}
+    SovereignCatfmEngine = None
+    CATFM_SCENARIO_PRESETS = {}
+    INDIAN_AIRPORTS = {}
+    WAKE_SEPARATION_MINIMA_NM = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1264,3 +1274,91 @@ class NeuralOperatorAdapter:
     def get_lyapunov_presets(cls) -> Dict[str, Any]:
         """Returns Neural Lyapunov aircraft flight envelope presets."""
         return LYAPUNOV_SCENARIO_PRESETS
+
+    @classmethod
+    def negotiate_catfm_airspace(
+        cls,
+        scenario_key: str = "BENGALURU_VOBL_MONSOON_RUSH",
+        enable_cta_optimization: bool = True,
+        enable_weather_avoidance: bool = True,
+        time_compression: float = 1.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 15: Simulates Sovereign Airspace 4D Trajectory Negotiation under AAI C-ATFM standards,
+        ICAO wake vortex separation minima matrix, and convective monsoon weather avoidance.
+        """
+        if SovereignCatfmEngine is None:
+            raise RuntimeError("SovereignCatfmEngine module is not loaded.")
+
+        res = SovereignCatfmEngine.negotiate_airspace_scenario(
+            scenario_key=scenario_key,
+            enable_cta_optimization=enable_cta_optimization,
+            enable_weather_avoidance=enable_weather_avoidance,
+            time_compression=time_compression,
+        )
+
+        return {
+            "scenario_id": res.scenario_id,
+            "destination_hub": res.destination_hub,
+            "total_flights": res.total_flights,
+            "resolved_conflicts": res.resolved_conflicts,
+            "residual_conflicts": res.residual_conflicts,
+            "average_ground_delay_min": float(res.average_ground_delay_min),
+            "average_airborne_delay_min": float(res.average_airborne_delay_min),
+            "total_fleet_fuel_burn_kg": float(res.total_fleet_fuel_burn_kg),
+            "weather_reroutes_executed": res.weather_reroutes_executed,
+            "catfm_efficiency_index_pct": float(res.catfm_efficiency_index_pct),
+            "merkle_provenance_hash": res.merkle_provenance_hash,
+            "regulatory_standard": res.regulatory_standard,
+            "flights": [
+                {
+                    "callsign": f.callsign,
+                    "aircraft_type": f.aircraft_type,
+                    "wake_category": f.wake_category,
+                    "origin": f.origin,
+                    "destination": f.destination,
+                    "original_eta_s": float(f.original_eta_s),
+                    "negotiated_cta_s": float(f.negotiated_cta_s),
+                    "ground_delay_s": float(f.ground_delay_s),
+                    "airborne_delay_s": float(f.airborne_delay_s),
+                    "total_fuel_burn_kg": float(f.total_fuel_burn_kg),
+                    "rerouted_around_weather": bool(f.rerouted_around_weather),
+                    "weather_diversion_km": float(f.weather_diversion_km),
+                    "trajectory_points": [
+                        {
+                            "time_s": float(p.time_s),
+                            "lat_deg": float(p.lat_deg),
+                            "lon_deg": float(p.lon_deg),
+                            "altitude_ft": float(p.altitude_ft),
+                            "ground_speed_mps": float(p.ground_speed_mps),
+                            "true_airspeed_mps": float(p.true_airspeed_mps),
+                            "cumulative_distance_km": float(p.cumulative_distance_km),
+                            "fuel_burned_kg": float(p.fuel_burned_kg),
+                            "waypoint_tag": p.waypoint_tag,
+                            "wake_vortex_safe": bool(p.wake_vortex_safe),
+                            "conflict_detected": bool(p.conflict_detected),
+                        }
+                        for p in f.trajectory_points
+                    ],
+                }
+                for f in res.flights
+            ],
+        }
+
+    @classmethod
+    def get_catfm_presets(cls) -> Dict[str, Any]:
+        """Returns AAI C-ATFM scenario presets and Indian FIR airport network."""
+        serializable_presets = {}
+        for k, v in CATFM_SCENARIO_PRESETS.items():
+            serializable_presets[k] = {
+                "name": v["name"],
+                "description": v["description"],
+                "destination_hub": v["destination_hub"],
+                "flight_count": len(v["flights"]),
+                "weather_cells_count": len(v.get("weather_cells", [])),
+            }
+        return {
+            "presets": serializable_presets,
+            "airports": INDIAN_AIRPORTS,
+            "wake_minima_nm": WAKE_SEPARATION_MINIMA_NM,
+        }
