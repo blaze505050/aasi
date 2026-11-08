@@ -149,6 +149,12 @@ try:
         synthesize_airframe_rcs_profile,
         RadarBand,
     )
+    from aasi_aero_fno.post_quantum_bus_security import (
+        run_post_quantum_bus_audit,
+        SpacecraftZeroTrustBus,
+        TelecommandAction,
+        BusThreatType,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -221,6 +227,10 @@ except ImportError:
     TargetEvasionManeuver = None
     synthesize_airframe_rcs_profile = None
     RadarBand = None
+    run_post_quantum_bus_audit = None
+    SpacecraftZeroTrustBus = None
+    TelecommandAction = None
+    BusThreatType = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2285,5 +2295,49 @@ class NeuralOperatorAdapter:
                 "airframe_type": "Conventional vertical stabilizers, right-angle corner reflectors, external pylons",
                 "metamaterial_coating": "None / Bare metallic skin (high specular backscatter comparison)",
                 "description": "Reference conventional airframe exhibiting high 3.5 m² radar cross section for benchmark validation.",
+            },
+        }
+
+    @classmethod
+    def execute_pqc_bus_audit(
+        cls,
+        spacecraft_id: int = 0x2A4,
+        processor_type: str = "BAE_RAD750_133MHZ",
+        total_frames: int = 8,
+        inject_threats: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Stage 29: Runs zero-trust post-quantum spacecraft bus audit (CRYSTALS-Kyber-1024,
+        CRYSTALS-Dilithium-5, CCSDS telecommand anti-replay firewall, and cyber-attack rejection).
+        """
+        if run_post_quantum_bus_audit is None:
+            raise RuntimeError("run_post_quantum_bus_audit module is not loaded.")
+
+        return run_post_quantum_bus_audit(
+            spacecraft_id=spacecraft_id,
+            processor_type=processor_type,
+            total_frames=total_frames,
+            inject_threats=inject_threats,
+        )
+
+    @classmethod
+    def get_pqc_bus_presets(cls) -> Dict[str, Any]:
+        """Returns spacecraft flight computer and mission profiles for PQC bus security."""
+        return {
+            "RAD750_GAGANYAAN_ORBITER": {
+                "name": "BAE RAD750 PowerPC (ISRO Gaganyaan / Mars Orbiter)",
+                "processor_type": "BAE_RAD750_133MHZ",
+                "spacecraft_id": 0x2A4,
+                "clock_freq_mhz": 133.0,
+                "bus_standard": "MIL-STD-1553B / CCSDS 232.0-B",
+                "description": "Radiation-hardened single-board computer trusted on Curiosity, Perseverance, and Lunar Reconnaissance Orbiter.",
+            },
+            "LEON4_DEEP_SPACE_PROBE": {
+                "name": "Cobham Gaisler LEON4 Quad-Core (Deep Space Gateway / L2 Probe)",
+                "processor_type": "COBHAM_LEON4_150MHZ",
+                "spacecraft_id": 0x3BF,
+                "clock_freq_mhz": 150.0,
+                "bus_standard": "SpaceWire ECSS-E-ST-50-52C",
+                "description": "ESA rad-hard SPARC V8 architecture optimized for parallel post-quantum lattice polynomial convolutions.",
             },
         }

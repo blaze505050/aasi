@@ -251,6 +251,15 @@ from .metamaterial_rcs_synthesizer import (
     compute_physical_optics_rcs_facet,
     synthesize_airframe_rcs_profile,
 )
+from .post_quantum_bus_security import (
+    Kyber1024Engine,
+    Dilithium5Engine,
+    SpacecraftZeroTrustBus,
+    TelecommandAction,
+    BusThreatType,
+    CcsdsTelecommandFrame,
+    run_post_quantum_bus_audit,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -446,6 +455,13 @@ __all__ = [
     "compute_salisbury_screen_reflection",
     "compute_physical_optics_rcs_facet",
     "synthesize_airframe_rcs_profile",
+    "Kyber1024Engine",
+    "Dilithium5Engine",
+    "SpacecraftZeroTrustBus",
+    "TelecommandAction",
+    "BusThreatType",
+    "CcsdsTelecommandFrame",
+    "run_post_quantum_bus_audit",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

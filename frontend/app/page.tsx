@@ -88,6 +88,7 @@ import OpticalQkdStudio from "../components/OpticalQkdStudio";
 import SwarmCoordinatorStudio from "../components/SwarmCoordinatorStudio";
 import HypersonicInterceptorStudio from "../components/HypersonicInterceptorStudio";
 import MetamaterialRcsStudio from "../components/MetamaterialRcsStudio";
+import PostQuantumBusStudio from "../components/PostQuantumBusStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -130,6 +131,7 @@ export default function AASIApp() {
   const [swarmStudioOpen, setSwarmStudioOpen] = useState(false);
   const [interceptorStudioOpen, setInterceptorStudioOpen] = useState(false);
   const [rcsStudioOpen, setRcsStudioOpen] = useState(false);
+  const [pqcStudioOpen, setPqcStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -525,6 +527,15 @@ export default function AASIApp() {
       badge: "Stage 28 Sovereign",
       icon: <Shield size={16} />,
       action: () => setRcsStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-post-quantum-bus",
+      category: "Workspaces",
+      title: "Launch Post-Quantum Spacecraft Bus Security Studio (Stage 29)",
+      description: "CRYSTALS-Kyber-1024 KEM, CRYSTALS-Dilithium-5 signatures, anti-replay sliding window, and adversarial telecommand firewall.",
+      badge: "Stage 29 Sovereign",
+      icon: <Lock size={16} />,
+      action: () => setPqcStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1603,6 +1614,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setPqcStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(5, 150, 105, 0.08)",
+                      border: "1px solid rgba(5, 150, 105, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Lock size={14} color="#059669" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Post-Quantum Bus Security</span>
+                        <span style={{ fontSize: "0.6rem", background: "#059669", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 29</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>CRYSTALS-Kyber-1024 • Dilithium-5 Signatures • Anti-Replay Firewall</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2187,6 +2227,13 @@ export default function AASIApp() {
       <MetamaterialRcsStudio
         isOpen={rcsStudioOpen}
         onClose={() => setRcsStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 29: Zero-Trust Post-Quantum Spacecraft Bus Security Modal ─── */}
+      <PostQuantumBusStudio
+        isOpen={pqcStudioOpen}
+        onClose={() => setPqcStudioOpen(false)}
         apiBase={API_BASE}
       />
 

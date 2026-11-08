@@ -62,6 +62,7 @@ from backend.api.routes_optical_qkd import router as optical_qkd_router
 from backend.api.routes_swarm_coordinator import router as swarm_router
 from backend.api.routes_hypersonic_interceptor import router as interceptor_router
 from backend.api.routes_metamaterial_rcs import router as rcs_router
+from backend.api.routes_post_quantum_bus import router as pqc_bus_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -121,6 +122,7 @@ api_router.include_router(optical_qkd_router)
 api_router.include_router(swarm_router)
 api_router.include_router(interceptor_router)
 api_router.include_router(rcs_router)
+api_router.include_router(pqc_bus_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -179,6 +181,7 @@ api_v1_router.include_router(optical_qkd_router)
 api_v1_router.include_router(swarm_router)
 api_v1_router.include_router(interceptor_router)
 api_v1_router.include_router(rcs_router)
+api_v1_router.include_router(pqc_bus_router)
 
 __all__ = ["api_router", "api_v1_router"]
 
