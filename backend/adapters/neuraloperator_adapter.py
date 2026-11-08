@@ -74,6 +74,11 @@ try:
         SymplecticOrbitalIntegrator,
         ISRO_MISSION_PRESETS,
     )
+    from aasi_aero_fno.spadex_docking import (
+        SpaDeXDockingEngine,
+        LambdaAmbiguityResolver,
+        SPADEX_SCENARIO_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -105,6 +110,9 @@ except ImportError:
     KeplerianElements = None
     SymplecticOrbitalIntegrator = None
     ISRO_MISSION_PRESETS = {}
+    SpaDeXDockingEngine = None
+    LambdaAmbiguityResolver = None
+    SPADEX_SCENARIO_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1018,3 +1026,73 @@ class NeuralOperatorAdapter:
                 "period_minutes": float(el.period_s / 60.0),
             }
         return out
+
+    @classmethod
+    def simulate_spadex_docking(
+        cls,
+        preset_key: str = "SPADEX_NOMINAL_VBAR",
+        initial_distance_m: float = 225.0,
+        approach_corridor_deg: float = 15.0,
+        enable_navic_lambda: bool = True,
+        max_duration_s: float = 300.0,
+        time_step_s: float = 1.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 12: Simulates SpaDeX 6-DOF autonomous rendezvous and docking under Clohessy-Wiltshire
+        physics with NavIC carrier-phase integer ambiguity resolution (LAMBDA method).
+        """
+        if SpaDeXDockingEngine is None:
+            raise RuntimeError("SpaDeXDockingEngine module is not loaded.")
+
+        res = SpaDeXDockingEngine.simulate_docking_mission(
+            preset_key=preset_key,
+            initial_distance_m=initial_distance_m,
+            approach_corridor_deg=approach_corridor_deg,
+            enable_navic_lambda=enable_navic_lambda,
+            max_duration_s=max_duration_s,
+            time_step_s=time_step_s,
+        )
+
+        return {
+            "mission_preset": res.mission_preset,
+            "target_vehicle": res.target_vehicle,
+            "chaser_vehicle": res.chaser_vehicle,
+            "orbit_type": res.orbit_type,
+            "initial_distance_m": float(res.initial_distance_m),
+            "final_distance_m": float(res.final_distance_m),
+            "final_speed_mps": float(res.final_speed_mps),
+            "terminal_latch_status": res.terminal_latch_status,
+            "astm_f3269_cone_compliant": bool(res.astm_f3269_cone_compliant),
+            "attitude_alignment_deg": float(res.attitude_alignment_deg),
+            "navic_lambda_ratio_metric": float(res.navic_lambda_ratio_metric),
+            "total_delta_v_mps": float(res.total_delta_v_mps),
+            "fuel_consumed_kg": float(res.fuel_consumed_kg),
+            "simulation_duration_s": float(res.simulation_duration_s),
+            "total_waypoints": res.total_waypoints,
+            "waypoints": [
+                {
+                    "time_s": float(w.time_s),
+                    "rel_pos_m": [float(x) for x in w.rel_pos_m],
+                    "rel_vel_mps": [float(x) for x in w.rel_vel_mps],
+                    "rel_distance_m": float(w.rel_distance_m),
+                    "rel_speed_mps": float(w.rel_speed_mps),
+                    "attitude_quaternion": [float(x) for x in w.attitude_quaternion],
+                    "attitude_error_deg": float(w.attitude_error_deg),
+                    "rcs_thrust_applied_n": [float(x) for x in w.rcs_thrust_applied_n],
+                    "approach_cone_angle_deg": float(w.approach_cone_angle_deg),
+                    "in_approach_cone": bool(w.in_approach_cone),
+                    "navic_carrier_locked": bool(w.navic_carrier_locked),
+                    "carrier_phase_cm_error": float(w.carrier_phase_cm_error),
+                    "docking_latched": bool(w.docking_latched),
+                    "fuel_remaining_kg": float(w.fuel_remaining_kg),
+                }
+                for w in res.waypoints
+            ],
+            "merkle_provenance_hash": res.merkle_provenance_hash,
+            "safety_standard": "ASTM_F3269_21_RTA_COMPLIANT",
+        }
+
+    @classmethod
+    def get_spadex_presets(cls) -> Dict[str, Any]:
+        """Returns SpaDeX docking scenario presets."""
+        return SPADEX_SCENARIO_PRESETS

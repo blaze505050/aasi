@@ -35,6 +35,7 @@ import {
   Flame,
   FileCheck2,
   Orbit,
+  Target,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -63,6 +64,7 @@ import InverseDiffusionStudio from "../components/InverseDiffusionStudio";
 import ActiveFlowControlStudio from "../components/ActiveFlowControlStudio";
 import AsmeCertificationDossierStudio from "../components/AsmeCertificationDossierStudio";
 import OrbitalDynamicsStudio from "../components/OrbitalDynamicsStudio";
+import SpadexDockingStudio from "../components/SpadexDockingStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -88,6 +90,7 @@ export default function AASIApp() {
   const [afcStudioOpen, setAfcStudioOpen] = useState(false);
   const [asmeStudioOpen, setAsmeStudioOpen] = useState(false);
   const [orbitalStudioOpen, setOrbitalStudioOpen] = useState(false);
+  const [spadexStudioOpen, setSpadexStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -330,6 +333,15 @@ export default function AASIApp() {
       badge: "Stage 11 Sovereign",
       icon: <Orbit size={16} />,
       action: () => setOrbitalStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-spadex-docking",
+      category: "Workspaces",
+      title: "Launch NavIC & SpaDeX Autonomous Docking Studio (Stage 12)",
+      description: "6-DOF Clohessy-Wiltshire proximity operations, LAMBDA 1.8cm ambiguity fix, and ASTM F3269-21 corridor enforcement.",
+      badge: "Stage 12 Sovereign",
+      icon: <Target size={16} />,
+      action: () => setSpadexStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -915,6 +927,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setSpadexStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(5, 150, 105, 0.08)",
+                      border: "1px solid rgba(5, 150, 105, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Target size={14} color="#059669" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>SpaDeX Autonomous Docking</span>
+                        <span style={{ fontSize: "0.6rem", background: "#059669", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 12</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>NavIC LAMBDA Fix • 6-DOF ARPO • ASTM F3269</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1380,6 +1421,13 @@ export default function AASIApp() {
       <OrbitalDynamicsStudio
         isOpen={orbitalStudioOpen}
         onClose={() => setOrbitalStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 12: NavIC & SpaDeX Autonomous Docking Studio Modal ─── */}
+      <SpadexDockingStudio
+        isOpen={spadexStudioOpen}
+        onClose={() => setSpadexStudioOpen(false)}
         apiBase={API_BASE}
       />
 

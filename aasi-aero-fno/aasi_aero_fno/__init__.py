@@ -95,6 +95,14 @@ from .orbital_dynamics import (
     SymplecticOrbitalIntegrator,
     ISRO_MISSION_PRESETS,
 )
+from .spadex_docking import (
+    SpaDeXDockingEngine,
+    LambdaAmbiguityResolver,
+    LambdaAmbiguityResult,
+    DockingWaypoint,
+    SpaDeXMissionResult,
+    SPADEX_SCENARIO_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -168,6 +176,12 @@ __all__ = [
     "PropagationStepOutput",
     "SymplecticOrbitalIntegrator",
     "ISRO_MISSION_PRESETS",
+    "SpaDeXDockingEngine",
+    "LambdaAmbiguityResolver",
+    "LambdaAmbiguityResult",
+    "DockingWaypoint",
+    "SpaDeXMissionResult",
+    "SPADEX_SCENARIO_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
