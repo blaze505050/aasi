@@ -116,6 +116,10 @@ try:
         LandmarkPublicationSynthesizer,
         PUBLICATION_PRESETS,
     )
+    from aasi_aero_fno.cislunar_manifolds import (
+        CislunarManifoldNavigator,
+        CISLUNAR_MISSION_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -171,6 +175,8 @@ except ImportError:
     HIL_SCENARIO_PRESETS = {}
     LandmarkPublicationSynthesizer = None
     PUBLICATION_PRESETS = {}
+    CislunarManifoldNavigator = None
+    CISLUNAR_MISSION_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1755,3 +1761,79 @@ class NeuralOperatorAdapter:
     def get_publication_presets(cls) -> Dict[str, Any]:
         """Returns landmark publication presets."""
         return PUBLICATION_PRESETS
+
+    @classmethod
+    def execute_cislunar_navigation(
+        cls,
+        preset_key: str = "ISRO_GAGANYAAN_LUNAR_GATEWAY_L2",
+        override_amplitude_z_km: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Stage 21: Autonomous Cislunar & Lagrange Point Halo Orbit Manifold Navigator (CR3BP).
+        Computes 3D Halo orbits, Monodromy stability, and invariant manifold transfer tubes.
+        """
+        if CislunarManifoldNavigator is None:
+            raise RuntimeError("CislunarManifoldNavigator module is not loaded.")
+
+        dossier = CislunarManifoldNavigator.execute_cislunar_navigation(
+            preset_key=preset_key,
+            override_amplitude_z_km=override_amplitude_z_km,
+        )
+
+        return {
+            "mission_id": dossier.mission_id,
+            "preset_key": dossier.preset_key,
+            "mission_name": dossier.mission_name,
+            "target_vehicle": dossier.target_vehicle,
+            "primary_lagrange_point": dossier.primary_lagrange_point,
+            "orbit_solution": {
+                "orbit_id": dossier.orbit_solution.orbit_id,
+                "lagrange_point": dossier.orbit_solution.lagrange_point,
+                "family": dossier.orbit_solution.family,
+                "period_nd": dossier.orbit_solution.period_nd,
+                "period_days": dossier.orbit_solution.period_days,
+                "jacobi_constant": dossier.orbit_solution.jacobi_constant,
+                "pericynthion_km": dossier.orbit_solution.pericynthion_km,
+                "apocynthion_km": dossier.orbit_solution.apocynthion_km,
+                "amplitude_z_km": dossier.orbit_solution.amplitude_z_km,
+                "stability_index_nu": dossier.orbit_solution.stability_index_nu,
+                "trajectory_synodic_km": dossier.orbit_solution.trajectory_synodic_km,
+                "monodromy_eigenvalues": dossier.orbit_solution.monodromy_eigenvalues,
+            },
+            "stable_manifolds": [
+                {
+                    "branch_type": b.branch_type,
+                    "step_id": b.step_id,
+                    "delta_v_insertion_mps": b.delta_v_insertion_mps,
+                    "transit_duration_days": b.transit_duration_days,
+                    "trajectory_points_km": b.trajectory_points_km,
+                }
+                for b in dossier.stable_manifolds
+            ],
+            "unstable_manifolds": [
+                {
+                    "branch_type": b.branch_type,
+                    "step_id": b.step_id,
+                    "delta_v_insertion_mps": b.delta_v_insertion_mps,
+                    "transit_duration_days": b.transit_duration_days,
+                    "trajectory_points_km": b.trajectory_points_km,
+                }
+                for b in dossier.unstable_manifolds
+            ],
+            "ballistic_delta_v_savings_pct": dossier.ballistic_delta_v_savings_pct,
+            "jacobi_conservation_drift": dossier.jacobi_conservation_drift,
+            "merkle_provenance_hash": dossier.merkle_provenance_hash,
+            "generated_at": dossier.generated_at,
+        }
+
+    @classmethod
+    def get_cislunar_presets(cls) -> Dict[str, Any]:
+        """Returns cislunar mission presets."""
+        return CISLUNAR_MISSION_PRESETS
+
+    @classmethod
+    def get_lagrange_points(cls) -> Dict[str, Any]:
+        """Returns all 5 Earth-Moon Lagrange points with coordinates and Jacobi constants."""
+        if CislunarManifoldNavigator is None:
+            raise RuntimeError("CislunarManifoldNavigator module is not loaded.")
+        return CislunarManifoldNavigator.get_lagrange_points_summary()

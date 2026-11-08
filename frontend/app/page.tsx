@@ -76,6 +76,7 @@ import RotatingDetonationStudio from "../components/RotatingDetonationStudio";
 import CertifiedCodeSynthesizerStudio from "../components/CertifiedCodeSynthesizerStudio";
 import AvionicsHILTestbedStudio from "../components/AvionicsHILTestbedStudio";
 import LandmarkPublicationStudio from "../components/LandmarkPublicationStudio";
+import CislunarManifoldStudio from "../components/CislunarManifoldStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -110,6 +111,7 @@ export default function AASIApp() {
   const [certifiedCodeStudioOpen, setCertifiedCodeStudioOpen] = useState(false);
   const [hilStudioOpen, setHilStudioOpen] = useState(false);
   const [publicationStudioOpen, setPublicationStudioOpen] = useState(false);
+  const [cislunarStudioOpen, setCislunarStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -433,6 +435,15 @@ export default function AASIApp() {
       badge: "Stage 20 Flagship",
       icon: <Award size={16} />,
       action: () => setPublicationStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-cislunar-manifold",
+      category: "Workspaces",
+      title: "Launch Autonomous Cislunar & Halo Orbit Manifold Navigator (Stage 21)",
+      description: "Earth-Moon CR3BP synodic dynamics, Jacobi constant invariant, 3D Halo & NRHO orbits, and invariant manifold tubes.",
+      badge: "Stage 21 Sovereign",
+      icon: <Orbit size={16} />,
+      action: () => setCislunarStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1279,6 +1290,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setCislunarStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(99, 102, 241, 0.08)",
+                      border: "1px solid rgba(99, 102, 241, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Orbit size={14} color="#6366f1" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Cislunar &amp; Halo Orbit Manifold Navigator</span>
+                        <span style={{ fontSize: "0.6rem", background: "#6366f1", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 21</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>CR3BP • Earth-Moon L1–L5 • Wˢ/Wᵘ Manifolds • Gateway NRHO</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1807,6 +1847,13 @@ export default function AASIApp() {
       <LandmarkPublicationStudio
         isOpen={publicationStudioOpen}
         onClose={() => setPublicationStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 21: Autonomous Cislunar & Lagrange Point Halo Orbit Manifold Studio Modal ─── */}
+      <CislunarManifoldStudio
+        isOpen={cislunarStudioOpen}
+        onClose={() => setCislunarStudioOpen(false)}
         apiBase={API_BASE}
       />
 

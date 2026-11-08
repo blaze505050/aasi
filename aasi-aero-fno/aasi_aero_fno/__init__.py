@@ -183,6 +183,18 @@ from .landmark_publication_synthesizer import (
     generate_bibtex_citations,
     generate_reproducibility_dockerfile,
 )
+from .cislunar_manifolds import (
+    CislunarDynamicsEngine,
+    CislunarManifoldNavigator,
+    LagrangePointType,
+    OrbitFamily,
+    HaloOrbitSolution,
+    InvariantManifoldBranch,
+    CislunarMissionDossier,
+    CISLUNAR_MISSION_PRESETS,
+    generate_halo_orbit,
+    compute_invariant_manifold_tubes,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -326,6 +338,16 @@ __all__ = [
     "generate_nature_latex_manuscript",
     "generate_bibtex_citations",
     "generate_reproducibility_dockerfile",
+    "CislunarDynamicsEngine",
+    "CislunarManifoldNavigator",
+    "LagrangePointType",
+    "OrbitFamily",
+    "HaloOrbitSolution",
+    "InvariantManifoldBranch",
+    "CislunarMissionDossier",
+    "CISLUNAR_MISSION_PRESETS",
+    "generate_halo_orbit",
+    "compute_invariant_manifold_tubes",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
