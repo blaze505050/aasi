@@ -103,6 +103,16 @@ from .spadex_docking import (
     SpaDeXMissionResult,
     SPADEX_SCENARIO_PRESETS,
 )
+from .netra_cam_synthesizer import (
+    ProjectNetraEngine,
+    FosterCollisionProbabilityEngine,
+    NetraCamOptimizer,
+    ConjunctionDossier,
+    BPlaneEncounterGeometry,
+    CamManeuverBurn,
+    DebrisCatalogItem,
+    NETRA_SCENARIO_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -182,6 +192,14 @@ __all__ = [
     "DockingWaypoint",
     "SpaDeXMissionResult",
     "SPADEX_SCENARIO_PRESETS",
+    "ProjectNetraEngine",
+    "FosterCollisionProbabilityEngine",
+    "NetraCamOptimizer",
+    "ConjunctionDossier",
+    "BPlaneEncounterGeometry",
+    "CamManeuverBurn",
+    "DebrisCatalogItem",
+    "NETRA_SCENARIO_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

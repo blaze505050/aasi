@@ -46,6 +46,7 @@ from backend.api.routes_active_flow_control import router as afc_router
 from backend.api.routes_asme_vv20 import router as asme_vv20_router
 from backend.api.routes_orbital_dynamics import router as orbital_dynamics_router
 from backend.api.routes_spadex_docking import router as spadex_docking_router
+from backend.api.routes_netra_cam import router as netra_cam_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -89,6 +90,7 @@ api_router.include_router(afc_router)
 api_router.include_router(asme_vv20_router)
 api_router.include_router(orbital_dynamics_router)
 api_router.include_router(spadex_docking_router)
+api_router.include_router(netra_cam_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -131,6 +133,7 @@ api_v1_router.include_router(afc_router)
 api_v1_router.include_router(asme_vv20_router)
 api_v1_router.include_router(orbital_dynamics_router)
 api_v1_router.include_router(spadex_docking_router)
+api_v1_router.include_router(netra_cam_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

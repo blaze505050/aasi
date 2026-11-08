@@ -79,6 +79,12 @@ try:
         LambdaAmbiguityResolver,
         SPADEX_SCENARIO_PRESETS,
     )
+    from aasi_aero_fno.netra_cam_synthesizer import (
+        ProjectNetraEngine,
+        FosterCollisionProbabilityEngine,
+        NetraCamOptimizer,
+        NETRA_SCENARIO_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -113,6 +119,10 @@ except ImportError:
     SpaDeXDockingEngine = None
     LambdaAmbiguityResolver = None
     SPADEX_SCENARIO_PRESETS = {}
+    ProjectNetraEngine = None
+    FosterCollisionProbabilityEngine = None
+    NetraCamOptimizer = None
+    NETRA_SCENARIO_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1096,3 +1106,86 @@ class NeuralOperatorAdapter:
     def get_spadex_presets(cls) -> Dict[str, Any]:
         """Returns SpaDeX docking scenario presets."""
         return SPADEX_SCENARIO_PRESETS
+
+    @classmethod
+    def evaluate_netra_conjunction(
+        cls,
+        preset_key: str = "RISAT1B_FENGYUN",
+        target_clearance_m: float = 3000.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 13: Project NETRA 2D B-plane encounter risk assessment, Foster Pc integral,
+        and fuel-optimal impulsive CAM burn synthesizer.
+        """
+        if ProjectNetraEngine is None:
+            raise RuntimeError("ProjectNetraEngine module is not loaded.")
+
+        dossier = ProjectNetraEngine.evaluate_conjunction_and_synthesize_cam(
+            preset_key=preset_key,
+            target_clearance_m=target_clearance_m,
+        )
+
+        return {
+            "conjunction_id": dossier.conjunction_id,
+            "primary_asset_name": dossier.primary_asset_name,
+            "primary_mass_kg": float(dossier.primary_mass_kg),
+            "debris_object": {
+                "norad_id": dossier.debris_object.norad_id,
+                "object_name": dossier.debris_object.object_name,
+                "radar_cross_section_m2": float(dossier.debris_object.radar_cross_section_m2),
+                "estimated_size_cm": float(dossier.debris_object.estimated_size_cm),
+                "perigee_altitude_km": float(dossier.debris_object.perigee_altitude_km),
+                "apogee_altitude_km": float(dossier.debris_object.apogee_altitude_km),
+                "inclination_deg": float(dossier.debris_object.inclination_deg),
+                "semi_major_axis_km": float(dossier.debris_object.semi_major_axis_km),
+                "eccentricity": float(dossier.debris_object.eccentricity),
+                "tracking_sensor": dossier.debris_object.tracking_sensor,
+            },
+            "encounter": {
+                "tca_seconds_from_now": float(dossier.encounter.tca_seconds_from_now),
+                "relative_velocity_km_s": float(dossier.encounter.relative_velocity_km_s),
+                "miss_distance_m": float(dossier.encounter.miss_distance_m),
+                "miss_xi_m": float(dossier.encounter.miss_xi_m),
+                "miss_zeta_m": float(dossier.encounter.miss_zeta_m),
+                "sigma_xi_m": float(dossier.encounter.sigma_xi_m),
+                "sigma_zeta_m": float(dossier.encounter.sigma_zeta_m),
+                "correlation_rho": float(dossier.encounter.correlation_rho),
+                "hard_body_radius_m": float(dossier.encounter.hard_body_radius_m),
+                "foster_pc": float(dossier.encounter.foster_pc),
+                "alfriend_akella_pc": float(dossier.encounter.alfriend_akella_pc),
+                "pc_upper_95_bound": float(dossier.encounter.pc_upper_95_bound),
+                "pc_lower_95_bound": float(dossier.encounter.pc_lower_95_bound),
+                "alert_level": dossier.encounter.alert_level,
+            },
+            "recommended_cam": {
+                "burn_direction": dossier.recommended_cam.burn_direction,
+                "delta_v_vector_mps": [float(x) for x in dossier.recommended_cam.delta_v_vector_mps],
+                "delta_v_magnitude_mps": float(dossier.recommended_cam.delta_v_magnitude_mps),
+                "lead_time_hours": float(dossier.recommended_cam.lead_time_hours),
+                "post_burn_miss_distance_m": float(dossier.recommended_cam.post_burn_miss_distance_m),
+                "post_burn_foster_pc": float(dossier.recommended_cam.post_burn_foster_pc),
+                "propellant_consumed_kg": float(dossier.recommended_cam.propellant_consumed_kg),
+                "secondary_conjunction_risk": dossier.recommended_cam.secondary_conjunction_risk,
+            },
+            "alternative_burns": [
+                {
+                    "burn_direction": b.burn_direction,
+                    "delta_v_vector_mps": [float(x) for x in b.delta_v_vector_mps],
+                    "delta_v_magnitude_mps": float(b.delta_v_magnitude_mps),
+                    "lead_time_hours": float(b.lead_time_hours),
+                    "post_burn_miss_distance_m": float(b.post_burn_miss_distance_m),
+                    "post_burn_foster_pc": float(b.post_burn_foster_pc),
+                    "propellant_consumed_kg": float(b.propellant_consumed_kg),
+                    "secondary_conjunction_risk": b.secondary_conjunction_risk,
+                }
+                for b in dossier.alternative_burns
+            ],
+            "isro_safety_clearance": dossier.isro_safety_clearance,
+            "merkle_provenance_hash": dossier.merkle_provenance_hash,
+            "mitigation_standard": "IADC_SPACE_DEBRIS_GUIDELINES",
+        }
+
+    @classmethod
+    def get_netra_presets(cls) -> Dict[str, Any]:
+        """Returns Project NETRA conjunction presets."""
+        return NETRA_SCENARIO_PRESETS

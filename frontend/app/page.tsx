@@ -65,6 +65,7 @@ import ActiveFlowControlStudio from "../components/ActiveFlowControlStudio";
 import AsmeCertificationDossierStudio from "../components/AsmeCertificationDossierStudio";
 import OrbitalDynamicsStudio from "../components/OrbitalDynamicsStudio";
 import SpadexDockingStudio from "../components/SpadexDockingStudio";
+import ProjectNetraSSAStudio from "../components/ProjectNetraSSAStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -91,6 +92,7 @@ export default function AASIApp() {
   const [asmeStudioOpen, setAsmeStudioOpen] = useState(false);
   const [orbitalStudioOpen, setOrbitalStudioOpen] = useState(false);
   const [spadexStudioOpen, setSpadexStudioOpen] = useState(false);
+  const [netraStudioOpen, setNetraStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -342,6 +344,15 @@ export default function AASIApp() {
       badge: "Stage 12 Sovereign",
       icon: <Target size={16} />,
       action: () => setSpadexStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-netra-ssa",
+      category: "Workspaces",
+      title: "Launch Project NETRA Orbital SSA & CAM Synthesizer (Stage 13)",
+      description: "2D B-plane encounter risk, Foster Pc integral, and optimal impulsive collision avoidance burn dispatcher.",
+      badge: "Stage 13 Sovereign",
+      icon: <ShieldAlert size={16} />,
+      action: () => setNetraStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -956,6 +967,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setNetraStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(220, 38, 38, 0.08)",
+                      border: "1px solid rgba(220, 38, 38, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <ShieldAlert size={14} color="#dc2626" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Project NETRA SSA &amp; CAM</span>
+                        <span style={{ fontSize: "0.6rem", background: "#dc2626", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 13</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>B-Plane Foster Pc • Optimal Impulsive CAM • IADC</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1428,6 +1468,13 @@ export default function AASIApp() {
       <SpadexDockingStudio
         isOpen={spadexStudioOpen}
         onClose={() => setSpadexStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 13: Project NETRA Swarm CAM Synthesizer Studio Modal ─── */}
+      <ProjectNetraSSAStudio
+        isOpen={netraStudioOpen}
+        onClose={() => setNetraStudioOpen(false)}
         apiBase={API_BASE}
       />
 
