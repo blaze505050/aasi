@@ -50,3 +50,4 @@ def get_lagrange_points() -> Dict[str, Any]:
         return NeuralOperatorAdapter.get_lagrange_points()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch Lagrange points: {str(e)}")
+

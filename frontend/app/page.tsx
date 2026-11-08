@@ -79,6 +79,7 @@ import LandmarkPublicationStudio from "../components/LandmarkPublicationStudio";
 import CislunarManifoldStudio from "../components/CislunarManifoldStudio";
 import PlanetaryEdlStudio from "../components/PlanetaryEdlStudio";
 import MhdPlasmaShieldStudio from "../components/MhdPlasmaShieldStudio";
+import NeuromorphicSsaStudio from "../components/NeuromorphicSsaStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -116,6 +117,7 @@ export default function AASIApp() {
   const [cislunarStudioOpen, setCislunarStudioOpen] = useState(false);
   const [edlStudioOpen, setEdlStudioOpen] = useState(false);
   const [mhdStudioOpen, setMhdStudioOpen] = useState(false);
+  const [ssaStudioOpen, setSsaStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -466,6 +468,15 @@ export default function AASIApp() {
       badge: "Stage 23 Sovereign",
       icon: <Zap size={16} />,
       action: () => setMhdStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-neuromorphic-ssa",
+      category: "Workspaces",
+      title: "Launch Neuromorphic Event-Camera SSA Tracker (Stage 24)",
+      description: "Microsecond asynchronous DVS event stream, spacetime Hough streak extraction, and Gauss-Laplace IOD orbit determination.",
+      badge: "Stage 24 Sovereign",
+      icon: <Target size={16} />,
+      action: () => setSsaStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1399,6 +1410,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setSsaStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(139, 92, 246, 0.08)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Target size={14} color="#8b5cf6" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Neuromorphic SSA &amp; Debris Tracker</span>
+                        <span style={{ fontSize: "0.6rem", background: "#8b5cf6", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 24</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>1.0 µs DVS Events • Hough Streak IOD • &lt;10m Covariance • Foster Pc</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1948,6 +1988,13 @@ export default function AASIApp() {
       <MhdPlasmaShieldStudio
         isOpen={mhdStudioOpen}
         onClose={() => setMhdStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 24: Neuromorphic Event-Camera SSA Tracker Modal ─── */}
+      <NeuromorphicSsaStudio
+        isOpen={ssaStudioOpen}
+        onClose={() => setSsaStudioOpen(false)}
         apiBase={API_BASE}
       />
 

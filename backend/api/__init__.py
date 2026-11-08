@@ -57,6 +57,7 @@ from backend.api.routes_landmark_publication import router as publication_router
 from backend.api.routes_cislunar_manifolds import router as cislunar_router
 from backend.api.routes_planetary_edl import router as edl_router
 from backend.api.routes_mhd_plasma import router as mhd_router
+from backend.api.routes_neuromorphic_ssa import router as ssa_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -161,6 +162,7 @@ api_v1_router.include_router(publication_router)
 api_v1_router.include_router(cislunar_router)
 api_v1_router.include_router(edl_router)
 api_v1_router.include_router(mhd_router)
+api_v1_router.include_router(ssa_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

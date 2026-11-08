@@ -50,3 +50,4 @@ def get_planetary_environments() -> Dict[str, Any]:
         return NeuralOperatorAdapter.get_planetary_environments()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch planetary environments: {str(e)}")
+

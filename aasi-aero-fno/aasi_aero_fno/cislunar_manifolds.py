@@ -575,3 +575,4 @@ class CislunarManifoldNavigator:
     def get_cislunar_presets() -> Dict[str, Any]:
         """Returns available cislunar mission presets."""
         return CISLUNAR_MISSION_PRESETS
+

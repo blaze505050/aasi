@@ -40,3 +40,4 @@ def get_mhd_presets() -> Dict[str, Any]:
         return NeuralOperatorAdapter.get_mhd_presets()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch MHD presets: {str(e)}")
+

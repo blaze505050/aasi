@@ -341,3 +341,4 @@ class MHDShieldNavigator:
     def get_mhd_presets(cls) -> Dict[str, Any]:
         """Returns available MHD plasma shield presets."""
         return MHD_PRESETS
+

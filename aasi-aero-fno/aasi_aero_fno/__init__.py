@@ -213,6 +213,15 @@ from .mhd_plasma_shield import (
     MHDShieldNavigator,
     MHD_PRESETS,
 )
+from .neuromorphic_ssa import (
+    SSAOrbitRegime,
+    NeuromorphicEventPacket,
+    DetectedDebrisObject,
+    SSAMissionDossier,
+    NeuromorphicSSAEngine,
+    NeuromorphicSSANavigator,
+    SSA_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -380,6 +389,13 @@ __all__ = [
     "MHDPlasmaEngine",
     "MHDShieldNavigator",
     "MHD_PRESETS",
+    "SSAOrbitRegime",
+    "NeuromorphicEventPacket",
+    "DetectedDebrisObject",
+    "SSAMissionDossier",
+    "NeuromorphicSSAEngine",
+    "NeuromorphicSSANavigator",
+    "SSA_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

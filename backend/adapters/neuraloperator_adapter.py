@@ -129,6 +129,10 @@ try:
         MHDShieldNavigator,
         MHD_PRESETS,
     )
+    from aasi_aero_fno.neuromorphic_ssa import (
+        NeuromorphicSSANavigator,
+        SSA_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -191,6 +195,8 @@ except ImportError:
     PLANETARY_DATABASE = {}
     MHDShieldNavigator = None
     MHD_PRESETS = {}
+    NeuromorphicSSANavigator = None
+    SSA_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1951,3 +1957,56 @@ class NeuralOperatorAdapter:
     def get_mhd_presets(cls) -> Dict[str, Any]:
         """Returns available MHD plasma shield presets."""
         return MHD_PRESETS
+
+    @classmethod
+    def execute_ssa_tracking(
+        cls,
+        preset_key: str = "LEO_STARLINK_CONSTELLATION_DEBRIS",
+    ) -> Dict[str, Any]:
+        """
+        Stage 24: Neuromorphic Event-Camera Micro-Debris & Asteroid Orbit Determination.
+        Processes asynchronous microsecond DVS events, extracts Hough rays, and computes Angles-Only IOD.
+        """
+        if NeuromorphicSSANavigator is None:
+            raise RuntimeError("NeuromorphicSSANavigator module is not loaded.")
+
+        dossier = NeuromorphicSSANavigator.execute_ssa_tracking(preset_key=preset_key)
+
+        return {
+            "mission_id": dossier.mission_id,
+            "preset_key": dossier.preset_key,
+            "tracking_scenario": dossier.tracking_scenario,
+            "sensor_model": dossier.sensor_model,
+            "temporal_resolution_us": dossier.temporal_resolution_us,
+            "dynamic_range_db": dossier.dynamic_range_db,
+            "sensor_power_mw": dossier.sensor_power_mw,
+            "total_events_processed": dossier.total_events_processed,
+            "debris_objects_detected": [
+                {
+                    "object_id": o.object_id,
+                    "target_name": o.target_name,
+                    "regime": o.regime,
+                    "estimated_diameter_cm": o.estimated_diameter_cm,
+                    "relative_velocity_km_s": o.relative_velocity_km_s,
+                    "range_km": o.range_km,
+                    "angular_rate_deg_s": o.angular_rate_deg_s,
+                    "event_count": o.event_count,
+                    "semi_major_axis_km": o.semi_major_axis_km,
+                    "eccentricity": o.eccentricity,
+                    "inclination_deg": o.inclination_deg,
+                    "collision_probability_pc": o.collision_probability_pc,
+                    "covariance_pos_1sigma_m": o.covariance_pos_1sigma_m,
+                    "covariance_vel_1sigma_mps": o.covariance_vel_1sigma_mps,
+                }
+                for o in dossier.debris_objects_detected
+            ],
+            "spatio_temporal_streaks": dossier.spatio_temporal_streaks,
+            "angles_only_iod_method": dossier.angles_only_iod_method,
+            "provenance_hash": dossier.provenance_hash,
+            "generated_at": dossier.generated_at,
+        }
+
+    @classmethod
+    def get_ssa_presets(cls) -> Dict[str, Any]:
+        """Returns available SSA tracking presets."""
+        return SSA_PRESETS
