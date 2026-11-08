@@ -139,6 +139,15 @@ from .popperian_discovery import (
     DiscoveryIterationDossier,
     DISCOVERY_PRESETS,
 )
+from .rotating_detonation import (
+    RotatingDetonationEngine,
+    PropellantMixtureProperties,
+    AnnularRdeChamberGeometry,
+    DetonationWaveState,
+    RdeSimulationResult,
+    PROPELLANT_DATABASE,
+    RDE_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -246,6 +255,13 @@ __all__ = [
     "FalsificationCriterion",
     "DiscoveryIterationDossier",
     "DISCOVERY_PRESETS",
+    "RotatingDetonationEngine",
+    "PropellantMixtureProperties",
+    "AnnularRdeChamberGeometry",
+    "DetonationWaveState",
+    "RdeSimulationResult",
+    "PROPELLANT_DATABASE",
+    "RDE_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

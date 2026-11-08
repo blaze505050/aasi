@@ -71,6 +71,7 @@ import ProjectNetraSSAStudio from "../components/ProjectNetraSSAStudio";
 import NeuralLyapunovStudio from "../components/NeuralLyapunovStudio";
 import CatfmAirspaceStudio from "../components/CatfmAirspaceStudio";
 import PopperianDiscoveryStudio from "../components/PopperianDiscoveryStudio";
+import RotatingDetonationStudio from "../components/RotatingDetonationStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -101,6 +102,7 @@ export default function AASIApp() {
   const [lyapunovStudioOpen, setLyapunovStudioOpen] = useState(false);
   const [catfmStudioOpen, setCatfmStudioOpen] = useState(false);
   const [discoveryStudioOpen, setDiscoveryStudioOpen] = useState(false);
+  const [rdeStudioOpen, setRdeStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -388,6 +390,15 @@ export default function AASIApp() {
       badge: "Stage 16 Sovereign",
       icon: <Microscope size={16} />,
       action: () => setDiscoveryStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-rde-propulsion",
+      category: "Workspaces",
+      title: "Launch Cryogenic & Rotating Detonation Engine Studio (Stage 17)",
+      description: "Continuous detonation wave tracking, Chapman-Jouguet physics, pressure-gain combustion, and regenerative cooling.",
+      badge: "Stage 17 Sovereign",
+      icon: <Flame size={16} />,
+      action: () => setRdeStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1118,6 +1129,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setRdeStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(234, 88, 12, 0.08)",
+                      border: "1px solid rgba(234, 88, 12, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Flame size={14} color="#ea580c" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Rotating Detonation Engine</span>
+                        <span style={{ fontSize: "0.6rem", background: "#ea580c", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 17</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Pressure-Gain Combustion • CJ Detonation • CE-20 Cryo</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1618,6 +1658,13 @@ export default function AASIApp() {
       <PopperianDiscoveryStudio
         isOpen={discoveryStudioOpen}
         onClose={() => setDiscoveryStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 17: Cryogenic & Rotating Detonation Engine Studio Modal ─── */}
+      <RotatingDetonationStudio
+        isOpen={rdeStudioOpen}
+        onClose={() => setRdeStudioOpen(false)}
         apiBase={API_BASE}
       />
 

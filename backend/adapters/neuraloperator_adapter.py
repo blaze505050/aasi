@@ -100,6 +100,10 @@ try:
         PopperianDiscoveryEngine,
         DISCOVERY_PRESETS,
     )
+    from aasi_aero_fno.rotating_detonation import (
+        RotatingDetonationEngine,
+        RDE_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -147,6 +151,8 @@ except ImportError:
     WAKE_SEPARATION_MINIMA_NM = {}
     PopperianDiscoveryEngine = None
     DISCOVERY_PRESETS = {}
+    RotatingDetonationEngine = None
+    RDE_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1430,3 +1436,63 @@ class NeuralOperatorAdapter:
     def get_popperian_discovery_presets(cls) -> Dict[str, Any]:
         """Returns autonomous Popperian hypothesis falsification presets."""
         return DISCOVERY_PRESETS
+
+    @classmethod
+    def simulate_rde_digital_twin(
+        cls,
+        preset_key: str = "ISRO_CE20_HYDROLOX",
+        injection_pressure_bar: float = 40.0,
+        mass_flow_kg_s: float = 38.0,
+        number_of_waves: int = 2,
+        chamber_diameter_mm: float = 180.0,
+        annulus_gap_mm: float = 9.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 17: Simulates continuous Rotating Detonation Engine (RDE) propulsion digital twin,
+        Chapman-Jouguet detonation dynamics, pressure-gain combustion, and regenerative cooling.
+        """
+        if RotatingDetonationEngine is None:
+            raise RuntimeError("RotatingDetonationEngine module is not loaded.")
+
+        res = RotatingDetonationEngine.simulate_rde_digital_twin(
+            preset_key=preset_key,
+            injection_pressure_bar=injection_pressure_bar,
+            mass_flow_kg_s=mass_flow_kg_s,
+            number_of_waves=number_of_waves,
+            chamber_diameter_mm=chamber_diameter_mm,
+            annulus_gap_mm=annulus_gap_mm,
+        )
+
+        return {
+            "engine_name": res.engine_name,
+            "propellant_name": res.propellant_name,
+            "of_ratio": float(res.of_ratio),
+            "mass_flow_kg_s": float(res.mass_flow_kg_s),
+            "injection_pressure_bar": float(res.injection_pressure_bar),
+            "number_of_waves": res.number_of_waves,
+            "detonation_velocity_mps": float(res.detonation_velocity_mps),
+            "wave_frequency_hz": float(res.wave_frequency_hz),
+            "von_neumann_pressure_bar": float(res.von_neumann_pressure_bar),
+            "cj_pressure_bar": float(res.cj_pressure_bar),
+            "mean_chamber_pressure_bar": float(res.mean_chamber_pressure_bar),
+            "pressure_gain_pct": float(res.pressure_gain_pct),
+            "thrust_vacuum_kn": float(res.thrust_vacuum_kn),
+            "specific_impulse_vacuum_s": float(res.specific_impulse_vacuum_s),
+            "issp_improvement_pct": float(res.issp_improvement_pct),
+            "characteristic_velocity_c_star_mps": float(res.characteristic_velocity_c_star_mps),
+            "c_star_efficiency_pct": float(res.c_star_efficiency_pct),
+            "wall_max_temperature_k": float(res.wall_max_temperature_k),
+            "heat_flux_max_mw_m2": float(res.heat_flux_max_mw_m2),
+            "regenerative_cooling_status": res.regenerative_cooling_status,
+            "merkle_provenance_hash": res.merkle_provenance_hash,
+            "asme_vv20_status": res.asme_vv20_status,
+            "azimuth_deg": res.azimuth_deg,
+            "static_pressure_bar": res.static_pressure_bar,
+            "temperature_profile_k": res.temperature_profile_k,
+            "mach_profile": res.mach_profile,
+        }
+
+    @classmethod
+    def get_rde_presets(cls) -> Dict[str, Any]:
+        """Returns RDE propulsion configuration presets."""
+        return RDE_PRESETS
