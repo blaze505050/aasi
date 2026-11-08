@@ -205,6 +205,14 @@ from .planetary_edl_trn import (
     EDL_PRESETS,
     PLANETARY_DATABASE,
 )
+from .mhd_plasma_shield import (
+    RFBand,
+    MHDShieldState,
+    MHDMissionDossier,
+    MHDPlasmaEngine,
+    MHDShieldNavigator,
+    MHD_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -366,6 +374,12 @@ __all__ = [
     "EDLMissionDossier",
     "EDL_PRESETS",
     "PLANETARY_DATABASE",
+    "RFBand",
+    "MHDShieldState",
+    "MHDMissionDossier",
+    "MHDPlasmaEngine",
+    "MHDShieldNavigator",
+    "MHD_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

@@ -78,6 +78,7 @@ import AvionicsHILTestbedStudio from "../components/AvionicsHILTestbedStudio";
 import LandmarkPublicationStudio from "../components/LandmarkPublicationStudio";
 import CislunarManifoldStudio from "../components/CislunarManifoldStudio";
 import PlanetaryEdlStudio from "../components/PlanetaryEdlStudio";
+import MhdPlasmaShieldStudio from "../components/MhdPlasmaShieldStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -114,6 +115,7 @@ export default function AASIApp() {
   const [publicationStudioOpen, setPublicationStudioOpen] = useState(false);
   const [cislunarStudioOpen, setCislunarStudioOpen] = useState(false);
   const [edlStudioOpen, setEdlStudioOpen] = useState(false);
+  const [mhdStudioOpen, setMhdStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -455,6 +457,15 @@ export default function AASIApp() {
       badge: "Stage 22 Sovereign",
       icon: <Flame size={16} />,
       action: () => setEdlStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-mhd-plasma",
+      category: "Workspaces",
+      title: "Launch MHD Hypersonic Plasma Shielding Studio (Stage 23)",
+      description: "Lorentz J×B shock standoff extension, aerothermal heat mitigation, Whistler RF blackout window, and Faraday power generation.",
+      badge: "Stage 23 Sovereign",
+      icon: <Zap size={16} />,
+      action: () => setMhdStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1359,6 +1370,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setMhdStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(6, 182, 212, 0.08)",
+                      border: "1px solid rgba(6, 182, 212, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Zap size={14} color="#06b6d4" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>MHD Hypersonic Plasma Shielding</span>
+                        <span style={{ fontSize: "0.6rem", background: "#06b6d4", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 23</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Lorentz J×B • Whistler RF Window • -50% Heat Flux • 220 kW</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1901,6 +1941,13 @@ export default function AASIApp() {
       <PlanetaryEdlStudio
         isOpen={edlStudioOpen}
         onClose={() => setEdlStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 23: MHD Hypersonic Plasma Shielding Studio Modal ─── */}
+      <MhdPlasmaShieldStudio
+        isOpen={mhdStudioOpen}
+        onClose={() => setMhdStudioOpen(false)}
         apiBase={API_BASE}
       />
 

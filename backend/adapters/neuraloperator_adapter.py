@@ -125,6 +125,10 @@ try:
         EDL_PRESETS,
         PLANETARY_DATABASE,
     )
+    from aasi_aero_fno.mhd_plasma_shield import (
+        MHDShieldNavigator,
+        MHD_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -185,6 +189,8 @@ except ImportError:
     PlanetaryEDLNavigator = None
     EDL_PRESETS = {}
     PLANETARY_DATABASE = {}
+    MHDShieldNavigator = None
+    MHD_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -1904,3 +1910,44 @@ class NeuralOperatorAdapter:
                 "sutton_graves_k": v.sutton_graves_k,
             }
         return out
+
+    @classmethod
+    def execute_mhd_simulation(
+        cls,
+        preset_key: str = "ISRO_GAGANYAAN_MHD_REENTRY",
+        override_magnetic_field_tesla: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Stage 23: Magnetohydrodynamic (MHD) Hypersonic Plasma Shielding & Reentry Blackout Mitigation.
+        Computes shock standoff distance extension, heat flux reduction, RF Whistler window, and power generation.
+        """
+        if MHDShieldNavigator is None:
+            raise RuntimeError("MHDShieldNavigator module is not loaded.")
+
+        dossier = MHDShieldNavigator.execute_mhd_simulation(
+            preset_key=preset_key,
+            override_magnetic_field_tesla=override_magnetic_field_tesla,
+        )
+
+        return {
+            "mission_id": dossier.mission_id,
+            "preset_key": dossier.preset_key,
+            "target_vehicle": dossier.target_vehicle,
+            "nominal_rf_band": dossier.nominal_rf_band,
+            "magnetic_coil_field_tesla": dossier.magnetic_coil_field_tesla,
+            "baseline_heat_flux_mw_m2": dossier.baseline_heat_flux_mw_m2,
+            "mitigated_heat_flux_mw_m2": dossier.mitigated_heat_flux_mw_m2,
+            "heat_flux_reduction_pct": dossier.heat_flux_reduction_pct,
+            "shock_standoff_extension_pct": dossier.shock_standoff_extension_pct,
+            "rf_blackout_eliminated": dossier.rf_blackout_eliminated,
+            "rf_transmission_efficiency_pct": dossier.rf_transmission_efficiency_pct,
+            "power_generated_kw": dossier.power_generated_kw,
+            "trajectory_profile": dossier.trajectory_profile,
+            "merkle_provenance_hash": dossier.merkle_provenance_hash,
+            "generated_at": dossier.generated_at,
+        }
+
+    @classmethod
+    def get_mhd_presets(cls) -> Dict[str, Any]:
+        """Returns available MHD plasma shield presets."""
+        return MHD_PRESETS
