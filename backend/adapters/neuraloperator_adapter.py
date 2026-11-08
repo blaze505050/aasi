@@ -133,6 +133,9 @@ try:
         NeuromorphicSSANavigator,
         SSA_PRESETS,
     )
+    from aasi_aero_fno.optical_qkd_pointing import (
+        execute_optical_qkd_dossier,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -197,6 +200,7 @@ except ImportError:
     MHD_PRESETS = {}
     NeuromorphicSSANavigator = None
     SSA_PRESETS = {}
+    execute_optical_qkd_dossier = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2010,3 +2014,72 @@ class NeuralOperatorAdapter:
     def get_ssa_presets(cls) -> Dict[str, Any]:
         """Returns available SSA tracking presets."""
         return SSA_PRESETS
+
+    @classmethod
+    def execute_optical_qkd_simulation(
+        cls,
+        mission_id: str = "ISRO_LEO_GROUND_QKD",
+        custom_params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Stage 25: Simulates Deep Space Optical Communications and Quantum Key Distribution (QKD)
+        under atmospheric turbulence, adaptive optics, sub-nanoradian fine pointing, PPM modulation,
+        and decoy-state BB84 security.
+        """
+        if execute_optical_qkd_dossier is None:
+            raise RuntimeError("execute_optical_qkd_dossier module is not loaded.")
+        return execute_optical_qkd_dossier(mission_id=mission_id, custom_params=custom_params)
+
+    @classmethod
+    def get_optical_qkd_presets(cls) -> Dict[str, Any]:
+        """Returns available Optical QKD presets."""
+        return {
+            "ISRO_LEO_GROUND_QKD": {
+                "name": "ISRO Gaganyaan / PS4-Orbital LEO-to-Ground QKD",
+                "distance_km": 550.0,
+                "wavelength_nm": 1550.0,
+                "tx_aperture_m": 0.15,
+                "rx_aperture_m": 1.2,
+                "tx_power_w": 2.0,
+                "ppm_order": 16,
+                "zenith_angle_deg": 25.0,
+                "eve_present": False,
+                "description": "550 km LEO-to-ground downlink to Mount Abu / Hanle optical ground station with sub-3% QBER and >100 kbps secure key rate.",
+            },
+            "LUNAR_GATEWAY_DSOC": {
+                "name": "Chandrayaan-LupEx Lunar Gateway DSOC Link",
+                "distance_km": 384400.0,
+                "wavelength_nm": 1550.0,
+                "tx_aperture_m": 0.22,
+                "rx_aperture_m": 5.0,
+                "tx_power_w": 5.0,
+                "ppm_order": 64,
+                "zenith_angle_deg": 35.0,
+                "eve_present": False,
+                "description": "Cislunar DSOC link achieving >250 Mbps with PPM-64 and 120 nrad fine pointing assembly.",
+            },
+            "MARS_ORBITER_LASER": {
+                "name": "ISRO MOM-3 Mars Interplanetary Optical Link",
+                "distance_km": 78000000.0,
+                "wavelength_nm": 1550.0,
+                "tx_aperture_m": 0.50,
+                "rx_aperture_m": 8.2,
+                "tx_power_w": 25.0,
+                "ppm_order": 256,
+                "zenith_angle_deg": 40.0,
+                "eve_present": False,
+                "description": "Deep space link across 0.52 AU achieving >20 Mbps with PPM-256 and multi-conjugate adaptive optics.",
+            },
+            "SECURE_INTERSATELLITE_QKD": {
+                "name": "Autonomous Intersatellite Constellation QKD (Active Eve Intercept)",
+                "distance_km": 2200.0,
+                "wavelength_nm": 1550.0,
+                "tx_aperture_m": 0.20,
+                "rx_aperture_m": 0.20,
+                "tx_power_w": 1.0,
+                "ppm_order": 16,
+                "zenith_angle_deg": 0.0,
+                "eve_present": True,
+                "description": "Crosslink space intercept challenge demonstrating instantaneous eavesdropper detection via QBER thresholding.",
+            },
+        }

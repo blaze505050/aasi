@@ -39,6 +39,7 @@ import {
   Navigation,
   Microscope,
   Award,
+  Radio,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -80,6 +81,7 @@ import CislunarManifoldStudio from "../components/CislunarManifoldStudio";
 import PlanetaryEdlStudio from "../components/PlanetaryEdlStudio";
 import MhdPlasmaShieldStudio from "../components/MhdPlasmaShieldStudio";
 import NeuromorphicSsaStudio from "../components/NeuromorphicSsaStudio";
+import OpticalQkdStudio from "../components/OpticalQkdStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -118,6 +120,7 @@ export default function AASIApp() {
   const [edlStudioOpen, setEdlStudioOpen] = useState(false);
   const [mhdStudioOpen, setMhdStudioOpen] = useState(false);
   const [ssaStudioOpen, setSsaStudioOpen] = useState(false);
+  const [qkdStudioOpen, setQkdStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -477,6 +480,15 @@ export default function AASIApp() {
       badge: "Stage 24 Sovereign",
       icon: <Target size={16} />,
       action: () => setSsaStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-optical-qkd",
+      category: "Workspaces",
+      title: "Launch Deep Space Optical Comms & QKD Studio (Stage 25)",
+      description: "Sub-nanoradian FSM pointing, PPM-256 gigabit link budget, Kolmogorov AO Strehl ratio, and decoy-state BB84 QKD security.",
+      badge: "Stage 25 Sovereign",
+      icon: <Radio size={16} />,
+      action: () => setQkdStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1439,6 +1451,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setQkdStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(2, 132, 199, 0.08)",
+                      border: "1px solid rgba(2, 132, 199, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Radio size={14} color="#0284c7" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Deep Space Optical Comms &amp; QKD</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0284c7", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 25</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>PPM-256 Gigabit • Decoy-State BB84 • Sub-nrad FSM • Strehl AO</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -1995,6 +2036,13 @@ export default function AASIApp() {
       <NeuromorphicSsaStudio
         isOpen={ssaStudioOpen}
         onClose={() => setSsaStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 25: Deep Space Optical Comms & QKD Studio Modal ─── */}
+      <OpticalQkdStudio
+        isOpen={qkdStudioOpen}
+        onClose={() => setQkdStudioOpen(false)}
         apiBase={API_BASE}
       />
 

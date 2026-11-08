@@ -222,6 +222,14 @@ from .neuromorphic_ssa import (
     NeuromorphicSSANavigator,
     SSA_PRESETS,
 )
+from .optical_qkd_pointing import (
+    compute_atmospheric_turbulence,
+    compute_adaptive_optics_correction,
+    compute_optical_link_budget,
+    simulate_decoy_state_bb84_qkd,
+    simulate_fine_pointing_assembly,
+    execute_optical_qkd_dossier,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -396,6 +404,12 @@ __all__ = [
     "NeuromorphicSSAEngine",
     "NeuromorphicSSANavigator",
     "SSA_PRESETS",
+    "compute_atmospheric_turbulence",
+    "compute_adaptive_optics_correction",
+    "compute_optical_link_budget",
+    "simulate_decoy_state_bb84_qkd",
+    "simulate_fine_pointing_assembly",
+    "execute_optical_qkd_dossier",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
