@@ -304,6 +304,12 @@ from .digital_thread_passport import (
     generate_faa_form_8130_3,
     build_complete_digital_thread,
 )
+from .constellation_insurance_engine import (
+    compute_leo_debris_density,
+    calculate_constellation_conjunction_risk,
+    underwrite_constellation_insurance,
+    INSURANCE_PRESETS,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -538,6 +544,10 @@ __all__ = [
     "audit_as9100d_quality",
     "generate_faa_form_8130_3",
     "build_complete_digital_thread",
+    "compute_leo_debris_density",
+    "calculate_constellation_conjunction_risk",
+    "underwrite_constellation_insurance",
+    "INSURANCE_PRESETS",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

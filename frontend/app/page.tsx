@@ -44,6 +44,7 @@ import {
   Users,
   Crosshair,
   Fuel,
+  DollarSign,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -96,6 +97,7 @@ import AdditiveMeltPoolStudio from "../components/AdditiveMeltPoolStudio";
 import AcousticNdtStudio from "../components/AcousticNdtStudio";
 import CompositeFractureStudio from "../components/CompositeFractureStudio";
 import DigitalThreadPassportStudio from "../components/DigitalThreadPassportStudio";
+import ConstellationInsuranceStudio from "../components/ConstellationInsuranceStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -145,6 +147,7 @@ export default function AASIApp() {
   const [ndtStudioOpen, setNdtStudioOpen] = useState(false);
   const [compositeStudioOpen, setCompositeStudioOpen] = useState(false);
   const [digitalThreadStudioOpen, setDigitalThreadStudioOpen] = useState(false);
+  const [insuranceStudioOpen, setInsuranceStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -603,6 +606,15 @@ export default function AASIApp() {
       badge: "Epoch VII Capstone",
       icon: <ShieldCheck size={16} />,
       action: () => setDigitalThreadStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-insurance-risk",
+      category: "Workspaces",
+      title: "Launch Constellation Insurance & Actuarial Underwriter (Stage 36)",
+      description: "NASA ORDEM debris flux, Poisson compound claims, Solvency II 99.5% VaR/CVaR, and commercial policy slip pricing.",
+      badge: "Stage 36 Sovereign",
+      icon: <DollarSign size={16} />,
+      action: () => setInsuranceStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1884,6 +1896,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setInsuranceStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(124, 58, 237, 0.08)",
+                      border: "1px solid rgba(124, 58, 237, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <DollarSign size={14} color="#7c3aed" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Constellation Insurance Underwriter</span>
+                        <span style={{ fontSize: "0.6rem", background: "#7c3aed", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 36</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>NASA ORDEM Flux • Solvency II 99.5% VaR • Lloyd's Space Policy Slip</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2517,6 +2558,13 @@ export default function AASIApp() {
       <DigitalThreadPassportStudio
         isOpen={digitalThreadStudioOpen}
         onClose={() => setDigitalThreadStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 36: Constellation Insurance & Actuarial Risk Engine Modal ─── */}
+      <ConstellationInsuranceStudio
+        isOpen={insuranceStudioOpen}
+        onClose={() => setInsuranceStudioOpen(false)}
         apiBase={API_BASE}
       />
 

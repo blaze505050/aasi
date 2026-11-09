@@ -187,6 +187,11 @@ try:
         audit_as9100d_quality,
         generate_faa_form_8130_3,
     )
+    from aasi_aero_fno.constellation_insurance_engine import (
+        underwrite_constellation_insurance,
+        calculate_constellation_conjunction_risk,
+        INSURANCE_PRESETS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -283,6 +288,9 @@ except ImportError:
     build_complete_digital_thread = None
     audit_as9100d_quality = None
     generate_faa_form_8130_3 = None
+    underwrite_constellation_insurance = None
+    calculate_constellation_conjunction_risk = None
+    INSURANCE_PRESETS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -2742,4 +2750,42 @@ class NeuralOperatorAdapter:
             merkle_root_hash=merkle_root_hash,
             cpk_score=cpk_score,
             authority=authority,
+        )
+
+    @classmethod
+    def execute_constellation_underwriting(
+        cls,
+        altitude_km: float = 550.0,
+        constellation_size: int = 120,
+        satellite_unit_cost_usd: float = 1.5e6,
+        mission_duration_years: float = 5.0,
+        has_autonomous_avoidance: bool = True,
+    ) -> Dict[str, Any]:
+        """Stage 36: Underwrites orbital collision insurance and Solvency II 99.5% VaR/CVaR."""
+        if underwrite_constellation_insurance is None:
+            raise RuntimeError("underwrite_constellation_insurance module is not loaded.")
+        return underwrite_constellation_insurance(
+            altitude_km=altitude_km,
+            constellation_size=constellation_size,
+            satellite_unit_cost_usd=satellite_unit_cost_usd,
+            mission_duration_years=mission_duration_years,
+            has_autonomous_avoidance=has_autonomous_avoidance,
+        )
+
+    @classmethod
+    def execute_conjunction_risk_assessment(
+        cls,
+        altitude_km: float = 550.0,
+        constellation_size: int = 120,
+        mission_duration_years: float = 5.0,
+        has_autonomous_avoidance: bool = True,
+    ) -> Dict[str, Any]:
+        """Stage 36: Computes spatial debris flux and Poisson collision probability."""
+        if calculate_constellation_conjunction_risk is None:
+            raise RuntimeError("calculate_constellation_conjunction_risk module is not loaded.")
+        return calculate_constellation_conjunction_risk(
+            altitude_km=altitude_km,
+            constellation_size=constellation_size,
+            mission_duration_years=mission_duration_years,
+            has_autonomous_avoidance=has_autonomous_avoidance,
         )
