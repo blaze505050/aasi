@@ -175,6 +175,13 @@ try:
         compute_mil_hdbk_pod_curve,
         NDT_MATERIALS,
     )
+    from aasi_aero_fno.composite_fracture_czm import (
+        compute_clt_abd_matrix,
+        evaluate_tsai_wu_failure,
+        simulate_czm_delamination,
+        COMPOSITE_DB,
+        STANDARD_LAYUPS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -263,6 +270,11 @@ except ImportError:
     synthesize_micro_ct_slice = None
     compute_mil_hdbk_pod_curve = None
     NDT_MATERIALS = {}
+    compute_clt_abd_matrix = None
+    evaluate_tsai_wu_failure = None
+    simulate_czm_delamination = None
+    COMPOSITE_DB = {}
+    STANDARD_LAYUPS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -2618,4 +2630,54 @@ class NeuralOperatorAdapter:
             material_key=material_key,
             inspection_modality=inspection_modality,
             false_call_rate_percent=false_call_rate_percent,
+        )
+
+    @classmethod
+    def execute_clt_composite_analysis(
+        cls,
+        material_key: str = "IM7_8552",
+        ply_angles_deg: Optional[List[float]] = None,
+    ) -> Dict[str, Any]:
+        """Stage 34: Computes Classical Laminate Theory (CLT) ABD matrices and effective moduli."""
+        if compute_clt_abd_matrix is None:
+            raise RuntimeError("compute_clt_abd_matrix module is not loaded.")
+        return compute_clt_abd_matrix(
+            material_key=material_key,
+            ply_angles_deg=ply_angles_deg,
+        )
+
+    @classmethod
+    def execute_tsai_wu_evaluation(
+        cls,
+        material_key: str = "IM7_8552",
+        sigma1_mpa: float = 800.0,
+        sigma2_mpa: float = 35.0,
+        tau12_mpa: float = 40.0,
+    ) -> Dict[str, Any]:
+        """Stage 34: Evaluates 3D Tsai-Wu failure criterion and safety factor."""
+        if evaluate_tsai_wu_failure is None:
+            raise RuntimeError("evaluate_tsai_wu_failure module is not loaded.")
+        return evaluate_tsai_wu_failure(
+            material_key=material_key,
+            sigma1_mpa=sigma1_mpa,
+            sigma2_mpa=sigma2_mpa,
+            tau12_mpa=tau12_mpa,
+        )
+
+    @classmethod
+    def execute_czm_delamination_simulation(
+        cls,
+        material_key: str = "IM7_8552",
+        applied_normal_opening_um: float = 12.0,
+        applied_shear_sliding_um: float = 8.0,
+        interface_penalty_stiffness_kpa_um: float = 1.0e5,
+    ) -> Dict[str, Any]:
+        """Stage 34: Simulates Bilinear CZM delamination and B-K mixed-mode fracture."""
+        if simulate_czm_delamination is None:
+            raise RuntimeError("simulate_czm_delamination module is not loaded.")
+        return simulate_czm_delamination(
+            material_key=material_key,
+            applied_normal_opening_um=applied_normal_opening_um,
+            applied_shear_sliding_um=applied_shear_sliding_um,
+            interface_penalty_stiffness_kpa_um=interface_penalty_stiffness_kpa_um,
         )

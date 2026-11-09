@@ -289,6 +289,14 @@ from .acoustic_xray_ndt import (
     synthesize_micro_ct_slice,
     compute_mil_hdbk_pod_curve,
 )
+from .composite_fracture_czm import (
+    CompositeMaterial,
+    COMPOSITE_DB,
+    STANDARD_LAYUPS,
+    compute_clt_abd_matrix,
+    evaluate_tsai_wu_failure,
+    simulate_czm_delamination,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -512,6 +520,12 @@ __all__ = [
     "synthesize_ultrasonic_bscan",
     "synthesize_micro_ct_slice",
     "compute_mil_hdbk_pod_curve",
+    "CompositeMaterial",
+    "COMPOSITE_DB",
+    "STANDARD_LAYUPS",
+    "compute_clt_abd_matrix",
+    "evaluate_tsai_wu_failure",
+    "simulate_czm_delamination",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

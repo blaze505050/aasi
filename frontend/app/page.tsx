@@ -94,6 +94,7 @@ import AerialRefuelingStudio from "../components/AerialRefuelingStudio";
 import GenerativeMdoStudio from "../components/GenerativeMdoStudio";
 import AdditiveMeltPoolStudio from "../components/AdditiveMeltPoolStudio";
 import AcousticNdtStudio from "../components/AcousticNdtStudio";
+import CompositeFractureStudio from "../components/CompositeFractureStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -141,6 +142,7 @@ export default function AASIApp() {
   const [mdoStudioOpen, setMdoStudioOpen] = useState(false);
   const [meltpoolStudioOpen, setMeltpoolStudioOpen] = useState(false);
   const [ndtStudioOpen, setNdtStudioOpen] = useState(false);
+  const [compositeStudioOpen, setCompositeStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -581,6 +583,15 @@ export default function AASIApp() {
       badge: "Stage 33 Sovereign",
       icon: <Radio size={16} />,
       action: () => setNdtStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-composite-fracture",
+      category: "Workspaces",
+      title: "Launch Composite Layup & Fracture Mechanics Twin (Stage 34)",
+      description: "Classical Laminate Theory ABD matrix, 3D Tsai-Wu failure envelopes, and Bilinear CZM mixed-mode delamination.",
+      badge: "Stage 34 Sovereign",
+      icon: <Layers size={16} />,
+      action: () => setCompositeStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1804,6 +1815,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setCompositeStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(13, 148, 136, 0.08)",
+                      border: "1px solid rgba(13, 148, 136, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Layers size={14} color="#0d9488" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Composite Layup & Fracture Twin</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0d9488", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 34</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>CLT ABD Matrices • 3D Tsai-Wu Criteria • Bilinear CZM B-K Delamination</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2423,6 +2463,13 @@ export default function AASIApp() {
       <AcousticNdtStudio
         isOpen={ndtStudioOpen}
         onClose={() => setNdtStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 34: Composite Layup & Fracture Mechanics Twin Modal ─── */}
+      <CompositeFractureStudio
+        isOpen={compositeStudioOpen}
+        onClose={() => setCompositeStudioOpen(false)}
         apiBase={API_BASE}
       />
 
