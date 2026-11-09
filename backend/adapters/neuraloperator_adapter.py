@@ -202,6 +202,11 @@ try:
         ComputeTaskType,
         UserRole,
     )
+    from aasi_aero_fno.saf_corsia_carbon_twin import (
+        SafCorsiaCarbonTwinEngine,
+        SafPathway,
+        FUEL_DATABASE,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -307,6 +312,9 @@ except ImportError:
     SOVEREIGN_GATEWAY_INSTANCE = None
     ComputeTaskType = None
     UserRole = None
+    SafCorsiaCarbonTwinEngine = None
+    SafPathway = None
+    FUEL_DATABASE = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -2928,3 +2936,44 @@ class NeuralOperatorAdapter:
             asset_name=asset_name,
             classification=classification,
         )
+
+    @classmethod
+    def execute_saf_blend_evaluation(
+        cls,
+        saf_pathway_key: str = "HEFA_SPK",
+        blend_ratio_saf_pct: float = 50.0,
+    ) -> Dict[str, Any]:
+        """Stage 39: Evaluates ASTM D7566 physical blend properties and drop-in compliance."""
+        if SafCorsiaCarbonTwinEngine is None or SafPathway is None:
+            raise RuntimeError("SafCorsiaCarbonTwinEngine module is not loaded.")
+        from dataclasses import asdict
+        pathway = SafPathway.__members__.get(saf_pathway_key, SafPathway.HEFA_SPK)
+        engine = SafCorsiaCarbonTwinEngine()
+        res = engine.evaluate_blend(saf_pathway=pathway, blend_ratio_saf_pct=blend_ratio_saf_pct)
+        return asdict(res)
+
+    @classmethod
+    def execute_corsia_mission_assessment(
+        cls,
+        flight_distance_km: float = 3500.0,
+        aircraft_type: str = "AeroCraft-X40 Sovereign Transport",
+        payload_kg: float = 18000.0,
+        blend_ratio_saf_pct: float = 50.0,
+        saf_pathway_key: str = "HEFA_SPK",
+        carbon_price_usd_per_tonne: float = 48.0,
+    ) -> Dict[str, Any]:
+        """Stage 39: Simulates flight mission carbon footprint and ICAO CORSIA tokenized CEF certificate."""
+        if SafCorsiaCarbonTwinEngine is None or SafPathway is None:
+            raise RuntimeError("SafCorsiaCarbonTwinEngine module is not loaded.")
+        from dataclasses import asdict
+        pathway = SafPathway.__members__.get(saf_pathway_key, SafPathway.HEFA_SPK)
+        engine = SafCorsiaCarbonTwinEngine()
+        res = engine.simulate_flight_mission(
+            flight_distance_km=flight_distance_km,
+            aircraft_type=aircraft_type,
+            payload_kg=payload_kg,
+            blend_ratio_saf_pct=blend_ratio_saf_pct,
+            saf_pathway=pathway,
+            carbon_price_usd_per_tonne=carbon_price_usd_per_tonne,
+        )
+        return asdict(res)

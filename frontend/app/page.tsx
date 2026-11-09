@@ -100,6 +100,7 @@ import DigitalThreadPassportStudio from "../components/DigitalThreadPassportStud
 import ConstellationInsuranceStudio from "../components/ConstellationInsuranceStudio";
 import AirworthinessDossierStudio from "../components/AirworthinessDossierStudio";
 import SovereignGatewayStudio from "../components/SovereignGatewayStudio";
+import SafCarbonTwinStudio from "../components/SafCarbonTwinStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -152,6 +153,7 @@ export default function AASIApp() {
   const [insuranceStudioOpen, setInsuranceStudioOpen] = useState(false);
   const [airworthinessStudioOpen, setAirworthinessStudioOpen] = useState(false);
   const [gatewayStudioOpen, setGatewayStudioOpen] = useState(false);
+  const [safStudioOpen, setSafStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -637,6 +639,15 @@ export default function AASIApp() {
       badge: "Stage 38 Sovereign",
       icon: <Zap size={16} />,
       action: () => setGatewayStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-saf-carbon",
+      category: "Workspaces",
+      title: "Launch Sustainable Aviation Fuel & ICAO CORSIA Twin (Stage 39)",
+      description: "ASTM D7566 drop-in fuel kinetics, LHV payload benefits, non-CO2 contrail mitigation, and CEF carbon credit monetization.",
+      badge: "Stage 39 Sovereign",
+      icon: <Fuel size={16} />,
+      action: () => setSafStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -2005,6 +2016,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setSafStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(16, 185, 129, 0.08)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Fuel size={14} color="#10b981" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>SAF & ICAO CORSIA Carbon Twin</span>
+                        <span style={{ fontSize: "0.6rem", background: "#10b981", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 39</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>ASTM D7566 Kinetics • Contrail Cooling • CORSIA CEF Credits</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2659,6 +2699,13 @@ export default function AASIApp() {
       <SovereignGatewayStudio
         isOpen={gatewayStudioOpen}
         onClose={() => setGatewayStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 39: SAF & ICAO CORSIA Carbon Twin Modal ─── */}
+      <SafCarbonTwinStudio
+        isOpen={safStudioOpen}
+        onClose={() => setSafStudioOpen(false)}
         apiBase={API_BASE}
       />
 

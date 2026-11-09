@@ -329,6 +329,14 @@ from .enterprise_sovereign_gateway import (
     TASK_TOKEN_COSTS,
     TASK_COST_PER_TOKEN_USD,
 )
+from .saf_corsia_carbon_twin import (
+    SafPathway,
+    FuelSpecification,
+    FUEL_DATABASE,
+    BlendEvaluationResult,
+    FlightMissionCarbonResult,
+    SafCorsiaCarbonTwinEngine,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -582,6 +590,12 @@ __all__ = [
     "SOVEREIGN_GATEWAY_INSTANCE",
     "TASK_TOKEN_COSTS",
     "TASK_COST_PER_TOKEN_USD",
+    "SafPathway",
+    "FuelSpecification",
+    "FUEL_DATABASE",
+    "BlendEvaluationResult",
+    "FlightMissionCarbonResult",
+    "SafCorsiaCarbonTwinEngine",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
