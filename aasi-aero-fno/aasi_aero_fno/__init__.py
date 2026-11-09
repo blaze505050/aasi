@@ -318,6 +318,17 @@ from .airworthiness_certification_dossier import (
     ComplianceRequirementItem,
     AirworthinessDossierEngine,
 )
+from .enterprise_sovereign_gateway import (
+    TenantTier,
+    UserRole,
+    ComputeTaskType,
+    TenantQuota,
+    TokenConsumptionRecord,
+    EnterpriseSovereignGatewayEngine,
+    SOVEREIGN_GATEWAY_INSTANCE,
+    TASK_TOKEN_COSTS,
+    TASK_COST_PER_TOKEN_USD,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -562,6 +573,15 @@ __all__ = [
     "PrattGustLoadAnalysis",
     "ComplianceRequirementItem",
     "AirworthinessDossierEngine",
+    "TenantTier",
+    "UserRole",
+    "ComputeTaskType",
+    "TenantQuota",
+    "TokenConsumptionRecord",
+    "EnterpriseSovereignGatewayEngine",
+    "SOVEREIGN_GATEWAY_INSTANCE",
+    "TASK_TOKEN_COSTS",
+    "TASK_COST_PER_TOKEN_USD",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

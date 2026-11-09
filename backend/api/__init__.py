@@ -71,6 +71,7 @@ from backend.api.routes_composite_fracture import router as composite_fracture_r
 from backend.api.routes_digital_thread import router as digital_thread_router
 from backend.api.routes_constellation_insurance import router as insurance_router
 from backend.api.routes_airworthiness_dossier import router as airworthiness_router
+from backend.api.routes_sovereign_gateway import router as gateway_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -201,6 +202,7 @@ api_v1_router.include_router(composite_fracture_router)
 api_v1_router.include_router(digital_thread_router)
 api_v1_router.include_router(insurance_router)
 api_v1_router.include_router(airworthiness_router)
+api_v1_router.include_router(gateway_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

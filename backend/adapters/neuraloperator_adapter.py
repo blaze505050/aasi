@@ -196,6 +196,12 @@ try:
         AirworthinessDossierEngine,
         RegulatoryAuthority,
     )
+    from aasi_aero_fno.enterprise_sovereign_gateway import (
+        EnterpriseSovereignGatewayEngine,
+        SOVEREIGN_GATEWAY_INSTANCE,
+        ComputeTaskType,
+        UserRole,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -297,6 +303,10 @@ except ImportError:
     INSURANCE_PRESETS = {}
     AirworthinessDossierEngine = None
     RegulatoryAuthority = None
+    EnterpriseSovereignGatewayEngine = None
+    SOVEREIGN_GATEWAY_INSTANCE = None
+    ComputeTaskType = None
+    UserRole = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2874,4 +2884,47 @@ class NeuralOperatorAdapter:
             cl_alpha_per_rad=cl_alpha_per_rad,
             cruise_altitude_m=cruise_altitude_m,
             authority=auth,
+        )
+
+    @classmethod
+    def execute_gateway_list_tenants(cls) -> List[Dict[str, Any]]:
+        """Stage 38: Lists all sovereign cloud enterprise tenants with active token quotas."""
+        if SOVEREIGN_GATEWAY_INSTANCE is None:
+            raise RuntimeError("SOVEREIGN_GATEWAY_INSTANCE is not loaded.")
+        return SOVEREIGN_GATEWAY_INSTANCE.list_all_tenants()
+
+    @classmethod
+    def execute_gateway_token_consumption(
+        cls,
+        tenant_id: str,
+        task_type_key: str = "SCIML_FNO_INFERENCE",
+        user_role_key: str = "AERODYNAMICS_SPECIALIST",
+    ) -> Dict[str, Any]:
+        """Stage 38: Executes continuous token-bucket deduction for aerospace compute tasks."""
+        if SOVEREIGN_GATEWAY_INSTANCE is None or ComputeTaskType is None or UserRole is None:
+            raise RuntimeError("Sovereign Gateway modules not loaded.")
+        task = ComputeTaskType.__members__.get(task_type_key, ComputeTaskType.SCIML_FNO_INFERENCE)
+        role = UserRole.__members__.get(user_role_key, UserRole.AERODYNAMICS_SPECIALIST)
+        success, payload = SOVEREIGN_GATEWAY_INSTANCE.consume_tokens(
+            tenant_id=tenant_id,
+            task_type=task,
+            user_role=role,
+        )
+        payload["authorized"] = success
+        return payload
+
+    @classmethod
+    def execute_gateway_export_clearance(
+        cls,
+        tenant_id: str,
+        asset_name: str,
+        classification: str = "COMMERCIAL_UNRESTRICTED",
+    ) -> Dict[str, Any]:
+        """Stage 38: Verifies ITAR/EAR compliance and generates air-gapped cryptographic clearance."""
+        if SOVEREIGN_GATEWAY_INSTANCE is None:
+            raise RuntimeError("SOVEREIGN_GATEWAY_INSTANCE is not loaded.")
+        return SOVEREIGN_GATEWAY_INSTANCE.generate_export_clearance(
+            tenant_id=tenant_id,
+            asset_name=asset_name,
+            classification=classification,
         )

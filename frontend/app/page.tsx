@@ -99,6 +99,7 @@ import CompositeFractureStudio from "../components/CompositeFractureStudio";
 import DigitalThreadPassportStudio from "../components/DigitalThreadPassportStudio";
 import ConstellationInsuranceStudio from "../components/ConstellationInsuranceStudio";
 import AirworthinessDossierStudio from "../components/AirworthinessDossierStudio";
+import SovereignGatewayStudio from "../components/SovereignGatewayStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -150,6 +151,7 @@ export default function AASIApp() {
   const [digitalThreadStudioOpen, setDigitalThreadStudioOpen] = useState(false);
   const [insuranceStudioOpen, setInsuranceStudioOpen] = useState(false);
   const [airworthinessStudioOpen, setAirworthinessStudioOpen] = useState(false);
+  const [gatewayStudioOpen, setGatewayStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -626,6 +628,15 @@ export default function AASIApp() {
       badge: "Stage 37 Sovereign",
       icon: <FileCheck2 size={16} />,
       action: () => setAirworthinessStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-sovereign-gateway",
+      category: "Workspaces",
+      title: "Launch Sovereign SaaS Gateway & Token Metering Studio (Stage 38)",
+      description: "Continuous token-bucket rate limiting, micro-invoicing consumption ledger, and air-gapped ITAR/EAR export vault.",
+      badge: "Stage 38 Sovereign",
+      icon: <Zap size={16} />,
+      action: () => setGatewayStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1965,6 +1976,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setGatewayStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(2, 132, 199, 0.08)",
+                      border: "1px solid rgba(2, 132, 199, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Zap size={14} color="#0284c7" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Sovereign SaaS Gateway & Metering</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0284c7", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 38</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Token Bucket Limiter • Micro-Invoicing • ITAR Export Vault</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2612,6 +2652,13 @@ export default function AASIApp() {
       <AirworthinessDossierStudio
         isOpen={airworthinessStudioOpen}
         onClose={() => setAirworthinessStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 38: Sovereign SaaS Gateway & Token Metering Modal ─── */}
+      <SovereignGatewayStudio
+        isOpen={gatewayStudioOpen}
+        onClose={() => setGatewayStudioOpen(false)}
         apiBase={API_BASE}
       />
 
