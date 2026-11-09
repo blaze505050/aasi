@@ -43,6 +43,7 @@ import {
   Radio,
   Users,
   Crosshair,
+  Fuel,
 } from "lucide-react";
 import { AuthModal, AuthUser } from "../components/AuthModal";
 import { AuditTrailModal } from "../components/AuditTrailModal";
@@ -89,6 +90,7 @@ import SwarmCoordinatorStudio from "../components/SwarmCoordinatorStudio";
 import HypersonicInterceptorStudio from "../components/HypersonicInterceptorStudio";
 import MetamaterialRcsStudio from "../components/MetamaterialRcsStudio";
 import PostQuantumBusStudio from "../components/PostQuantumBusStudio";
+import AerialRefuelingStudio from "../components/AerialRefuelingStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -132,6 +134,7 @@ export default function AASIApp() {
   const [interceptorStudioOpen, setInterceptorStudioOpen] = useState(false);
   const [rcsStudioOpen, setRcsStudioOpen] = useState(false);
   const [pqcStudioOpen, setPqcStudioOpen] = useState(false);
+  const [refuelingStudioOpen, setRefuelingStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -536,6 +539,15 @@ export default function AASIApp() {
       badge: "Stage 29 Sovereign",
       icon: <Lock size={16} />,
       action: () => setPqcStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-aerial-refueling",
+      category: "Workspaces",
+      title: "Launch Autonomous Aerial Refueling & CBF Studio (Stage 30)",
+      description: "Hallock-Burnham heavy wake vortex downwash, receiver bow wave lift, and CBF-QP docking cone and breakaway corridor.",
+      badge: "Stage 30 Sovereign",
+      icon: <Fuel size={16} />,
+      action: () => setRefuelingStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1643,6 +1655,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setRefuelingStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(37, 99, 235, 0.08)",
+                      border: "1px solid rgba(37, 99, 235, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Fuel size={14} color="#2563eb" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Aerial Refueling & Docking CBF</span>
+                        <span style={{ fontSize: "0.6rem", background: "#2563eb", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 30</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Hallock-Burnham Wake Downwash • Bow Wave Lift • CBF Funnel & Breakaway</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2234,6 +2275,13 @@ export default function AASIApp() {
       <PostQuantumBusStudio
         isOpen={pqcStudioOpen}
         onClose={() => setPqcStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 30: Autonomous Aerial Refueling & Docking CBF Modal ─── */}
+      <AerialRefuelingStudio
+        isOpen={refuelingStudioOpen}
+        onClose={() => setRefuelingStudioOpen(false)}
         apiBase={API_BASE}
       />
 

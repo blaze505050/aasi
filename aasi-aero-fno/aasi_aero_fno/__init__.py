@@ -260,6 +260,14 @@ from .post_quantum_bus_security import (
     CcsdsTelecommandFrame,
     run_post_quantum_bus_audit,
 )
+from .aerial_refueling_cbf import (
+    TankerType,
+    RefuelingPhase,
+    compute_hallock_burnham_wake_velocity,
+    compute_receiver_bow_wave_disturbance,
+    evaluate_cbf_docking_cone,
+    simulate_autonomous_aerial_refueling,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -462,6 +470,12 @@ __all__ = [
     "BusThreatType",
     "CcsdsTelecommandFrame",
     "run_post_quantum_bus_audit",
+    "TankerType",
+    "RefuelingPhase",
+    "compute_hallock_burnham_wake_velocity",
+    "compute_receiver_bow_wave_disturbance",
+    "evaluate_cbf_docking_cone",
+    "simulate_autonomous_aerial_refueling",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

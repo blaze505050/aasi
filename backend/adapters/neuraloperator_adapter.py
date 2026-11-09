@@ -155,6 +155,10 @@ try:
         TelecommandAction,
         BusThreatType,
     )
+    from aasi_aero_fno.aerial_refueling_cbf import (
+        TankerType,
+        simulate_autonomous_aerial_refueling,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -231,6 +235,8 @@ except ImportError:
     SpacecraftZeroTrustBus = None
     TelecommandAction = None
     BusThreatType = None
+    TankerType = None
+    simulate_autonomous_aerial_refueling = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2339,5 +2345,68 @@ class NeuralOperatorAdapter:
                 "clock_freq_mhz": 150.0,
                 "bus_standard": "SpaceWire ECSS-E-ST-50-52C",
                 "description": "ESA rad-hard SPARC V8 architecture optimized for parallel post-quantum lattice polynomial convolutions.",
+            },
+        }
+
+    @classmethod
+    def execute_aerial_refueling_simulation(
+        cls,
+        tanker_type: str = "KC_767",
+        receiver_name: str = "Ghatak UCAV (Stealth Autonomous Tanker Receiver)",
+        initial_standoff_distance_m: float = 15.0,
+        enable_cbf_protection: bool = True,
+        enable_emergency_breakaway_test: bool = False,
+        turbulence_gust_mps: float = 3.5,
+        sim_time_sec: float = 25.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 30: Simulates autonomous aerial refueling under tanker wake vortex downwash,
+        receiver bow wave repulsion, and Control Barrier Function (CBF-QP) safe docking funnel.
+        """
+        if simulate_autonomous_aerial_refueling is None:
+            raise RuntimeError("simulate_autonomous_aerial_refueling module is not loaded.")
+
+        try:
+            tt = TankerType(tanker_type)
+        except (ValueError, TypeError):
+            tt = TankerType.KC_767
+
+        return simulate_autonomous_aerial_refueling(
+            tanker_type=tt,
+            receiver_name=receiver_name,
+            initial_standoff_distance_m=initial_standoff_distance_m,
+            enable_cbf_protection=enable_cbf_protection,
+            enable_emergency_breakaway_test=enable_emergency_breakaway_test,
+            turbulence_gust_mps=turbulence_gust_mps,
+            sim_time_sec=sim_time_sec,
+        )
+
+    @classmethod
+    def get_aerial_refueling_presets(cls) -> Dict[str, Any]:
+        """Returns available tanker and receiver pairing presets."""
+        return {
+            "KC767_GHATAK_UCAV": {
+                "name": "KC-767 Tanker with Ghatak Stealth Flying-Wing UCAV",
+                "tanker_type": "KC_767",
+                "receiver_name": "DRDO Ghatak Autonomous Strike UCAV",
+                "altitude_m": 7500.0,
+                "airspeed_mps": 180.0,
+                "description": "Probe-and-drogue automated docking into port-wing drogue pod in presence of wake vortex.",
+            },
+            "IL78_MKI_SU30": {
+                "name": "Il-78 MKI Heavy Tanker with Heavy Fighter UCAV",
+                "tanker_type": "IL_78",
+                "receiver_name": "Heavy Loyal Wingman UCAV",
+                "altitude_m": 7000.0,
+                "airspeed_mps": 175.0,
+                "description": "High-circulation quadruple-engine wake vortex encounter with 1,350 kg/min fuel transfer rate.",
+            },
+            "KC46_PEGASUS_COLLABORATIVE": {
+                "name": "KC-46A Pegasus with CCA Swarm Leader",
+                "tanker_type": "KC_46",
+                "receiver_name": "Collaborative Combat Aircraft (CCA) Leader",
+                "altitude_m": 8000.0,
+                "airspeed_mps": 185.0,
+                "description": "Digital FBW tanker wake field with strict CBF safety barrier enforcement.",
             },
         }
