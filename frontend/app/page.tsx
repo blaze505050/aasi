@@ -98,6 +98,7 @@ import AcousticNdtStudio from "../components/AcousticNdtStudio";
 import CompositeFractureStudio from "../components/CompositeFractureStudio";
 import DigitalThreadPassportStudio from "../components/DigitalThreadPassportStudio";
 import ConstellationInsuranceStudio from "../components/ConstellationInsuranceStudio";
+import AirworthinessDossierStudio from "../components/AirworthinessDossierStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -148,6 +149,7 @@ export default function AASIApp() {
   const [compositeStudioOpen, setCompositeStudioOpen] = useState(false);
   const [digitalThreadStudioOpen, setDigitalThreadStudioOpen] = useState(false);
   const [insuranceStudioOpen, setInsuranceStudioOpen] = useState(false);
+  const [airworthinessStudioOpen, setAirworthinessStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -615,6 +617,15 @@ export default function AASIApp() {
       badge: "Stage 36 Sovereign",
       icon: <DollarSign size={16} />,
       action: () => setInsuranceStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-airworthiness",
+      category: "Workspaces",
+      title: "Launch FAA Part 23/25 & DGCA Airworthiness Dossier Synthesizer (Stage 37)",
+      description: "Autonomous Means of Compliance (MOC) RTM, 14 CFR § 25.335 airspeeds, Pratt discrete gust envelope, and DER seals.",
+      badge: "Stage 37 Sovereign",
+      icon: <FileCheck2 size={16} />,
+      action: () => setAirworthinessStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1925,6 +1936,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setAirworthinessStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(79, 70, 229, 0.08)",
+                      border: "1px solid rgba(79, 70, 229, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <FileCheck2 size={14} color="#4f46e5" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>FAA/DGCA Airworthiness Dossier</span>
+                        <span style={{ fontSize: "0.6rem", background: "#4f46e5", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 37</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>14 CFR § 25.335 Speeds • Pratt Gust Envelope • MOC Traceability</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2565,6 +2605,13 @@ export default function AASIApp() {
       <ConstellationInsuranceStudio
         isOpen={insuranceStudioOpen}
         onClose={() => setInsuranceStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 37: FAA Part 23/25 & DGCA Airworthiness Dossier Synthesizer Modal ─── */}
+      <AirworthinessDossierStudio
+        isOpen={airworthinessStudioOpen}
+        onClose={() => setAirworthinessStudioOpen(false)}
         apiBase={API_BASE}
       />
 

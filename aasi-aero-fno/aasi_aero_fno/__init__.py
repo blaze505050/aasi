@@ -310,6 +310,14 @@ from .constellation_insurance_engine import (
     underwrite_constellation_insurance,
     INSURANCE_PRESETS,
 )
+from .airworthiness_certification_dossier import (
+    RegulatoryAuthority,
+    MeansOfCompliance,
+    AirspeedEnvelope,
+    PrattGustLoadAnalysis,
+    ComplianceRequirementItem,
+    AirworthinessDossierEngine,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -548,6 +556,12 @@ __all__ = [
     "calculate_constellation_conjunction_risk",
     "underwrite_constellation_insurance",
     "INSURANCE_PRESETS",
+    "RegulatoryAuthority",
+    "MeansOfCompliance",
+    "AirspeedEnvelope",
+    "PrattGustLoadAnalysis",
+    "ComplianceRequirementItem",
+    "AirworthinessDossierEngine",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

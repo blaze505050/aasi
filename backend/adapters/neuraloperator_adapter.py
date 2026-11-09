@@ -192,6 +192,10 @@ try:
         calculate_constellation_conjunction_risk,
         INSURANCE_PRESETS,
     )
+    from aasi_aero_fno.airworthiness_certification_dossier import (
+        AirworthinessDossierEngine,
+        RegulatoryAuthority,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -291,6 +295,8 @@ except ImportError:
     underwrite_constellation_insurance = None
     calculate_constellation_conjunction_risk = None
     INSURANCE_PRESETS = {}
+    AirworthinessDossierEngine = None
+    RegulatoryAuthority = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2788,4 +2794,84 @@ class NeuralOperatorAdapter:
             constellation_size=constellation_size,
             mission_duration_years=mission_duration_years,
             has_autonomous_avoidance=has_autonomous_avoidance,
+        )
+
+    @classmethod
+    def execute_airworthiness_airspeeds(
+        cls,
+        gross_weight_kg: float = 45000.0,
+        wing_area_m2: float = 122.4,
+        cl_max_clean: float = 1.45,
+        cl_max_flaps: float = 2.20,
+        altitude_m: float = 3000.0,
+    ) -> Dict[str, Any]:
+        """Stage 37: Evaluates 14 CFR § 25.335 design airspeeds."""
+        if AirworthinessDossierEngine is None:
+            raise RuntimeError("AirworthinessDossierEngine module is not loaded.")
+        from dataclasses import asdict
+        engine = AirworthinessDossierEngine()
+        res = engine.compute_design_airspeeds(
+            gross_weight_kg=gross_weight_kg,
+            wing_area_m2=wing_area_m2,
+            cl_max_clean=cl_max_clean,
+            cl_max_flaps=cl_max_flaps,
+            altitude_m=altitude_m,
+        )
+        return asdict(res)
+
+    @classmethod
+    def execute_pratt_gust_analysis(
+        cls,
+        gross_weight_kg: float = 45000.0,
+        wing_area_m2: float = 122.4,
+        mean_aerodynamic_chord_m: float = 4.15,
+        cl_alpha_per_rad: float = 5.25,
+        v_cruise_mps: float = 180.0,
+        altitude_m: float = 3000.0,
+    ) -> Dict[str, Any]:
+        """Stage 37: Evaluates 14 CFR § 25.341 Pratt discrete 1-cosine gust loads."""
+        if AirworthinessDossierEngine is None:
+            raise RuntimeError("AirworthinessDossierEngine module is not loaded.")
+        from dataclasses import asdict
+        engine = AirworthinessDossierEngine()
+        res = engine.compute_pratt_gust_load_analysis(
+            gross_weight_kg=gross_weight_kg,
+            wing_area_m2=wing_area_m2,
+            mean_aerodynamic_chord_m=mean_aerodynamic_chord_m,
+            cl_alpha_per_rad=cl_alpha_per_rad,
+            v_cruise_mps=v_cruise_mps,
+            altitude_m=altitude_m,
+        )
+        return asdict(res)
+
+    @classmethod
+    def execute_airworthiness_dossier_generation(
+        cls,
+        aircraft_name: str = "AeroCraft-X40 Sovereign Transport",
+        tail_number: str = "VT-AASI-001",
+        gross_weight_kg: float = 45000.0,
+        wing_area_m2: float = 122.4,
+        mean_aerodynamic_chord_m: float = 4.15,
+        cl_max_clean: float = 1.45,
+        cl_max_flaps: float = 2.20,
+        cl_alpha_per_rad: float = 5.25,
+        cruise_altitude_m: float = 9500.0,
+        authority_key: str = "FAA_PART_25",
+    ) -> Dict[str, Any]:
+        """Stage 37: Autonomous Means of Compliance airworthiness dossier synthesizer."""
+        if AirworthinessDossierEngine is None or RegulatoryAuthority is None:
+            raise RuntimeError("AirworthinessDossierEngine module is not loaded.")
+        auth = RegulatoryAuthority.__members__.get(authority_key, RegulatoryAuthority.FAA_PART_25)
+        engine = AirworthinessDossierEngine()
+        return engine.synthesize_dossier(
+            aircraft_name=aircraft_name,
+            tail_number=tail_number,
+            gross_weight_kg=gross_weight_kg,
+            wing_area_m2=wing_area_m2,
+            mean_aerodynamic_chord_m=mean_aerodynamic_chord_m,
+            cl_max_clean=cl_max_clean,
+            cl_max_flaps=cl_max_flaps,
+            cl_alpha_per_rad=cl_alpha_per_rad,
+            cruise_altitude_m=cruise_altitude_m,
+            authority=auth,
         )
