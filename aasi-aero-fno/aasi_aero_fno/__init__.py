@@ -297,6 +297,13 @@ from .composite_fracture_czm import (
     evaluate_tsai_wu_failure,
     simulate_czm_delamination,
 )
+from .digital_thread_passport import (
+    ThreadStep,
+    MerkleLineageDAG,
+    audit_as9100d_quality,
+    generate_faa_form_8130_3,
+    build_complete_digital_thread,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -526,6 +533,11 @@ __all__ = [
     "compute_clt_abd_matrix",
     "evaluate_tsai_wu_failure",
     "simulate_czm_delamination",
+    "ThreadStep",
+    "MerkleLineageDAG",
+    "audit_as9100d_quality",
+    "generate_faa_form_8130_3",
+    "build_complete_digital_thread",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

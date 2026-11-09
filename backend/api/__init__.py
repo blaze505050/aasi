@@ -68,6 +68,7 @@ from backend.api.routes_generative_mdo import router as mdo_router
 from backend.api.routes_lpbf_meltpool import router as meltpool_router
 from backend.api.routes_acoustic_ndt import router as acoustic_ndt_router
 from backend.api.routes_composite_fracture import router as composite_fracture_router
+from backend.api.routes_digital_thread import router as digital_thread_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -195,6 +196,7 @@ api_v1_router.include_router(mdo_router)
 api_v1_router.include_router(meltpool_router)
 api_v1_router.include_router(acoustic_ndt_router)
 api_v1_router.include_router(composite_fracture_router)
+api_v1_router.include_router(digital_thread_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

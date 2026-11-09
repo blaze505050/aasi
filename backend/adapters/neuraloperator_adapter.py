@@ -182,6 +182,11 @@ try:
         COMPOSITE_DB,
         STANDARD_LAYUPS,
     )
+    from aasi_aero_fno.digital_thread_passport import (
+        build_complete_digital_thread,
+        audit_as9100d_quality,
+        generate_faa_form_8130_3,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -275,6 +280,9 @@ except ImportError:
     simulate_czm_delamination = None
     COMPOSITE_DB = {}
     STANDARD_LAYUPS = {}
+    build_complete_digital_thread = None
+    audit_as9100d_quality = None
+    generate_faa_form_8130_3 = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2680,4 +2688,58 @@ class NeuralOperatorAdapter:
             applied_normal_opening_um=applied_normal_opening_um,
             applied_shear_sliding_um=applied_shear_sliding_um,
             interface_penalty_stiffness_kpa_um=interface_penalty_stiffness_kpa_um,
+        )
+
+    @classmethod
+    def execute_digital_thread_audit(
+        cls,
+        scenario_preset: str = "TITANIUM_WING_RIB_LPBF",
+    ) -> Dict[str, Any]:
+        """Stage 35: Executes SHA-256 Merkle-DAG digital thread lineage and AS9100D passport."""
+        if build_complete_digital_thread is None:
+            raise RuntimeError("build_complete_digital_thread module is not loaded.")
+        return build_complete_digital_thread(scenario_preset=scenario_preset)
+
+    @classmethod
+    def execute_as9100d_spc_audit(
+        cls,
+        measurements: List[float],
+        nominal_target: float = 190.0,
+        lower_spec_limit: float = 160.0,
+        upper_spec_limit: float = 220.0,
+        spec_unit: str = "μm",
+    ) -> Dict[str, Any]:
+        """Stage 35: Computes AS9100D Statistical Process Control Cpk capability indices."""
+        if audit_as9100d_quality is None:
+            raise RuntimeError("audit_as9100d_quality module is not loaded.")
+        return audit_as9100d_quality(
+            measurements=measurements,
+            nominal_target=nominal_target,
+            lower_spec_limit=lower_spec_limit,
+            upper_spec_limit=upper_spec_limit,
+            spec_unit=spec_unit,
+        )
+
+    @classmethod
+    def execute_generate_faa_8130(
+        cls,
+        part_name: str,
+        part_number: str,
+        serial_number: str,
+        material_spec: str,
+        merkle_root_hash: str,
+        cpk_score: float = 1.72,
+        authority: str = "FAA / DGCA",
+    ) -> Dict[str, Any]:
+        """Stage 35: Generates official FAA Form 8130-3 / DGCA Form 1 Airworthiness Tag."""
+        if generate_faa_form_8130_3 is None:
+            raise RuntimeError("generate_faa_form_8130_3 module is not loaded.")
+        return generate_faa_form_8130_3(
+            part_name=part_name,
+            part_number=part_number,
+            serial_number=serial_number,
+            material_spec=material_spec,
+            merkle_root_hash=merkle_root_hash,
+            cpk_score=cpk_score,
+            authority=authority,
         )

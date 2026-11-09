@@ -95,6 +95,7 @@ import GenerativeMdoStudio from "../components/GenerativeMdoStudio";
 import AdditiveMeltPoolStudio from "../components/AdditiveMeltPoolStudio";
 import AcousticNdtStudio from "../components/AcousticNdtStudio";
 import CompositeFractureStudio from "../components/CompositeFractureStudio";
+import DigitalThreadPassportStudio from "../components/DigitalThreadPassportStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -143,6 +144,7 @@ export default function AASIApp() {
   const [meltpoolStudioOpen, setMeltpoolStudioOpen] = useState(false);
   const [ndtStudioOpen, setNdtStudioOpen] = useState(false);
   const [compositeStudioOpen, setCompositeStudioOpen] = useState(false);
+  const [digitalThreadStudioOpen, setDigitalThreadStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -592,6 +594,15 @@ export default function AASIApp() {
       badge: "Stage 34 Sovereign",
       icon: <Layers size={16} />,
       action: () => setCompositeStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-digital-thread",
+      category: "Workspaces",
+      title: "Launch Digital Thread Merkle Lineage & AS9100D Passport (Stage 35)",
+      description: "SHA-256 Merkle-DAG lifecycle traceability, AS9100D Six-Sigma Cpk quality audit, and FAA Form 8130-3 certification.",
+      badge: "Epoch VII Capstone",
+      icon: <ShieldCheck size={16} />,
+      action: () => setDigitalThreadStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1844,6 +1855,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setDigitalThreadStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(16, 185, 129, 0.08)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <ShieldCheck size={14} color="#10b981" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Digital Thread & AS9100D Passport</span>
+                        <span style={{ fontSize: "0.6rem", background: "#10b981", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 35</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>SHA-256 Merkle DAG • AS9100D Cpk Six-Sigma • FAA Form 8130-3 Tag</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2470,6 +2510,13 @@ export default function AASIApp() {
       <CompositeFractureStudio
         isOpen={compositeStudioOpen}
         onClose={() => setCompositeStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 35: Digital Thread Merkle Lineage & AS9100D Passport Modal ─── */}
+      <DigitalThreadPassportStudio
+        isOpen={digitalThreadStudioOpen}
+        onClose={() => setDigitalThreadStudioOpen(false)}
         apiBase={API_BASE}
       />
 
