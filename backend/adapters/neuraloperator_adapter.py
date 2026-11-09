@@ -159,6 +159,10 @@ try:
         TankerType,
         simulate_autonomous_aerial_refueling,
     )
+    from aasi_aero_fno.topology_optimization_lpbf import (
+        AerospaceAlloy,
+        run_aerospace_generative_mdo,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -237,6 +241,8 @@ except ImportError:
     BusThreatType = None
     TankerType = None
     simulate_autonomous_aerial_refueling = None
+    AerospaceAlloy = None
+    run_aerospace_generative_mdo = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2408,5 +2414,54 @@ class NeuralOperatorAdapter:
                 "altitude_m": 8000.0,
                 "airspeed_mps": 185.0,
                 "description": "Digital FBW tanker wake field with strict CBF safety barrier enforcement.",
+            },
+        }
+
+    @classmethod
+    def execute_generative_mdo(
+        cls,
+        component_name: str = "TITANIUM_TRANSONIC_WING_RIB",
+        target_volume_fraction: float = 0.40,
+        alloy_choice: str = "TI_6AL_4V",
+        max_iterations: int = 25,
+    ) -> Dict[str, Any]:
+        """
+        Stage 31: Executes SIMP topology optimization and compiles direct LPBF additive
+        manufacturing toolpaths with overhang angle self-supporting constraints.
+        """
+        if run_aerospace_generative_mdo is None:
+            raise RuntimeError("run_aerospace_generative_mdo module is not loaded.")
+
+        return run_aerospace_generative_mdo(
+            component_name=component_name,
+            target_volume_fraction=target_volume_fraction,
+            alloy_choice=alloy_choice,
+            max_iterations=max_iterations,
+        )
+
+    @classmethod
+    def get_generative_mdo_presets(cls) -> Dict[str, Any]:
+        """Returns aerospace structural component presets for generative optimization."""
+        return {
+            "TITANIUM_TRANSONIC_WING_RIB": {
+                "name": "Titanium Ti-6Al-4V Transonic Wing Internal Rib",
+                "component_name": "TITANIUM_TRANSONIC_WING_RIB",
+                "alloy_choice": "TI_6AL_4V",
+                "target_volume_fraction": 0.40,
+                "description": "Fighter aircraft internal structural rib loaded under aerodynamic lift and spar reactions.",
+            },
+            "ROCKET_ENGINE_GIMBAL_BRACKET": {
+                "name": "Inconel 718 Cryogenic Rocket Gimbal Thrust Bracket",
+                "component_name": "ROCKET_ENGINE_GIMBAL_BRACKET",
+                "alloy_choice": "INCONEL_718",
+                "target_volume_fraction": 0.35,
+                "description": "High-temperature pivot bracket transferring 750 kN cryogenic rocket engine thrust vector.",
+            },
+            "SATELLITE_OPTICAL_BENCH": {
+                "name": "AlSi10Mg Satellite High-Stiffness Optical Bench Mount",
+                "component_name": "SATELLITE_OPTICAL_BENCH",
+                "alloy_choice": "AL_SI10_MG",
+                "target_volume_fraction": 0.45,
+                "description": "Lightweight ultra-stiff space telescope mounting frame minimizing thermal jitter.",
             },
         }

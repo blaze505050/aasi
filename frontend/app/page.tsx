@@ -91,6 +91,7 @@ import HypersonicInterceptorStudio from "../components/HypersonicInterceptorStud
 import MetamaterialRcsStudio from "../components/MetamaterialRcsStudio";
 import PostQuantumBusStudio from "../components/PostQuantumBusStudio";
 import AerialRefuelingStudio from "../components/AerialRefuelingStudio";
+import GenerativeMdoStudio from "../components/GenerativeMdoStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -135,6 +136,7 @@ export default function AASIApp() {
   const [rcsStudioOpen, setRcsStudioOpen] = useState(false);
   const [pqcStudioOpen, setPqcStudioOpen] = useState(false);
   const [refuelingStudioOpen, setRefuelingStudioOpen] = useState(false);
+  const [mdoStudioOpen, setMdoStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -548,6 +550,15 @@ export default function AASIApp() {
       badge: "Stage 30 Sovereign",
       icon: <Fuel size={16} />,
       action: () => setRefuelingStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-generative-mdo",
+      category: "Workspaces",
+      title: "Launch Generative Topology Optimization & LPBF Studio (Stage 31)",
+      description: "SIMP compliance minimization, self-supporting overhang constraints, and direct neural-implicit LPBF toolpath compiler.",
+      badge: "Stage 31 Sovereign",
+      icon: <Box size={16} />,
+      action: () => setMdoStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1684,6 +1695,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setMdoStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(2, 132, 199, 0.08)",
+                      border: "1px solid rgba(2, 132, 199, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Box size={14} color="#0284c7" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Generative MDO & LPBF Slicer</span>
+                        <span style={{ fontSize: "0.6rem", background: "#0284c7", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 31</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>SIMP Compliance Optimization • Self-Supporting Overhangs • Direct LPBF Vectors</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2282,6 +2322,13 @@ export default function AASIApp() {
       <AerialRefuelingStudio
         isOpen={refuelingStudioOpen}
         onClose={() => setRefuelingStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 31: Multidisciplinary Topology Optimization to LPBF Modal ─── */}
+      <GenerativeMdoStudio
+        isOpen={mdoStudioOpen}
+        onClose={() => setMdoStudioOpen(false)}
         apiBase={API_BASE}
       />
 

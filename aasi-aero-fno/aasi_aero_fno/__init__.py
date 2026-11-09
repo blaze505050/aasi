@@ -268,6 +268,12 @@ from .aerial_refueling_cbf import (
     evaluate_cbf_docking_cone,
     simulate_autonomous_aerial_refueling,
 )
+from .topology_optimization_lpbf import (
+    AerospaceAlloy,
+    SimpTopologyOptimizer,
+    compile_lpbf_toolpath,
+    run_aerospace_generative_mdo,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -476,6 +482,10 @@ __all__ = [
     "compute_receiver_bow_wave_disturbance",
     "evaluate_cbf_docking_cone",
     "simulate_autonomous_aerial_refueling",
+    "AerospaceAlloy",
+    "SimpTopologyOptimizer",
+    "compile_lpbf_toolpath",
+    "run_aerospace_generative_mdo",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
