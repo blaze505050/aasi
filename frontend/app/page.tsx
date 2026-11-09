@@ -93,6 +93,7 @@ import PostQuantumBusStudio from "../components/PostQuantumBusStudio";
 import AerialRefuelingStudio from "../components/AerialRefuelingStudio";
 import GenerativeMdoStudio from "../components/GenerativeMdoStudio";
 import AdditiveMeltPoolStudio from "../components/AdditiveMeltPoolStudio";
+import AcousticNdtStudio from "../components/AcousticNdtStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -139,6 +140,7 @@ export default function AASIApp() {
   const [refuelingStudioOpen, setRefuelingStudioOpen] = useState(false);
   const [mdoStudioOpen, setMdoStudioOpen] = useState(false);
   const [meltpoolStudioOpen, setMeltpoolStudioOpen] = useState(false);
+  const [ndtStudioOpen, setNdtStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -570,6 +572,15 @@ export default function AASIApp() {
       badge: "Stage 32 Sovereign",
       icon: <Flame size={16} />,
       action: () => setMeltpoolStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-acoustic-ndt",
+      category: "Workspaces",
+      title: "Launch Autonomous Ultrasonic & X-Ray CT NDT Studio (Stage 33)",
+      description: "Elastodynamic pulse-echo, Micro-CT Beer-Lambert inpainting, and MIL-HDBK-1823A POD reliability curves.",
+      badge: "Stage 33 Sovereign",
+      icon: <Radio size={16} />,
+      action: () => setNdtStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1764,6 +1775,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setNdtStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(99, 102, 241, 0.08)",
+                      border: "1px solid rgba(99, 102, 241, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Radio size={14} color="#6366f1" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Acoustic & X-Ray CT NDT Studio</span>
+                        <span style={{ fontSize: "0.6rem", background: "#6366f1", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 33</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Pulse-Echo A-Scan • B-Scan Echogram • Micro-CT Inpainting • MIL-HDBK-1823A POD</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2376,6 +2416,13 @@ export default function AASIApp() {
       <AdditiveMeltPoolStudio
         isOpen={meltpoolStudioOpen}
         onClose={() => setMeltpoolStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 33: Autonomous Ultrasonic & X-Ray CT NDT Studio Modal ─── */}
+      <AcousticNdtStudio
+        isOpen={ndtStudioOpen}
+        onClose={() => setNdtStudioOpen(false)}
         apiBase={API_BASE}
       />
 

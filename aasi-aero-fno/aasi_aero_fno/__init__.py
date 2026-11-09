@@ -280,6 +280,15 @@ from .lpbf_meltpool_pinn import (
     simulate_coaxial_pyrometer_scanpass,
     ALLOY_THERMAL_DB,
 )
+from .acoustic_xray_ndt import (
+    NdtMaterial,
+    NDT_MATERIALS,
+    compute_reflection_coefficient,
+    synthesize_ultrasonic_ascan,
+    synthesize_ultrasonic_bscan,
+    synthesize_micro_ct_slice,
+    compute_mil_hdbk_pod_curve,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -496,6 +505,13 @@ __all__ = [
     "solve_melt_pool_dimensions",
     "simulate_coaxial_pyrometer_scanpass",
     "ALLOY_THERMAL_DB",
+    "NdtMaterial",
+    "NDT_MATERIALS",
+    "compute_reflection_coefficient",
+    "synthesize_ultrasonic_ascan",
+    "synthesize_ultrasonic_bscan",
+    "synthesize_micro_ct_slice",
+    "compute_mil_hdbk_pod_curve",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

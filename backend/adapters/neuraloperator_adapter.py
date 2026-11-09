@@ -168,6 +168,13 @@ try:
         simulate_coaxial_pyrometer_scanpass,
         MeltPoolRegime,
     )
+    from aasi_aero_fno.acoustic_xray_ndt import (
+        synthesize_ultrasonic_ascan,
+        synthesize_ultrasonic_bscan,
+        synthesize_micro_ct_slice,
+        compute_mil_hdbk_pod_curve,
+        NDT_MATERIALS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -251,6 +258,11 @@ except ImportError:
     solve_melt_pool_dimensions = None
     simulate_coaxial_pyrometer_scanpass = None
     MeltPoolRegime = None
+    synthesize_ultrasonic_ascan = None
+    synthesize_ultrasonic_bscan = None
+    synthesize_micro_ct_slice = None
+    compute_mil_hdbk_pod_curve = None
+    NDT_MATERIALS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -2522,4 +2534,88 @@ class NeuralOperatorAdapter:
             enable_feedforward_control=enable_feedforward_control,
             inject_overhang_geometry=inject_overhang_geometry,
             scan_track_length_mm=scan_track_length_mm,
+        )
+
+    @classmethod
+    def execute_ndt_ascan(
+        cls,
+        material_key: str = "TI_6AL_4V",
+        specimen_thickness_mm: float = 25.0,
+        transducer_freq_mhz: float = 5.0,
+        flaw_depth_mm: Optional[float] = 12.5,
+        flaw_diameter_um: float = 350.0,
+        sampling_rate_mhz: float = 100.0,
+        snr_db: float = 28.0,
+    ) -> Dict[str, Any]:
+        """Stage 33: Synthesizes high-frequency ultrasonic A-scan pulse-echo waveform."""
+        if synthesize_ultrasonic_ascan is None:
+            raise RuntimeError("synthesize_ultrasonic_ascan module is not loaded.")
+        return synthesize_ultrasonic_ascan(
+            material_key=material_key,
+            specimen_thickness_mm=specimen_thickness_mm,
+            transducer_freq_mhz=transducer_freq_mhz,
+            flaw_depth_mm=flaw_depth_mm,
+            flaw_diameter_um=flaw_diameter_um,
+            sampling_rate_mhz=sampling_rate_mhz,
+            snr_db=snr_db,
+        )
+
+    @classmethod
+    def execute_ndt_bscan(
+        cls,
+        material_key: str = "TI_6AL_4V",
+        specimen_length_mm: float = 40.0,
+        specimen_thickness_mm: float = 20.0,
+        flaw_x_mm: float = 22.0,
+        flaw_depth_mm: float = 8.5,
+        flaw_diameter_um: float = 400.0,
+        scan_steps: int = 40,
+    ) -> Dict[str, Any]:
+        """Stage 33: Synthesizes 2D ultrasonic B-scan cross-sectional echogram."""
+        if synthesize_ultrasonic_bscan is None:
+            raise RuntimeError("synthesize_ultrasonic_bscan module is not loaded.")
+        return synthesize_ultrasonic_bscan(
+            material_key=material_key,
+            specimen_length_mm=specimen_length_mm,
+            specimen_thickness_mm=specimen_thickness_mm,
+            flaw_x_mm=flaw_x_mm,
+            flaw_depth_mm=flaw_depth_mm,
+            flaw_diameter_um=flaw_diameter_um,
+            scan_steps=scan_steps,
+        )
+
+    @classmethod
+    def execute_ndt_ct_slice(
+        cls,
+        material_key: str = "TI_6AL_4V",
+        grid_size: int = 64,
+        inject_voids: bool = True,
+        inject_crack: bool = True,
+        noise_level: float = 0.04,
+    ) -> Dict[str, Any]:
+        """Stage 33: Synthesizes Micro-CT cross-sectional radiograph, segmentation, and inpainting."""
+        if synthesize_micro_ct_slice is None:
+            raise RuntimeError("synthesize_micro_ct_slice module is not loaded.")
+        return synthesize_micro_ct_slice(
+            material_key=material_key,
+            grid_size=grid_size,
+            inject_voids=inject_voids,
+            inject_crack=inject_crack,
+            noise_level=noise_level,
+        )
+
+    @classmethod
+    def compute_pod_evaluation(
+        cls,
+        material_key: str = "TI_6AL_4V",
+        inspection_modality: str = "ULTRASONIC_5MHZ",
+        false_call_rate_percent: float = 1.0,
+    ) -> Dict[str, Any]:
+        """Stage 33: Generates MIL-HDBK-1823A Probability of Detection curve and a_90/95 thresholds."""
+        if compute_mil_hdbk_pod_curve is None:
+            raise RuntimeError("compute_mil_hdbk_pod_curve module is not loaded.")
+        return compute_mil_hdbk_pod_curve(
+            material_key=material_key,
+            inspection_modality=inspection_modality,
+            false_call_rate_percent=false_call_rate_percent,
         )
