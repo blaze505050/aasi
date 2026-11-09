@@ -92,6 +92,7 @@ import MetamaterialRcsStudio from "../components/MetamaterialRcsStudio";
 import PostQuantumBusStudio from "../components/PostQuantumBusStudio";
 import AerialRefuelingStudio from "../components/AerialRefuelingStudio";
 import GenerativeMdoStudio from "../components/GenerativeMdoStudio";
+import AdditiveMeltPoolStudio from "../components/AdditiveMeltPoolStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -137,6 +138,7 @@ export default function AASIApp() {
   const [pqcStudioOpen, setPqcStudioOpen] = useState(false);
   const [refuelingStudioOpen, setRefuelingStudioOpen] = useState(false);
   const [mdoStudioOpen, setMdoStudioOpen] = useState(false);
+  const [meltpoolStudioOpen, setMeltpoolStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -559,6 +561,15 @@ export default function AASIApp() {
       badge: "Stage 31 Sovereign",
       icon: <Box size={16} />,
       action: () => setMdoStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-lpbf-meltpool",
+      category: "Workspaces",
+      title: "Launch In-Situ LPBF Melt-Pool PINN Digital Twin (Stage 32)",
+      description: "Rosenthal 3D thermal field, King normalized enthalpy, Marangoni flow, and 100 kHz coaxial pyrometer closed loop.",
+      badge: "Stage 32 Sovereign",
+      icon: <Flame size={16} />,
+      action: () => setMeltpoolStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -1724,6 +1735,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setMeltpoolStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(245, 158, 11, 0.08)",
+                      border: "1px solid rgba(245, 158, 11, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Flame size={14} color="#f59e0b" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>In-Situ LPBF Melt-Pool PINN Twin</span>
+                        <span style={{ fontSize: "0.6rem", background: "#f59e0b", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 32</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>Rosenthal 3D Thermal • Marangoni Flow • 100 kHz Pyrometry & Power Feedforward</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2329,6 +2369,13 @@ export default function AASIApp() {
       <GenerativeMdoStudio
         isOpen={mdoStudioOpen}
         onClose={() => setMdoStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 32: In-Situ LPBF Melt-Pool PINN Digital Twin Modal ─── */}
+      <AdditiveMeltPoolStudio
+        isOpen={meltpoolStudioOpen}
+        onClose={() => setMeltpoolStudioOpen(false)}
         apiBase={API_BASE}
       />
 

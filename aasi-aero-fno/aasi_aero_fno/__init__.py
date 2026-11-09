@@ -274,6 +274,12 @@ from .topology_optimization_lpbf import (
     compile_lpbf_toolpath,
     run_aerospace_generative_mdo,
 )
+from .lpbf_meltpool_pinn import (
+    MeltPoolRegime,
+    solve_melt_pool_dimensions,
+    simulate_coaxial_pyrometer_scanpass,
+    ALLOY_THERMAL_DB,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -486,6 +492,10 @@ __all__ = [
     "SimpTopologyOptimizer",
     "compile_lpbf_toolpath",
     "run_aerospace_generative_mdo",
+    "MeltPoolRegime",
+    "solve_melt_pool_dimensions",
+    "simulate_coaxial_pyrometer_scanpass",
+    "ALLOY_THERMAL_DB",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 

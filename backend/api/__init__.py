@@ -65,6 +65,7 @@ from backend.api.routes_metamaterial_rcs import router as rcs_router
 from backend.api.routes_post_quantum_bus import router as pqc_bus_router
 from backend.api.routes_aerial_refueling import router as refueling_router
 from backend.api.routes_generative_mdo import router as mdo_router
+from backend.api.routes_lpbf_meltpool import router as meltpool_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -127,6 +128,7 @@ api_router.include_router(rcs_router)
 api_router.include_router(pqc_bus_router)
 api_router.include_router(refueling_router)
 api_router.include_router(mdo_router)
+api_router.include_router(meltpool_router)
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth_router)
@@ -188,6 +190,7 @@ api_v1_router.include_router(rcs_router)
 api_v1_router.include_router(pqc_bus_router)
 api_v1_router.include_router(refueling_router)
 api_v1_router.include_router(mdo_router)
+api_v1_router.include_router(meltpool_router)
 
 __all__ = ["api_router", "api_v1_router"]
 

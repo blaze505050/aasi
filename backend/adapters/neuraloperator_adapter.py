@@ -163,6 +163,11 @@ try:
         AerospaceAlloy,
         run_aerospace_generative_mdo,
     )
+    from aasi_aero_fno.lpbf_meltpool_pinn import (
+        solve_melt_pool_dimensions,
+        simulate_coaxial_pyrometer_scanpass,
+        MeltPoolRegime,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -243,6 +248,9 @@ except ImportError:
     simulate_autonomous_aerial_refueling = None
     AerospaceAlloy = None
     run_aerospace_generative_mdo = None
+    solve_melt_pool_dimensions = None
+    simulate_coaxial_pyrometer_scanpass = None
+    MeltPoolRegime = None
 
 
 class FNOPredictionResult(BaseModel):
@@ -2465,3 +2473,53 @@ class NeuralOperatorAdapter:
                 "description": "Lightweight ultra-stiff space telescope mounting frame minimizing thermal jitter.",
             },
         }
+
+    @classmethod
+    def execute_meltpool_simulation(
+        cls,
+        laser_power_w: float = 280.0,
+        scan_speed_mps: float = 1.2,
+        beam_radius_um: float = 50.0,
+        layer_thickness_um: float = 40.0,
+        alloy_key: str = "TI_6AL_4V",
+    ) -> Dict[str, Any]:
+        """
+        Stage 32: Computes 3D Rosenthal melt-pool dimensions, Marangoni convection velocity,
+        and defect regime classification (Keyholing, Lack of Fusion, Balling).
+        """
+        if solve_melt_pool_dimensions is None:
+            raise RuntimeError("solve_melt_pool_dimensions module is not loaded.")
+
+        return solve_melt_pool_dimensions(
+            laser_power_w=laser_power_w,
+            scan_speed_mps=scan_speed_mps,
+            beam_radius_um=beam_radius_um,
+            layer_thickness_um=layer_thickness_um,
+            alloy_key=alloy_key,
+        )
+
+    @classmethod
+    def execute_pyrometer_scanpass(
+        cls,
+        alloy_key: str = "TI_6AL_4V",
+        nominal_laser_power_w: float = 280.0,
+        scan_speed_mps: float = 1.2,
+        enable_feedforward_control: bool = True,
+        inject_overhang_geometry: bool = True,
+        scan_track_length_mm: float = 20.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage 32: Simulates 100 kHz coaxial pyrometer sensor telemetry and dynamic feedforward
+        laser power modulation across an overhang / thin-wall feature.
+        """
+        if simulate_coaxial_pyrometer_scanpass is None:
+            raise RuntimeError("simulate_coaxial_pyrometer_scanpass module is not loaded.")
+
+        return simulate_coaxial_pyrometer_scanpass(
+            alloy_key=alloy_key,
+            nominal_laser_power_w=nominal_laser_power_w,
+            scan_speed_mps=scan_speed_mps,
+            enable_feedforward_control=enable_feedforward_control,
+            inject_overhang_geometry=inject_overhang_geometry,
+            scan_track_length_mm=scan_track_length_mm,
+        )
