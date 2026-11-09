@@ -101,6 +101,7 @@ import ConstellationInsuranceStudio from "../components/ConstellationInsuranceSt
 import AirworthinessDossierStudio from "../components/AirworthinessDossierStudio";
 import SovereignGatewayStudio from "../components/SovereignGatewayStudio";
 import SafCarbonTwinStudio from "../components/SafCarbonTwinStudio";
+import TurbofanFleetRulStudio from "../components/TurbofanFleetRulStudio";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -154,6 +155,7 @@ export default function AASIApp() {
   const [airworthinessStudioOpen, setAirworthinessStudioOpen] = useState(false);
   const [gatewayStudioOpen, setGatewayStudioOpen] = useState(false);
   const [safStudioOpen, setSafStudioOpen] = useState(false);
+  const [fleetRulStudioOpen, setFleetRulStudioOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [subdomainBenchmarkOpen, setSubdomainBenchmarkOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -648,6 +650,15 @@ export default function AASIApp() {
       badge: "Stage 39 Sovereign",
       icon: <Fuel size={16} />,
       action: () => setSafStudioOpen(true),
+    },
+    {
+      id: "cmd-ws-fleet-rul",
+      category: "Workspaces",
+      title: "Launch Turbofan Fleet Predictive Maintenance & RUL Digital Twin (Stage 40 Capstone)",
+      description: "NASA C-MAPSS EGT margin erosion, Paris-Erdogan LCF crack growth, and Weibull hazard survival for commercial fleet AOG prevention.",
+      badge: "Epoch VIII Capstone",
+      icon: <Flame size={16} />,
+      action: () => setFleetRulStudioOpen(true),
     },
     {
       id: "cmd-ws-cockpit",
@@ -2045,6 +2056,35 @@ export default function AASIApp() {
 
                   <button
                     onClick={() => {
+                      setFleetRulStudioOpen(true);
+                      setToolsMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      background: "rgba(245, 158, 11, 0.08)",
+                      border: "1px solid rgba(245, 158, 11, 0.3)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Flame size={14} color="#f59e0b" />
+                    <div>
+                      <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>Turbofan Fleet RUL & Maintenance</span>
+                        <span style={{ fontSize: "0.6rem", background: "#f59e0b", color: "#fff", padding: "1px 4px", borderRadius: "3px" }}>STAGE 40</span>
+                      </div>
+                      <div style={{ fontSize: "0.66rem", color: "var(--text-secondary, #64748b)" }}>NASA C-MAPSS • Paris-Erdogan LCF • AOG Cost Savings</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
                       setMesh3DOpen(true);
                       setToolsMenuOpen(false);
                     }}
@@ -2706,6 +2746,13 @@ export default function AASIApp() {
       <SafCarbonTwinStudio
         isOpen={safStudioOpen}
         onClose={() => setSafStudioOpen(false)}
+        apiBase={API_BASE}
+      />
+
+      {/* ─── Stage 40: Turbofan Fleet RUL & Predictive Maintenance Modal ─── */}
+      <TurbofanFleetRulStudio
+        isOpen={fleetRulStudioOpen}
+        onClose={() => setFleetRulStudioOpen(false)}
         apiBase={API_BASE}
       />
 

@@ -207,6 +207,11 @@ try:
         SafPathway,
         FUEL_DATABASE,
     )
+    from aasi_aero_fno.turbofan_fleet_rul_twin import (
+        TurbofanFleetRulEngine,
+        TurbofanEngineModel,
+        TURBOFAN_SPECS,
+    )
 except ImportError:
     TransonicTransolverEngine = None
     TransonicSolverResult = None
@@ -315,6 +320,9 @@ except ImportError:
     SafCorsiaCarbonTwinEngine = None
     SafPathway = None
     FUEL_DATABASE = {}
+    TurbofanFleetRulEngine = None
+    TurbofanEngineModel = None
+    TURBOFAN_SPECS = {}
 
 
 class FNOPredictionResult(BaseModel):
@@ -2977,3 +2985,31 @@ class NeuralOperatorAdapter:
             carbon_price_usd_per_tonne=carbon_price_usd_per_tonne,
         )
         return asdict(res)
+
+    @classmethod
+    def execute_turbofan_diagnosis(
+        cls,
+        engine_model_key: str = "CFM_LEAP_1A",
+        flight_cycles: int = 6800,
+        serial_number: str = "ESN-LEAP-98421",
+    ) -> Dict[str, Any]:
+        """Stage 40: High-bypass turbofan degradation, Paris-Erdogan LCF crack growth, and Weibull RUL."""
+        if TurbofanFleetRulEngine is None or TurbofanEngineModel is None:
+            raise RuntimeError("TurbofanFleetRulEngine module is not loaded.")
+        from dataclasses import asdict
+        model = TurbofanEngineModel.__members__.get(engine_model_key, TurbofanEngineModel.CFM_LEAP_1A)
+        engine = TurbofanFleetRulEngine()
+        diag = engine.diagnose_engine(
+            engine_model=model,
+            flight_cycles=flight_cycles,
+            serial_number=serial_number,
+        )
+        return asdict(diag)
+
+    @classmethod
+    def execute_fleet_health_overview(cls) -> Dict[str, Any]:
+        """Stage 40: Fleet-wide predictive maintenance status and avoided AOG dollar savings."""
+        if TurbofanFleetRulEngine is None:
+            raise RuntimeError("TurbofanFleetRulEngine module is not loaded.")
+        engine = TurbofanFleetRulEngine()
+        return engine.get_fleet_overview()

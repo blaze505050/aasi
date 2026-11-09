@@ -337,6 +337,13 @@ from .saf_corsia_carbon_twin import (
     FlightMissionCarbonResult,
     SafCorsiaCarbonTwinEngine,
 )
+from .turbofan_fleet_rul_twin import (
+    TurbofanEngineModel,
+    TurbofanSpecifications,
+    TURBOFAN_SPECS,
+    TurbofanHealthDiagnosis,
+    TurbofanFleetRulEngine,
+)
 from .pipeline import UnifiedAerodynamicSurrogatePipeline
 
 __all__ = [
@@ -596,6 +603,11 @@ __all__ = [
     "BlendEvaluationResult",
     "FlightMissionCarbonResult",
     "SafCorsiaCarbonTwinEngine",
+    "TurbofanEngineModel",
+    "TurbofanSpecifications",
+    "TURBOFAN_SPECS",
+    "TurbofanHealthDiagnosis",
+    "TurbofanFleetRulEngine",
     "UnifiedAerodynamicSurrogatePipeline",
 ]
 
